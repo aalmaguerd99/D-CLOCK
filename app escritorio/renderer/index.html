@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'self' 'unsafe-inline';" />
+  <title>D-CLOCK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ecru:   #F5F1EB;
+      --wg:     rgba(255,255,255,.70);
+      --bs:     rgba(200,192,178,.28);
+      --bm:     rgba(200,192,178,.50);
+      --ink:    #0D0D0C;
+      --ink2:   #38382F;
+      --ink3:   #78786E;
+      --ink4:   #AEAEA4;
+      --blue:   #2563EB;
+      --blue-d: #1D4ED8;
+      --blue-p: #DBEAFE;
+      --blue-pp:#EFF6FF;
+      --green:  #16A34A;
+      --gp:     #DCFCE7;
+      --amber:  #D97706;
+      --ap:     #FEF3C7;
+      --red:    #DC2626;
+      --rp:     #FEE2E2;
+    }
+    html, body {
+      height: 100%;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: var(--ecru);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+      overflow: hidden;
+    }
+    body::after {
+      content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    }
+
+    .blob {
+      position:fixed;border-radius:50%;filter:blur(120px);
+      pointer-events:none;z-index:0;
+    }
+
+    /* ── Glass ── */
+    .glass {
+      background: var(--wg);
+      backdrop-filter: blur(32px) saturate(160%);
+      border: 1px solid var(--bs);
+      box-shadow: 0 2px 0 rgba(255,255,255,.9) inset, 0 6px 40px rgba(13,13,12,.06);
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
+      font-family:inherit;font-weight:600;font-size:.875rem;letter-spacing:-.01em;
+      border:none;cursor:pointer;padding:.75rem 1.5rem;border-radius:.75rem;
+      transition:all .17s ease;white-space:nowrap;
+    }
+    .btn-primary { background:var(--blue);color:#fff; }
+    .btn-primary:hover:not(:disabled) { background:var(--blue-d);transform:translateY(-1px);box-shadow:0 8px 28px rgba(37,99,235,.35); }
+    .btn-ghost { background:rgba(255,255,255,.55);color:var(--ink2);border:1px solid var(--bm); }
+    .btn-ghost:hover { background:rgba(255,255,255,.85); }
+    .btn-danger { background:var(--rp);color:var(--red);border:1px solid rgba(220,38,38,.2); }
+    .btn-danger:hover { background:#fca5a5; }
+    .btn-sm { padding:.45rem 1rem;font-size:.8125rem;border-radius:.625rem; }
+    .btn:disabled { opacity:.45;pointer-events:none; }
+
+    /* ── Spinner ── */
+    .spinner {
+      width:17px;height:17px;border-radius:50%;
+      border:2.5px solid rgba(255,255,255,.3);
+      border-top-color:#fff;
+      animation:spin .7s linear infinite;display:none;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ════════════════════════════════════════════
+       ACTIVATION SCREEN
+    ════════════════════════════════════════════ */
+    #screen-activation {
+      height:100vh;display:flex;align-items:center;justify-content:center;
+      padding:1.5rem;position:relative;
+    }
+    .act-card {
+      width:100%;max-width:380px;border-radius:2rem;padding:2.5rem;
+      position:relative;z-index:1;
+    }
+    .act-logo-wrap {
+      display:flex;flex-direction:column;align-items:center;
+      margin-bottom:2rem;gap:.75rem;
+    }
+    .act-logo-wrap img {
+      width:72px;height:72px;object-fit:contain;
+      filter:drop-shadow(0 4px 16px rgba(37,99,235,.18));
+    }
+    .act-logo-wrap h1 {
+      font-size:1.75rem;font-weight:900;letter-spacing:-.04em;color:var(--ink);
+    }
+    .act-logo-wrap p {
+      font-size:.8125rem;color:var(--ink3);margin-top:-.4rem;
+      text-align:center;line-height:1.4;
+    }
+    .act-divider {
+      height:1px;background:var(--bs);margin:0 0 1.5rem;
+    }
+    .field { margin-bottom:1rem; }
+    .field label {
+      display:block;font-size:.8rem;font-weight:700;color:var(--ink2);
+      margin-bottom:.4rem;letter-spacing:.01em;
+    }
+    .key-input {
+      width:100%;padding:.8rem 1.1rem;border-radius:.875rem;
+      border:1.5px solid var(--bm);
+      background:rgba(255,255,255,.65);
+      font-family:'Courier New',Courier,monospace;
+      font-size:1.1rem;font-weight:700;letter-spacing:.06em;
+      color:var(--ink);outline:none;transition:all .15s;
+      text-transform:uppercase;text-align:center;
+    }
+    .key-input::placeholder { font-family:'Inter',sans-serif;font-size:.875rem;letter-spacing:0;font-weight:400;color:var(--ink4); }
+    .key-input:focus { border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.14); }
+    .key-input.invalid { border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.12); }
+    .act-error {
+      font-size:.8125rem;color:var(--red);margin-top:.6rem;
+      text-align:center;display:none;line-height:1.4;
+      background:var(--rp);padding:.6rem .9rem;border-radius:.65rem;
+    }
+    .act-footer {
+      margin-top:1.5rem;text-align:center;
+      font-size:.75rem;color:var(--ink4);line-height:1.6;
+    }
+    .act-footer strong { color:var(--ink3); }
+
+    /* ════════════════════════════════════════════
+       DASHBOARD SCREEN
+    ════════════════════════════════════════════ */
+    #screen-dashboard {
+      height:100vh;display:flex;flex-direction:column;
+      position:relative;
+    }
+    /* Top bar */
+    .dash-header {
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 1.5rem;height:3.25rem;flex-shrink:0;
+      background:rgba(245,241,235,.94);
+      backdrop-filter:blur(24px);
+      border-bottom:1px solid var(--bs);
+      -webkit-app-region: drag;
+    }
+    .dash-header button, .dash-header a { -webkit-app-region: no-drag; }
+    .dash-brand { display:flex;align-items:center;gap:.65rem; }
+    .dash-brand img { width:26px;height:26px;object-fit:contain; }
+    .dash-brand .name { font-size:.9375rem;font-weight:900;letter-spacing:-.02em; }
+    .dash-brand .version { font-size:.65rem;color:var(--ink4);font-weight:500;margin-left:.1rem; }
+    .status-dot {
+      width:7px;height:7px;border-radius:50%;background:var(--green);
+      box-shadow:0 0 0 3px rgba(22,163,74,.2);
+      animation:pulse-dot 2s ease-in-out infinite;
+      display:inline-block;margin-right:.35rem;
+    }
+    @keyframes pulse-dot {
+      0%,100% { box-shadow:0 0 0 3px rgba(22,163,74,.2); }
+      50%      { box-shadow:0 0 0 5px rgba(22,163,74,.08); }
+    }
+    .status-label { font-size:.8rem;font-weight:600;color:var(--green); }
+    .dash-header-right { display:flex;align-items:center;gap:.5rem; }
+
+    /* Dashboard body */
+    .dash-body {
+      flex:1;overflow-y:auto;padding:1.25rem 1.5rem;
+      position:relative;z-index:1;
+    }
+    .dash-grid {
+      display:grid;grid-template-columns:1fr 1fr;gap:1rem;
+    }
+
+    /* Cards */
+    .card {
+      border-radius:1.25rem;padding:1.4rem;
+    }
+    .card-title {
+      font-size:.7rem;font-weight:700;color:var(--ink4);
+      text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;
+    }
+
+    /* Server card */
+    .server-card { grid-column:1 / -1; }
+    .server-status-row {
+      display:flex;align-items:center;gap:.75rem;margin-bottom:1.1rem;
+    }
+    .server-icon {
+      width:42px;height:42px;border-radius:.875rem;
+      background:var(--gp);display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .server-title { font-size:1rem;font-weight:800;letter-spacing:-.015em; }
+    .server-sub   { font-size:.78rem;color:var(--ink3);margin-top:.1rem; }
+    .ip-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.6rem; }
+    .ip-row {
+      display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+      background:rgba(255,255,255,.55);border:1px solid var(--bs);
+      border-radius:.875rem;padding:.6rem 1rem;
+    }
+    .ip-addr {
+      font-family:'Courier New',monospace;font-size:.95rem;font-weight:700;
+      color:var(--ink);letter-spacing:.03em;
+    }
+    .ip-port {
+      font-size:.75rem;color:var(--ink3);margin-top:.1rem;font-weight:500;
+    }
+    .copy-ip {
+      display:flex;align-items:center;justify-content:center;
+      width:28px;height:28px;border-radius:.5rem;
+      background:rgba(255,255,255,.0);border:1px solid rgba(200,192,178,.3);
+      color:var(--ink3);cursor:pointer;transition:all .14s;flex-shrink:0;
+    }
+    .copy-ip:hover { background:var(--blue-p);color:var(--blue);border-color:rgba(37,99,235,.2); }
+    .no-ip {
+      font-size:.8125rem;color:var(--ink3);
+      background:var(--ap);padding:.65rem 1rem;border-radius:.75rem;
+    }
+
+    /* License card */
+    .lic-row { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem; }
+    .lic-row:last-child { margin-bottom:0; }
+    .lic-key { font-size:.6rem;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.15rem; }
+    .lic-val { font-size:.8375rem;font-weight:600;color:var(--ink); }
+    .tier-pill {
+      font-size:.7rem;font-weight:800;
+      padding:.2rem .6rem;border-radius:99px;
+      background:var(--blue-p);color:var(--blue);
+    }
+    .lic-divider { height:1px;background:var(--bs);margin:.75rem 0; }
+
+    /* Stats card */
+    .stats-mini { display:grid;grid-template-columns:1fr 1fr;gap:.65rem; }
+    .stat-mini {
+      background:rgba(255,255,255,.45);border:1px solid var(--bs);
+      border-radius:.875rem;padding:.75rem 1rem;text-align:center;
+    }
+    .stat-mini .val { font-size:1.5rem;font-weight:900;letter-spacing:-.03em;color:var(--ink); }
+    .stat-mini .lbl { font-size:.65rem;color:var(--ink3);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-top:.15rem; }
+
+    /* Phase 4 notice */
+    .phase4-notice {
+      margin-top:.75rem;padding:.7rem 1rem;
+      background:var(--blue-pp);border:1px dashed rgba(37,99,235,.25);
+      border-radius:.75rem;font-size:.75rem;color:var(--blue);
+      display:flex;align-items:center;gap:.5rem;
+    }
+
+    /* Toast */
+    #toast {
+      position:fixed;bottom:1.25rem;right:1.25rem;z-index:10000;
+      padding:.75rem 1.1rem;border-radius:.875rem;
+      font-size:.8375rem;font-weight:600;color:#fff;
+      background:var(--green);box-shadow:0 6px 24px rgba(22,163,74,.3);
+      transform:translateY(12px);opacity:0;
+      transition:all .22s ease;pointer-events:none;
+      display:flex;align-items:center;gap:.45rem;
+    }
+    #toast.show { transform:translateY(0);opacity:1; }
+    #toast.error { background:var(--red);box-shadow:0 6px 24px rgba(220,38,38,.3); }
+
+    /* Hidden */
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+
+<div class="blob" style="width:500px;height:500px;background:#bfdbfe;opacity:.14;top:-150px;right:-100px;"></div>
+<div class="blob" style="width:380px;height:380px;background:#c7d2fe;opacity:.10;bottom:-80px;left:-100px;"></div>
+
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════════
+     ACTIVATION SCREEN
+══════════════════════════════════════════════ -->
+<div id="screen-activation">
+  <div class="act-card glass">
+    <div class="act-logo-wrap">
+      <img src="../assets/icon.png" alt="D-CLOCK" />
+      <h1>D-CLOCK</h1>
+      <p>Sistema de Checador Empresarial<br>by D99-TECH</p>
+    </div>
+    <div class="act-divider"></div>
+
+    <div class="field">
+      <label>Clave de licencia</label>
+      <input
+        type="text"
+        id="key-input"
+        class="key-input"
+        placeholder="DCXXXX-XXXX-XXXX-XXXX"
+        maxlength="21"
+        spellcheck="false"
+        autocomplete="off"
+        oninput="formatKey(this)"
+        onkeydown="onKeyDown(event)"
+      />
+      <div class="act-error" id="act-error"></div>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%;margin-top:.5rem" id="act-btn" onclick="doActivate()">
+      <svg id="act-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="2" width="10" height="12" rx="2"/>
+        <path d="M6 8h4M8 6v4"/>
+      </svg>
+      <div id="act-spinner" class="spinner"></div>
+      Activar licencia
+    </button>
+
+    <div class="act-footer">
+      <strong>¿No tienes licencia?</strong><br>
+      Contacta a D99-TECH para adquirir una.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     DASHBOARD SCREEN
+══════════════════════════════════════════════ -->
+<div id="screen-dashboard" class="hidden">
+
+  <div class="dash-header">
+    <div class="dash-brand">
+      <img src="../assets/icon.png" alt="D-CLOCK" />
+      <span class="name">D-CLOCK</span>
+      <span class="version" id="dash-version">v1.0.0</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem">
+      <span class="status-dot"></span>
+      <span class="status-label">Servidor activo</span>
+    </div>
+    <div class="dash-header-right">
+      <button class="btn btn-ghost btn-sm" onclick="doDeactivate()" title="Desactivar licencia">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 2H2v9h3M8.5 9l3-2.5L8.5 4M11.5 6.5H5"/></svg>
+        Desactivar
+      </button>
+    </div>
+  </div>
+
+  <div class="dash-body">
+    <div class="dash-grid">
+
+      <!-- Server info card: LAN + Internet -->
+      <div class="card glass server-card">
+        <div class="server-status-row">
+          <div class="server-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#16A34A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="16" height="5" rx="1.5"/>
+              <rect x="2" y="10" width="16" height="5" rx="1.5"/>
+              <circle cx="5.5" cy="5.5" r=".75" fill="#16A34A" stroke="none"/>
+              <circle cx="5.5" cy="12.5" r=".75" fill="#16A34A" stroke="none"/>
+            </svg>
+          </div>
+          <div>
+            <div class="server-title">Servidor activo · Puerto <span id="dash-port" style="color:var(--blue)"></span></div>
+            <div class="server-sub">Empleados en tu red local y desde internet se conectan aquí</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+
+          <!-- LAN -->
+          <div>
+            <div class="card-title" style="margin-bottom:.6rem">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" style="display:inline;margin-right:.3rem;vertical-align:-.1em"><rect x="1" y="7" width="3" height="4" rx=".75"/><rect x="4.5" y="1" width="3" height="4" rx=".75"/><rect x="8" y="7" width="3" height="4" rx=".75"/><path d="M2.5 7V5.5h7V7M6 5V5"/></svg>
+              Red local (misma WiFi)
+            </div>
+            <div class="ip-grid" id="ip-list">
+              <div class="no-ip">Obteniendo IPs...</div>
+            </div>
+          </div>
+
+          <!-- Internet -->
+          <div>
+            <div class="card-title" style="margin-bottom:.6rem">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" style="display:inline;margin-right:.3rem;vertical-align:-.1em"><circle cx="6" cy="6" r="5"/><path d="M6 1c-2 2-2 8 0 10M6 1c2 2 2 8 0 10M1 6h10"/></svg>
+              Acceso desde internet
+            </div>
+            <div id="internet-box" class="ip-row" style="flex-direction:column;align-items:flex-start;gap:.4rem;min-height:56px;justify-content:center">
+              <div style="font-size:.75rem;color:var(--ink3)">Detectando IP pública...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- License card -->
+      <div class="card glass">
+        <div class="card-title">Licencia activa</div>
+        <div class="lic-row">
+          <div>
+            <div class="lic-key">Empresa</div>
+            <div class="lic-val" id="lic-company">—</div>
+          </div>
+          <div class="tier-pill" id="lic-tier">—</div>
+        </div>
+        <div class="lic-divider"></div>
+        <div class="lic-row">
+          <div>
+            <div class="lic-key">Clave</div>
+            <div class="lic-val" style="font-family:'Courier New',monospace;font-size:.8rem;letter-spacing:.04em" id="lic-key">—</div>
+          </div>
+        </div>
+        <div class="lic-divider"></div>
+        <div class="lic-row">
+          <div>
+            <div class="lic-key">Vigencia</div>
+            <div class="lic-val" id="lic-expires">—</div>
+          </div>
+        </div>
+        <div class="lic-divider"></div>
+        <div class="lic-row">
+          <div>
+            <div class="lic-key">Empleados máx.</div>
+            <div class="lic-val" id="lic-max">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats card -->
+      <div class="card glass">
+        <div class="card-title">Actividad</div>
+        <div class="stats-mini">
+          <div class="stat-mini">
+            <div class="val" id="stat-employees">0</div>
+            <div class="lbl">Empleados</div>
+          </div>
+          <div class="stat-mini">
+            <div class="val" id="stat-today">0</div>
+            <div class="lbl">Registros hoy</div>
+          </div>
+          <div class="stat-mini">
+            <div class="val" id="stat-connected">0</div>
+            <div class="lbl">Conectados</div>
+          </div>
+          <div class="stat-mini">
+            <div class="val" id="stat-devices">0</div>
+            <div class="lbl">Dispositivos</div>
+          </div>
+        </div>
+        <div class="phase4-notice">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#2563EB" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 5v2.5"/><circle cx="7" cy="10" r=".5" fill="#2563EB" stroke="none"/></svg>
+          Estadísticas disponibles en la próxima actualización
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ── State ── */
+  let currentLicense = null;
+
+  /* ── On load: check saved license ── */
+  window.addEventListener("DOMContentLoaded", async () => {
+    const license = await window.dclock.getLicense();
+    if (license) {
+      currentLicense = license;
+      showDashboard(license);
+    }
+  });
+
+  /* ── Format key input as user types ── */
+  function formatKey(input) {
+    const raw = input.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 18);
+    const parts = [];
+    if (raw.length >  0) parts.push(raw.slice(0, 6));
+    if (raw.length >  6) parts.push(raw.slice(6, 10));
+    if (raw.length > 10) parts.push(raw.slice(10, 14));
+    if (raw.length > 14) parts.push(raw.slice(14, 18));
+    input.value = parts.join("-");
+    input.classList.remove("invalid");
+    hideError();
+  }
+
+  function onKeyDown(e) {
+    if (e.key === "Enter") doActivate();
+  }
+
+  /* ── Activate ── */
+  async function doActivate() {
+    const key = document.getElementById("key-input").value.trim();
+    if (key.replace(/-/g, "").length < 18) {
+      showError("Ingresa una clave de licencia completa.");
+      document.getElementById("key-input").classList.add("invalid");
+      return;
+    }
+
+    setActivating(true);
+    const result = await window.dclock.activate(key);
+    setActivating(false);
+
+    if (result.ok) {
+      currentLicense = result.license;
+      showDashboard(result.license);
+      toast("Licencia activada correctamente");
+    } else {
+      showError(result.error || "Error al validar la licencia.");
+      document.getElementById("key-input").classList.add("invalid");
+    }
+  }
+
+  function setActivating(loading) {
+    document.getElementById("act-btn").disabled = loading;
+    document.getElementById("act-icon").style.display    = loading ? "none"  : "block";
+    document.getElementById("act-spinner").style.display = loading ? "block" : "none";
+  }
+
+  function showError(msg) {
+    const el = document.getElementById("act-error");
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+  function hideError() {
+    document.getElementById("act-error").style.display = "none";
+  }
+
+  /* ── Show dashboard ── */
+  async function showDashboard(license) {
+    document.getElementById("screen-activation").classList.add("hidden");
+    document.getElementById("screen-dashboard").classList.remove("hidden");
+
+    // License info
+    document.getElementById("lic-company").textContent = license.company_name || "—";
+    document.getElementById("lic-key").textContent     = license.license_key  || "—";
+    document.getElementById("lic-tier").textContent    = `${license.max_employees || license.tier} emp.`;
+    document.getElementById("lic-max").textContent     = `${license.max_employees || license.tier} empleados`;
+    document.getElementById("lic-expires").textContent = license.expires_at
+      ? new Date(license.expires_at).toLocaleDateString("es-MX", { year:"numeric", month:"long", day:"numeric" })
+      : "Sin expiración";
+
+    // Server info
+    await refreshServerInfo();
+  }
+
+  /* ── Refresh server info (LAN + internet) ── */
+  async function refreshServerInfo() {
+    const info = await window.dclock.getServerInfo();
+    const port = info.port;
+    document.getElementById("dash-port").textContent = port;
+
+    // ── LAN IPs ──
+    const list = document.getElementById("ip-list");
+    if (!info.ips.length) {
+      list.innerHTML = `<div class="no-ip">Sin red local detectada.</div>`;
+    } else {
+      list.innerHTML = info.ips.map(ip => `
+        <div class="ip-row">
+          <div>
+            <div class="ip-addr">${ip}</div>
+            <div class="ip-port">:${port}</div>
+          </div>
+          <button class="copy-ip" onclick="copyIP('${ip}:${port}')" title="Copiar">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="4" y="4" width="7.5" height="7.5" rx="1.5"/><path d="M1.5 9V1.5H9"/></svg>
+          </button>
+        </div>
+      `).join("");
+    }
+
+    // ── Internet / UPnP ──
+    const box = document.getElementById("internet-box");
+    if (info.publicIP) {
+      const addr = `${info.publicIP}:${port}`;
+      const upnpBadge = info.upnpOk
+        ? `<span style="font-size:.65rem;font-weight:700;background:var(--gp);color:var(--green);padding:.15rem .5rem;border-radius:99px;">Puerto abierto automático</span>`
+        : `<span style="font-size:.65rem;font-weight:700;background:var(--ap);color:var(--amber);padding:.15rem .5rem;border-radius:99px;">Abre puerto ${port} en tu router</span>`;
+      box.innerHTML = `
+        <div style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:.5rem">
+          <div>
+            <div class="ip-addr">${info.publicIP}</div>
+            <div class="ip-port">:${port}</div>
+          </div>
+          <button class="copy-ip" onclick="copyIP('${addr}')" title="Copiar IP pública">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="4" y="4" width="7.5" height="7.5" rx="1.5"/><path d="M1.5 9V1.5H9"/></svg>
+          </button>
+        </div>
+        ${upnpBadge}
+      `;
+    } else {
+      box.innerHTML = `<div style="font-size:.78rem;color:var(--ink3)">Sin acceso a internet</div>`;
+    }
+  }
+
+  // Listen for real-time UPnP/public IP updates pushed from main process
+  window.dclock.onStatus((data) => {
+    refreshServerInfo();
+  });
+
+  function copyIP(addr) {
+    navigator.clipboard.writeText(addr).then(() => toast(`Copiado: ${addr}`));
+  }
+
+  /* ── Deactivate ── */
+  async function doDeactivate() {
+    const confirmed = confirm(
+      "¿Desactivar esta licencia?\n\nEl servidor local se detendrá y necesitarás la clave para volver a activar."
+    );
+    if (!confirmed) return;
+
+    await window.dclock.deactivate();
+    currentLicense = null;
+
+    document.getElementById("screen-dashboard").classList.add("hidden");
+    document.getElementById("screen-activation").classList.remove("hidden");
+    document.getElementById("key-input").value = "";
+    document.getElementById("key-input").classList.remove("invalid");
+    hideError();
+    toast("Licencia desactivada");
+  }
+
+  /* ── Toast ── */
+  function toast(msg, isError = false) {
+    const el = document.getElementById("toast");
+    const icon = isError
+      ? `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round"><path d="M7 1.5L1 12.5h12L7 1.5z"/><path d="M7 6v3"/></svg>`
+      : `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.9" stroke-linecap="round"><path d="M2 7l3.5 3.5 6.5-7"/></svg>`;
+    el.innerHTML = icon + " " + msg;
+    el.className = "show" + (isError ? " error" : "");
+    setTimeout(() => el.className = "", 3000);
+  }
+</script>
+</body>
+</html>

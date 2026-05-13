@@ -472,40 +472,147 @@ export default function Home() {
         </section>
 
         {/* ══ DOWNLOAD ══════════════════════════════════════ */}
-        <section id="download" className="py-28 px-6">
-          <div className="max-w-3xl mx-auto">
-            <div className="glass rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
-              <div className="blob w-96 h-96 bg-blue-200 opacity-20 -top-28 -right-28"/>
-              <div className="blob w-72 h-72 bg-indigo-100 opacity-15 -bottom-20 -left-20"/>
-              <div className="relative z-10">
-                <div className="flex items-center justify-center gap-3 mb-7">
-                  <Image src="/D-CLOCKlogo.png" alt="D-CLOCK" width={52} height={52}
-                    className="object-contain drop-shadow-md" />
-                  <div className="text-left">
-                    <p className="font-extrabold text-[1.2rem] tracking-tight text-[#0D0D0C] leading-none">D-CLOCK</p>
-                    <p className="text-[11px] text-[#78786E]">by D99-TECH</p>
+        <section id="download" className="py-28 px-6 relative overflow-hidden">
+          <div className="blob w-[600px] h-[600px] bg-blue-200 opacity-[.13] -top-40 -right-40"/>
+          <div className="blob w-[400px] h-[400px] bg-indigo-100 opacity-[.10] bottom-0 -left-32"/>
+
+          <div className="max-w-5xl mx-auto relative z-10">
+
+            {/* header */}
+            <div className="text-center mb-14">
+              <div className="inline-flex items-center gap-2 text-[11px] font-bold text-[#2563EB] bg-[#DBEAFE] px-3 py-1.5 rounded-full mb-5">
+                <IDownload size={11} color="#2563EB"/>
+                Disponible ahora · v1.0.0
+              </div>
+              <h2 className="text-[2.5rem] font-extrabold tracking-[-0.03em] text-[#0D0D0C] leading-[1.08]">
+                Descarga D-CLOCK
+                <br/><span className="text-[#78786E]">e instala en 2 minutos.</span>
+              </h2>
+            </div>
+
+            {/* main card */}
+            <div className="glass rounded-3xl overflow-hidden shadow-[0_32px_100px_rgba(13,13,12,.09)]">
+
+              {/* top bar */}
+              <div className="flex items-center justify-between gap-4 flex-wrap px-10 py-6 border-b border-[rgba(200,192,178,.18)]">
+                <div className="flex items-center gap-4">
+                  <Image src="/D-CLOCKlogo.png" alt="D-CLOCK" width={48} height={48}
+                    className="object-contain drop-shadow-md"/>
+                  <div>
+                    <p className="font-extrabold text-[1.1rem] tracking-tight text-[#0D0D0C] leading-none">D-CLOCK</p>
+                    <p className="text-[11.5px] text-[#78786E] mt-0.5">by D99-TECH</p>
                   </div>
                 </div>
-                <h2 className="text-[2rem] font-extrabold tracking-[-0.025em] text-[#0D0D0C] mb-2">
-                  Descarga D-CLOCK gratis
-                </h2>
-                <p className="text-[#78786E] text-[14px] mb-1">Versión 1.0 · Windows 10 / 11 · 64-bit</p>
-                <p className="text-[12.5px] text-[#AEAEA4] mb-9">
-                  Necesitas una licencia activa.{" "}
-                  <a href="mailto:contacto@d99-tech.com" className="text-[#2563EB] hover:underline">
-                    Solicita la tuya
+                <div className="flex items-center gap-2 flex-wrap">
+                  {[
+                    { label:"v1.0.0",          bg:"#EFF6FF", c:"#2563EB" },
+                    { label:"Windows 10 / 11", bg:"#F3F4F6", c:"#374151" },
+                    { label:"64-bit",          bg:"#F3F4F6", c:"#374151" },
+                    { label:"~90 MB",          bg:"#F3F4F6", c:"#374151" },
+                  ].map(b => (
+                    <span key={b.label}
+                      className="text-[11.5px] font-semibold px-2.5 py-1 rounded-full"
+                      style={{ background: b.bg, color: b.c }}>
+                      {b.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* download options */}
+              <div className="grid md:grid-cols-2 gap-0 divide-y md:divide-y-0 md:divide-x divide-[rgba(200,192,178,.18)]">
+
+                {/* Installer */}
+                <div className="p-10 flex flex-col gap-5">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-[#2563EB] flex items-center justify-center shrink-0 shadow-[0_8px_24px_rgba(37,99,235,.35)]">
+                      <IDownload size={20} color="white"/>
+                    </div>
+                    <div>
+                      <p className="font-extrabold text-[16px] text-[#0D0D0C]">Instalador <span className="text-[#2563EB]">· Recomendado</span></p>
+                      <p className="text-[13px] text-[#78786E] mt-0.5 leading-relaxed">
+                        Instala D-CLOCK con asistente paso a paso. Crea acceso directo en el escritorio con el logo y se ejecuta solo al encender el equipo.
+                      </p>
+                    </div>
+                  </div>
+                  <ul className="space-y-2">
+                    {["Acceso directo en escritorio","Inicia con Windows (opcional)","Desinstalador incluido","Actualización automática"].map(f => (
+                      <li key={f} className="flex items-center gap-2 text-[12.5px] text-[#38382F]">
+                        <div className="w-[14px] h-[14px] rounded-full bg-[#2563EB] flex items-center justify-center shrink-0">
+                          <ICheck size={9} color="white"/>
+                        </div>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <a
+                    href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.0.0/D-CLOCK%20Setup%201.0.0.exe"
+                    className="btn-primary justify-center text-[14.5px] group relative overflow-hidden"
+                    download>
+                    <IDownload size={16} color="white"
+                      className="group-hover:translate-y-0.5 transition-transform"/>
+                    Descargar instalador
+                    <span className="ml-1 text-white/60 text-[12px]">.exe</span>
                   </a>
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <a href="/downloads/dclock-setup.exe" className="btn-primary text-[15px]">
-                    <IDownload size={16} color="white"/>Descargar para Windows
-                  </a>
-                  <a href="mailto:contacto@d99-tech.com" className="btn-ghost text-[15px]">
-                    Solicitar licencia
+                </div>
+
+                {/* Portable */}
+                <div className="p-10 flex flex-col gap-5">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-[#F3F4F6] flex items-center justify-center shrink-0">
+                      <IBolt size={20} color="#374151"/>
+                    </div>
+                    <div>
+                      <p className="font-extrabold text-[16px] text-[#0D0D0C]">Portable</p>
+                      <p className="text-[13px] text-[#78786E] mt-0.5 leading-relaxed">
+                        Sin instalación. Copia en USB o carpeta de red. Ejecuta en cualquier equipo Windows sin dejar rastro.
+                      </p>
+                    </div>
+                  </div>
+                  <ul className="space-y-2">
+                    {["Sin instalación requerida","Funciona desde USB","Sin permisos de admin","Mismo rendimiento"].map(f => (
+                      <li key={f} className="flex items-center gap-2 text-[12.5px] text-[#38382F]">
+                        <div className="w-[14px] h-[14px] rounded-full bg-[#F0F0EC] flex items-center justify-center shrink-0">
+                          <ICheck size={9} color="#78786E"/>
+                        </div>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <a
+                    href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.0.0/D-CLOCK%201.0.0.exe"
+                    className="btn-ghost justify-center text-[14.5px]"
+                    download>
+                    <IDownload size={16} color="#38382F"/>
+                    Descargar portable
+                    <span className="ml-1 text-[#AEAEA4] text-[12px]">.exe</span>
                   </a>
                 </div>
               </div>
+
+              {/* footer note */}
+              <div className="px-10 py-5 border-t border-[rgba(200,192,178,.15)] bg-white/20">
+                <div className="flex items-center justify-between gap-4 flex-wrap">
+                  <p className="text-[12px] text-[#AEAEA4]">
+                    Necesitas una licencia activa para activar el software.{" "}
+                    <a href="mailto:contacto@d99-tech.com"
+                      className="text-[#2563EB] hover:underline font-medium">
+                      Solicita la tuya →
+                    </a>
+                  </p>
+                  <div className="flex items-center gap-1.5 text-[11.5px] text-[#78786E]">
+                    <IGlobe size={13} color="#AEAEA4"/>
+                    <a
+                      href="https://github.com/aalmaguerd99/D-CLOCK/releases"
+                      target="_blank" rel="noopener noreferrer"
+                      className="hover:text-[#2563EB] transition-colors">
+                      Ver todas las versiones en GitHub
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
+
           </div>
         </section>
 
