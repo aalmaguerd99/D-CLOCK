@@ -1,0 +1,23 @@
+type P = { size?: number; color?: string; className?: string };
+const d = (props: P) => ({ width: props.size??20, height: props.size??20, viewBox:"0 0 20 20", fill:"none", stroke: props.color??"currentColor", strokeWidth:1.5, strokeLinecap:"round" as const, strokeLinejoin:"round" as const, className: props.className });
+
+export const IClock      = (p:P) => <svg {...d(p)}><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4.5l3 1.8"/></svg>;
+export const IPin        = (p:P) => <svg {...d(p)}><path d="M10 2a5.5 5.5 0 015.5 5.5C15.5 11.5 10 18 10 18S4.5 11.5 4.5 7.5A5.5 5.5 0 0110 2z"/><circle cx="10" cy="7.5" r="2"/></svg>;
+export const IPhone      = (p:P) => <svg {...d(p)}><rect x="5.5" y="1.5" width="9" height="17" rx="2.5"/><circle cx="10" cy="15.5" r="0.8" fill={p.color??"currentColor"} stroke="none"/></svg>;
+export const IBuildings  = (p:P) => <svg {...d(p)}><rect x="2" y="5" width="9" height="13" rx="1"/><rect x="11" y="9" width="7" height="9" rx="1"/><path d="M5 8h3M5 11h3M5 14h3M14 12h1M14 15h1"/></svg>;
+export const IBarChart   = (p:P) => <svg {...d(p)}><rect x="2" y="10" width="4" height="8" rx="1"/><rect x="8" y="6" width="4" height="12" rx="1"/><rect x="14" y="2" width="4" height="16" rx="1"/></svg>;
+export const IShield     = (p:P) => <svg {...d(p)}><path d="M10 2l7 2.5V10c0 4-7 8-7 8S3 14 3 10V4.5L10 2z"/><path d="M7 10l2 2 4-4"/></svg>;
+export const IBell       = (p:P) => <svg {...d(p)}><path d="M10 2a6 6 0 016 6c0 3.5 1.5 5 1.5 5h-15S4 11.5 4 8a6 6 0 016-6z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>;
+export const IHistory    = (p:P) => <svg {...d(p)}><path d="M2.5 10A7.5 7.5 0 1010 2.5M2.5 5v5h5"/><path d="M10 6.5V10l2.5 1.5"/></svg>;
+export const IBolt       = (p:P) => <svg {...d(p)}><path d="M11 2L4 11h6l-1 7 7-9h-6l1-7z"/></svg>;
+export const ILock       = (p:P) => <svg {...d(p)}><rect x="4" y="9" width="12" height="9" rx="2"/><path d="M7 9V6.5a3 3 0 016 0V9"/><circle cx="10" cy="13.5" r="1" fill={p.color??"currentColor"} stroke="none"/></svg>;
+export const ICompass    = (p:P) => <svg {...d(p)}><circle cx="10" cy="10" r="7.5"/><path d="M14 6l-2.5 5.5L6 14l2.5-5.5L14 6z"/><circle cx="10" cy="10" r="1" fill={p.color??"currentColor"} stroke="none"/></svg>;
+export const IShieldOff  = (p:P) => <svg {...d(p)}><path d="M10 2l7 2.5V10c0 4-7 8-7 8S3 14 3 10V4.5L10 2z"/><path d="M7 7l6 6M13 7l-6 6"/></svg>;
+export const IMap        = (p:P) => <svg {...d(p)}><path d="M1.5 4.5l5.5 2 6-2 5.5 2v11l-5.5-2-6 2-5.5-2V4.5z"/><path d="M7 6.5v11M13 4.5v11"/></svg>;
+export const IAlertTri   = (p:P) => <svg {...d(p)}><path d="M10 3L18.5 17H1.5L10 3z"/><path d="M10 9v4M10 14.5v.5"/></svg>;
+export const IDownload   = (p:P) => <svg {...d(p)}><path d="M10 2v12M5.5 9.5 10 14l4.5-4.5M2 17h16"/></svg>;
+export const IArrowRight = (p:P) => <svg {...d(p)}><path d="M3 10h14M11 4l6 6-6 6"/></svg>;
+export const ICheck      = (p:P) => <svg {...d(p)}><path d="M3.5 10.5l4.5 4.5 8-9"/></svg>;
+export const IServer     = (p:P) => <svg {...d(p)}><rect x="2" y="2" width="16" height="7" rx="2"/><rect x="2" y="11" width="16" height="7" rx="2"/><circle cx="6" cy="5.5" r="1" fill={p.color??"currentColor"} stroke="none"/><circle cx="6" cy="14.5" r="1" fill={p.color??"currentColor"} stroke="none"/></svg>;
+export const IGlobe      = (p:P) => <svg {...d(p)}><circle cx="10" cy="10" r="7.5"/><path d="M10 2.5c-2.5 3-2.5 12 0 15M10 2.5c2.5 3 2.5 12 0 15M2.5 10h15"/></svg>;
+export const IUsers      = (p:P) => <svg {...d(p)}><circle cx="7.5" cy="6" r="3.5"/><path d="M1 17.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="15" cy="6.5" r="2.5"/><path d="M18.5 17.5c0-2.8-1.6-5-4-5.5"/></svg>;
