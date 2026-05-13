@@ -1,363 +1,448 @@
 import Navbar from "@/components/Navbar";
-import Image from "next/image";
-import Link from "next/link";
+
+/* ─── Data ─────────────────────────────────────────── */
+const employees = [
+  { name: "Ana García",      initials:"AG", color:"#DBEAFE", text:"#1D4ED8", entrada:"07:58", salida:"17:02", status:"ok"     },
+  { name: "Carlos Ruiz",     initials:"CR", color:"#DCFCE7", text:"#15803D", entrada:"08:12", salida:"17:15", status:"ok"     },
+  { name: "María López",     initials:"ML", color:"#FEF3C7", text:"#B45309", entrada:"08:47", salida:"—",     status:"tarde"  },
+  { name: "José Hernández",  initials:"JH", color:"#EDE9FE", text:"#6D28D9", entrada:"07:55", salida:"16:58", status:"ok"     },
+  { name: "Sofía Torres",    initials:"ST", color:"#FEE2E2", text:"#B91C1C", entrada:"—",     salida:"—",     status:"ausente"},
+  { name: "Luis Martínez",   initials:"LM", color:"#DBEAFE", text:"#1D4ED8", entrada:"08:01", salida:"17:00", status:"ok"     },
+];
+
+const stats = [
+  { label:"Presentes", value:42, total:50, color:"#16A34A", bg:"#DCFCE7" },
+  { label:"Tarde",     value: 5, total:50, color:"#D97706", bg:"#FEF3C7" },
+  { label:"Ausentes",  value: 3, total:50, color:"#DC2626", bg:"#FEE2E2" },
+];
 
 const features = [
   {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-        <circle cx="11" cy="11" r="9" stroke="#2563EB" strokeWidth="1.5"/>
-        <path d="M11 6v5.5l3.5 2" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-    title: "Control en tiempo real",
-    desc: "Registros de entrada y salida al instante. Sin retrasos, sin pérdida de datos.",
+    icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#2563EB" strokeWidth="1.4"/><path d="M10 5.5V10l3 1.8" stroke="#2563EB" strokeWidth="1.4" strokeLinecap="round"/></svg>,
+    title:"Entrada & Salida",
+    desc:"Registro preciso de la hora exacta de entrada y salida de cada empleado, con historial completo.",
   },
   {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-        <rect x="3" y="3" width="16" height="16" rx="4" stroke="#2563EB" strokeWidth="1.5"/>
-        <path d="M7 11l3 3 5-5" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-    title: "Licencias flexibles",
-    desc: "Planes para 50, 100, 200 o 500 empleados. Escala cuando lo necesites.",
+    icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="12" rx="3" stroke="#2563EB" strokeWidth="1.4"/><path d="M7 9.5l2.5 2.5 4-4" stroke="#2563EB" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+    title:"Reportes automáticos",
+    desc:"Exporta la asistencia mensual en Excel o PDF con un clic. Sin cálculos manuales.",
   },
   {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-        <rect x="6" y="2" width="10" height="16" rx="2" stroke="#2563EB" strokeWidth="1.5"/>
-        <path d="M9 18v2M13 18v2M7 20h8" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round"/>
-        <circle cx="11" cy="8" r="2" stroke="#2563EB" strokeWidth="1.5"/>
-      </svg>
-    ),
-    title: "App móvil incluida",
-    desc: "Los empleados fichan desde su celular. Compatible con Android e iPhone.",
+    icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="5" y="2" width="10" height="14" rx="2" stroke="#2563EB" strokeWidth="1.4"/><circle cx="10" cy="7.5" r="2" stroke="#2563EB" strokeWidth="1.4"/><path d="M7 13c0-1.7 1.3-3 3-3s3 1.3 3 3" stroke="#2563EB" strokeWidth="1.4" strokeLinecap="round"/></svg>,
+    title:"App móvil",
+    desc:"Los empleados fichan desde su celular Android o iPhone. Sin costo adicional.",
   },
   {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-        <path d="M3 11a8 8 0 1 0 16 0A8 8 0 0 0 3 11z" stroke="#2563EB" strokeWidth="1.5"/>
-        <path d="M11 7v4l2.5 2.5" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-    title: "Servidor local",
-    desc: "Tus datos se quedan en tu empresa. Sin dependencia de terceros.",
+    icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2a6 6 0 016 6c0 4-6 10-6 10S4 12 4 8a6 6 0 016-6z" stroke="#2563EB" strokeWidth="1.4"/><circle cx="10" cy="8" r="2" stroke="#2563EB" strokeWidth="1.4"/></svg>,
+    title:"Servidor local",
+    desc:"Tus datos en tu empresa. El sistema corre en tu propio servidor, sin dependencias externas.",
   },
   {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-        <path d="M4 17L8 13L11 16L15 11L19 14" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <rect x="3" y="4" width="16" height="13" rx="2" stroke="#2563EB" strokeWidth="1.5"/>
-      </svg>
-    ),
-    title: "Reportes automáticos",
-    desc: "Exporta asistencias en Excel o PDF. Filtros por día, semana o mes.",
+    icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="11" rx="2.5" stroke="#2563EB" strokeWidth="1.4"/><path d="M6 5V4a4 4 0 018 0v1" stroke="#2563EB" strokeWidth="1.4" strokeLinecap="round"/><circle cx="10" cy="10.5" r="1.5" fill="#2563EB"/></svg>,
+    title:"Activación por licencia",
+    desc:"La app valida tu licencia automáticamente al instalarse. Solo ingresa tu clave y listo.",
   },
   {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-        <path d="M11 3L13.5 8.5H19L14.5 12L16.5 18L11 14.5L5.5 18L7.5 12L3 8.5H8.5L11 3Z" stroke="#2563EB" strokeWidth="1.5" strokeLinejoin="round"/>
-      </svg>
-    ),
-    title: "Fácil instalación",
-    desc: "Descarga, instala y activa con tu licencia. Listo en menos de 5 minutos.",
+    icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 10h14M10 3l7 7-7 7" stroke="#2563EB" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+    title:"Instalación en minutos",
+    desc:"Descarga el instalador, ejecútalo y en menos de 5 minutos tu sistema está operando.",
   },
 ];
 
 const plans = [
-  {
-    tier: "50",
-    label: "Starter",
-    price: "Consultar",
-    employees: 50,
-    features: ["50 empleados", "App móvil", "Reportes básicos", "Soporte por email"],
-    featured: false,
-  },
-  {
-    tier: "100",
-    label: "Business",
-    price: "Consultar",
-    employees: 100,
-    features: ["100 empleados", "App móvil", "Reportes completos", "Soporte prioritario", "Exportar Excel/PDF"],
-    featured: true,
-  },
-  {
-    tier: "200",
-    label: "Pro",
-    price: "Consultar",
-    employees: 200,
-    features: ["200 empleados", "App móvil", "Reportes avanzados", "Soporte 24/7", "Exportar Excel/PDF", "Multi-sede"],
-    featured: false,
-  },
-  {
-    tier: "500",
-    label: "Enterprise",
-    price: "Consultar",
-    employees: 500,
-    features: ["500 empleados", "App móvil", "Reportes ilimitados", "Soporte dedicado", "Exportar Excel/PDF", "Multi-sede", "Integración API"],
-    featured: false,
-  },
+  { tier:"50",  label:"Starter",    desc:"Ideal para negocios pequeños y medianos.",    feats:["50 empleados","App móvil incluida","Reportes básicos","Soporte por email"],                                         featured:false },
+  { tier:"100", label:"Business",   desc:"El más elegido por empresas en crecimiento.", feats:["100 empleados","App móvil incluida","Reportes completos","Exportar Excel/PDF","Soporte prioritario"],               featured:true  },
+  { tier:"200", label:"Pro",        desc:"Para empresas con operaciones más grandes.",  feats:["200 empleados","App móvil incluida","Reportes avanzados","Exportar Excel/PDF","Multi-sede","Soporte 24/7"],         featured:false },
+  { tier:"500", label:"Enterprise", desc:"Máxima capacidad para grandes corporativos.", feats:["500 empleados","App móvil incluida","Reportes ilimitados","Exportar Excel/PDF","Multi-sede","Integración API","Soporte dedicado"], featured:false },
 ];
 
+const steps = [
+  { n:"01", title:"Descarga el instalador", body:"Descarga el setup de D-CLOCK para Windows desde esta página. Compatible con Windows 10 y 11 de 64 bits." },
+  { n:"02", title:"Instala automáticamente", body:"El instalador configura todo solo: crea el servicio, abre el puerto y deja la app lista para usarse." },
+  { n:"03", title:"Activa tu licencia",      body:"Ingresa tu clave de licencia. D-CLOCK se conecta a nuestros servidores y configura tu empresa y límite de empleados." },
+  { n:"04", title:"Conecta desde el celular",body:"Los empleados descargan la app móvil, escriben la IP de tu servidor y fichan entrada/salida desde cualquier lugar." },
+];
+
+/* ─── Helpers ───────────────────────────────────────── */
+function StatusTag({ s }: { s: string }) {
+  if (s === "ok")      return <span className="tag-entrada">Presente</span>;
+  if (s === "tarde")   return <span className="tag-tarde">Tarde</span>;
+  return <span className="tag-ausente">Ausente</span>;
+}
+
+/* ─── Page ──────────────────────────────────────────── */
 export default function Home() {
   return (
     <>
       <Navbar />
+      <main className="pt-[3.75rem]">
 
-      <main className="pt-16">
-        {/* ── HERO ── */}
-        <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden px-6">
-          {/* Background blobs */}
-          <div className="blob w-[600px] h-[600px] bg-blue-200 opacity-20 -top-40 -right-40" />
-          <div className="blob w-[400px] h-[400px] bg-blue-100 opacity-15 bottom-0 -left-20" />
+        {/* ════════════════ HERO ════════════════ */}
+        <section className="relative min-h-[96vh] flex items-center justify-center overflow-hidden px-6 py-20">
+          {/* Blobs */}
+          <div className="blob w-[700px] h-[700px] bg-blue-200 opacity-[0.17] -top-60 -right-60" />
+          <div className="blob w-[500px] h-[500px] bg-indigo-100 opacity-[0.12] bottom-0 -left-40" />
+          <div className="blob w-[300px] h-[300px] bg-sky-200  opacity-[0.14] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
 
-          <div className="relative z-10 max-w-4xl mx-auto text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 glass px-4 py-2 mb-8 text-sm font-medium text-[#2563EB]">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#2563EB] animate-pulse" />
-              Control de asistencia para empresas
-            </div>
+          <div className="relative z-10 max-w-6xl mx-auto w-full grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-            {/* Headline */}
-            <h1 className="text-5xl md:text-[4.5rem] font-bold tracking-tight leading-[1.08] text-[#111111] mb-6">
-              Ficha. Controla.
-              <br />
-              <span className="text-[#2563EB]">Administra.</span>
-            </h1>
-
-            <p className="text-lg md:text-xl text-[#555550] max-w-2xl mx-auto mb-10 leading-relaxed">
-              D-CLOCK es el sistema de checador que transforma cómo tu empresa
-              gestiona la asistencia. Instalación en minutos, activación con licencia,
-              control desde el celular.
-            </p>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-              <a href="#download" className="btn-primary text-base">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M9 2v10M5 8l4 4 4-4M3 15h12" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Descargar D-CLOCK
-              </a>
-              <a href="#plans" className="btn-outline text-base">
-                Ver planes y precios
-              </a>
-            </div>
-
-            {/* Hero mockup */}
-            <div className="mt-16 glass rounded-2xl overflow-hidden mx-auto max-w-2xl shadow-[0_20px_80px_rgba(37,99,235,0.1)]">
-              <div className="bg-[rgba(37,99,235,0.06)] border-b border-[rgba(180,170,155,0.2)] px-4 py-3 flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-300" />
-                <div className="w-2.5 h-2.5 rounded-full bg-yellow-300" />
-                <div className="w-2.5 h-2.5 rounded-full bg-green-300" />
-                <span className="ml-3 text-xs text-[#999] font-mono">D-CLOCK · Panel de Asistencia</span>
+            {/* Left: copy */}
+            <div>
+              <div className="inline-flex items-center gap-2 glass px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-[#2563EB] mb-7">
+                <span className="pulse-dot w-1.5 h-1.5 rounded-full bg-[#2563EB] inline-block" />
+                Sistema de checador empresarial
               </div>
-              <div className="p-6 bg-white/40">
-                {/* Fake dashboard */}
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="text-xs text-[#999] mb-1">Hoy, martes 13 mayo</p>
-                    <p className="font-semibold text-[#111]">Resumen de asistencia</p>
-                  </div>
-                  <div className="glass px-3 py-1.5 text-xs font-medium text-[#2563EB]">En línea</div>
-                </div>
-                <div className="grid grid-cols-3 gap-3 mb-4">
-                  {[
-                    { label: "Presentes", value: "47", color: "#22C55E" },
-                    { label: "Tarde", value: "3", color: "#F59E0B" },
-                    { label: "Ausentes", value: "2", color: "#EF4444" },
-                  ].map((s) => (
-                    <div key={s.label} className="glass-subtle rounded-xl p-3 text-center">
-                      <p className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</p>
-                      <p className="text-xs text-[#999] mt-0.5">{s.label}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="space-y-2">
-                  {[
-                    { name: "Ana García", time: "08:02", status: "Entrada" },
-                    { name: "Carlos Ruiz", time: "08:15", status: "Entrada" },
-                    { name: "María López", time: "08:47", status: "Tarde" },
-                  ].map((e) => (
-                    <div key={e.name} className="flex items-center justify-between py-2 px-3 rounded-xl bg-white/50 text-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-xs font-semibold text-blue-600">
-                          {e.name[0]}
-                        </div>
-                        <span className="text-[#111] font-medium">{e.name}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-[#999] text-xs font-mono">{e.time}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${e.status === "Tarde" ? "bg-yellow-50 text-yellow-600" : "bg-green-50 text-green-600"}`}>
-                          {e.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+
+              <h1 className="text-5xl md:text-6xl font-bold tracking-[-0.03em] leading-[1.06] text-[#0F0F0F] mb-5">
+                El checador
+                <br />
+                que tu empresa
+                <br />
+                <span style={{ color:"#2563EB" }}>merece.</span>
+              </h1>
+
+              <p className="text-[1.0625rem] text-[#7A7A72] leading-[1.7] max-w-md mb-9">
+                Controla entradas, salidas y asistencia en tiempo real.
+                Instala en tu servidor, activa con licencia y gestiona
+                a todos tus empleados desde el celular.
+              </p>
+
+              <div className="flex flex-wrap gap-3">
+                <a href="#download" className="btn-primary">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 2v9M4.5 7.5 8 11l3.5-3.5M2 13.5h12" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Descargar D-CLOCK
+                </a>
+                <a href="#plans" className="btn-ghost">Ver planes →</a>
               </div>
-            </div>
-          </div>
-        </section>
 
-        {/* ── FEATURES ── */}
-        <section id="features" className="py-24 px-6">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-14">
-              <p className="text-sm font-semibold text-[#2563EB] uppercase tracking-widest mb-3">Características</p>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-[#111111]">
-                Todo lo que necesitas,
-                <br />
-                nada que sobre.
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {features.map((f) => (
-                <div key={f.title} className="glass rounded-2xl p-6 group hover:shadow-[0_8px_40px_rgba(37,99,235,0.08)] transition-all duration-300">
-                  <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-4 group-hover:bg-blue-100 transition-colors">
-                    {f.icon}
-                  </div>
-                  <h3 className="font-semibold text-[#111111] mb-2">{f.title}</h3>
-                  <p className="text-sm text-[#6B6B65] leading-relaxed">{f.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── PLANS ── */}
-        <section id="plans" className="py-24 px-6">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-14">
-              <p className="text-sm font-semibold text-[#2563EB] uppercase tracking-widest mb-3">Planes</p>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-[#111111]">
-                Licencias para cada empresa
-              </h2>
-              <p className="mt-4 text-[#6B6B65] text-base">Una sola compra, instalación ilimitada en tu servidor.</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {plans.map((p) => (
-                <div
-                  key={p.tier}
-                  className={`glass rounded-2xl p-6 flex flex-col ${p.featured ? "plan-featured" : ""}`}
-                >
-                  {p.featured && (
-                    <span className="inline-block text-xs font-semibold text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full mb-4 self-start">
-                      Más popular
-                    </span>
-                  )}
-                  <p className="text-xs text-[#6B6B65] font-medium uppercase tracking-wider mb-1">{p.label}</p>
-                  <p className="text-4xl font-bold text-[#111111] mb-1">
-                    {p.employees}
-                    <span className="text-base font-normal text-[#6B6B65] ml-1">empleados</span>
-                  </p>
-                  <p className="text-sm text-[#2563EB] font-medium mb-5">{p.price}</p>
-
-                  <ul className="space-y-2.5 mb-6 flex-1">
-                    {p.features.map((feat) => (
-                      <li key={feat} className="flex items-center gap-2 text-sm text-[#444]">
-                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" className="shrink-0">
-                          <circle cx="7.5" cy="7.5" r="7" fill={p.featured ? "#2563EB" : "#E5E7EB"}/>
-                          <path d="M4.5 7.5L6.5 9.5L10.5 5.5" stroke={p.featured ? "white" : "#6B7280"} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                        {feat}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <a
-                    href="mailto:contacto@d99-tech.com"
-                    className={p.featured ? "btn-primary justify-center text-sm" : "btn-outline justify-center text-sm"}
-                  >
-                    Solicitar licencia
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── HOW IT WORKS ── */}
-        <section className="py-24 px-6">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-14">
-              <p className="text-sm font-semibold text-[#2563EB] uppercase tracking-widest mb-3">Cómo funciona</p>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-[#111111]">
-                De la descarga al control,
-                <br />
-                en minutos.
-              </h2>
-            </div>
-
-            <div className="relative">
-              {/* Vertical line */}
-              <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-[#2563EB] via-[#93C5FD] to-transparent hidden md:block" />
-
-              <div className="space-y-8">
+              {/* Trust badges */}
+              <div className="flex flex-wrap gap-4 mt-8">
                 {[
-                  { step: "01", title: "Descarga el instalador", desc: "Descarga el instalador de D-CLOCK desde esta página. Compatible con Windows 10/11." },
-                  { step: "02", title: "Instala y configura", desc: "El instalador se configura automáticamente en tu servidor. No necesitas conocimientos técnicos." },
-                  { step: "03", title: "Activa tu licencia", desc: "Ingresa tu clave de licencia. La app se conecta a nuestros servidores y se configura sola con el nombre de tu empresa y el límite de empleados." },
-                  { step: "04", title: "Conecta tus empleados", desc: "Los empleados descargan la app móvil, se conectan con la IP de tu servidor y fichan desde su teléfono." },
-                ].map((s) => (
-                  <div key={s.step} className="flex gap-6 items-start">
-                    <div className="relative z-10 w-16 h-16 glass rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
-                      <span className="text-xs font-bold text-[#2563EB] font-mono">{s.step}</span>
-                    </div>
-                    <div className="pt-3">
-                      <h3 className="font-semibold text-[#111111] mb-1">{s.title}</h3>
-                      <p className="text-sm text-[#6B6B65] leading-relaxed">{s.desc}</p>
-                    </div>
+                  { icon:"⚡", text:"Instalación en 5 min" },
+                  { icon:"🔒", text:"Datos en tu servidor" },
+                  { icon:"📱", text:"App Android & iOS" },
+                ].map(b => (
+                  <div key={b.text} className="flex items-center gap-1.5 text-[13px] text-[#7A7A72]">
+                    <span>{b.icon}</span>
+                    <span>{b.text}</span>
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* Right: Dashboard mockup */}
+            <div className="relative">
+              {/* Floating badge top-right */}
+              <div className="float absolute -top-4 -right-2 z-20">
+                <div className="glass-strong rounded-2xl px-4 py-2.5 flex items-center gap-2.5 shadow-lg">
+                  <div className="w-8 h-8 rounded-xl bg-green-100 flex items-center justify-center">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M3 8.5l4 4 6-7" stroke="#16A34A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold text-[#0F0F0F] leading-tight">Ana García</p>
+                    <p className="text-[10px] text-[#16A34A] font-medium">Entrada — 07:58 AM</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating badge bottom-left */}
+              <div className="float-delay absolute -bottom-3 -left-3 z-20">
+                <div className="glass-strong rounded-2xl px-4 py-2.5 flex items-center gap-2.5 shadow-lg">
+                  <div className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <circle cx="8" cy="8" r="5.5" stroke="#2563EB" strokeWidth="1.4"/>
+                      <path d="M8 5v3.5l2 1.2" stroke="#2563EB" strokeWidth="1.4" strokeLinecap="round"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold text-[#0F0F0F] leading-tight">42 / 50 presentes</p>
+                    <p className="text-[10px] text-[#2563EB] font-medium">Hoy · martes 13 mayo</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Main dashboard card */}
+              <div className="glass rounded-3xl overflow-hidden shadow-[0_24px_80px_rgba(15,15,15,0.10)]">
+                {/* Title bar */}
+                <div className="flex items-center justify-between px-5 py-3.5 border-b border-[rgba(200,192,178,0.2)] bg-white/30">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-300" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-300" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-300" />
+                  </div>
+                  <p className="text-[11px] text-[#AEAEA6] font-mono font-medium">D-CLOCK · Asistencia del día</p>
+                  <div className="flex items-center gap-1 text-[11px] text-[#16A34A] font-semibold">
+                    <span className="pulse-dot w-1.5 h-1.5 rounded-full bg-[#16A34A] inline-block" />
+                    En vivo
+                  </div>
+                </div>
+
+                <div className="p-5 space-y-4">
+                  {/* Stats row */}
+                  <div className="grid grid-cols-3 gap-2.5">
+                    {stats.map(s => (
+                      <div key={s.label} className="glass rounded-2xl p-3">
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <span className="stat-dot" style={{ background: s.color }} />
+                          <span className="text-[10px] text-[#AEAEA6] font-medium">{s.label}</span>
+                        </div>
+                        <p className="text-2xl font-bold text-[#0F0F0F] leading-none">{s.value}</p>
+                        <div className="mt-2 h-1 rounded-full bg-[#EDE8DF]">
+                          <div className="h-full rounded-full" style={{ width:`${(s.value/s.total)*100}%`, background: s.color }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Employee table header */}
+                  <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-x-3 px-2 text-[10px] font-semibold text-[#AEAEA6] uppercase tracking-wider">
+                    <span>Empleado</span>
+                    <span>Entrada</span>
+                    <span>Salida</span>
+                    <span>Estado</span>
+                  </div>
+
+                  {/* Rows */}
+                  <div className="space-y-1.5">
+                    {employees.map(e => (
+                      <div key={e.name} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-x-3 items-center py-2 px-3 rounded-xl bg-white/45 hover:bg-white/70 transition-colors">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="avatar text-[11px]" style={{ background: e.color, color: e.text }}>
+                            {e.initials}
+                          </div>
+                          <span className="text-[12px] font-medium text-[#0F0F0F] truncate">{e.name.split(" ")[0]}</span>
+                        </div>
+                        <span className="font-mono text-[12px] font-semibold text-[#16A34A]">{e.entrada}</span>
+                        <span className="font-mono text-[12px] font-semibold text-[#2563EB]">{e.salida}</span>
+                        <StatusTag s={e.status} />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Timeline bar */}
+                  <div>
+                    <div className="flex justify-between text-[10px] text-[#AEAEA6] mb-1.5">
+                      <span>07:00</span><span>09:00</span><span>13:00</span><span>17:00</span><span>19:00</span>
+                    </div>
+                    <div className="h-[3px] rounded-full bg-[#EDE8DF]">
+                      <div className="timeline-bar h-full" style={{ width:"65%" }} />
+                    </div>
+                    <p className="text-[10px] text-[#AEAEA6] mt-1">Jornada laboral · 08:00 — 17:00</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* ── DOWNLOAD ── */}
-        <section id="download" className="py-24 px-6">
-          <div className="max-w-3xl mx-auto">
-            <div className="glass rounded-3xl p-10 md:p-14 text-center relative overflow-hidden">
-              <div className="blob w-80 h-80 bg-blue-200 opacity-20 -top-20 -right-20" />
-              <div className="blob w-64 h-64 bg-blue-100 opacity-15 -bottom-16 -left-16" />
+        {/* ════════════════ FEATURES ════════════════ */}
+        <section id="features" className="py-28 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <p className="text-[12px] font-bold text-[#2563EB] uppercase tracking-[0.14em] mb-3">Características</p>
+              <h2 className="text-[2.375rem] font-bold tracking-[-0.025em] text-[#0F0F0F] leading-tight">
+                Todo lo que necesitas.
+                <br />
+                <span className="text-[#7A7A72]">Nada que sobre.</span>
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {features.map(f => (
+                <div key={f.title} className="glass rounded-2xl p-6 group hover:shadow-[0_8px_48px_rgba(37,99,235,0.09)] transition-all duration-300 hover:-translate-y-0.5">
+                  <div className="w-10 h-10 rounded-[10px] bg-[#EFF6FF] flex items-center justify-center mb-4 group-hover:bg-[#DBEAFE] transition-colors">
+                    {f.icon}
+                  </div>
+                  <h3 className="font-semibold text-[#0F0F0F] mb-2 text-[15px]">{f.title}</h3>
+                  <p className="text-[13.5px] text-[#7A7A72] leading-relaxed">{f.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-              <div className="relative z-10">
-                <div className="w-16 h-16 rounded-2xl bg-[#2563EB] flex items-center justify-center mx-auto mb-6 shadow-[0_8px_32px_rgba(37,99,235,0.3)]">
-                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                    <path d="M14 4v16M7 14l7 7 7-7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M5 23h18" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
+        {/* ════════════════ DEMO (detalle checada) ════════════════ */}
+        <section id="demo" className="py-28 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="glass rounded-3xl overflow-hidden shadow-[0_20px_80px_rgba(15,15,15,0.07)]">
+              <div className="grid lg:grid-cols-2">
+
+                {/* Left: copy */}
+                <div className="p-10 lg:p-14 flex flex-col justify-center">
+                  <p className="text-[12px] font-bold text-[#2563EB] uppercase tracking-[0.14em] mb-4">Registro de asistencia</p>
+                  <h2 className="text-[2rem] font-bold tracking-[-0.025em] text-[#0F0F0F] mb-5 leading-snug">
+                    Hora exacta de entrada
+                    <br />y salida de cada quien.
+                  </h2>
+                  <p className="text-[#7A7A72] text-[14.5px] leading-relaxed mb-7">
+                    Cada ficha queda registrada con fecha, hora, nombre del empleado
+                    y tipo de movimiento. El historial completo siempre disponible.
+                  </p>
+                  <div className="space-y-3">
+                    {[
+                      { icon:"🕗", text:"Hora precisa al segundo" },
+                      { icon:"📍", text:"Registro desde la app móvil o escritorio" },
+                      { icon:"📋", text:"Historial consultable por día, semana o mes" },
+                      { icon:"⚠️",  text:"Alertas de llegada tarde o ausencias" },
+                    ].map(i => (
+                      <div key={i.text} className="flex items-center gap-3 text-[13.5px] text-[#3A3A35]">
+                        <span className="text-base">{i.icon}</span>
+                        {i.text}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-[#111111] mb-4">
-                  Descarga D-CLOCK
-                </h2>
-                <p className="text-[#6B6B65] mb-2">Versión 1.0 · Windows 10/11 · 64-bit</p>
-                <p className="text-sm text-[#999] mb-8">Necesitas una licencia activa para usar la aplicación.</p>
+                {/* Right: attendance detail card */}
+                <div className="bg-white/30 border-l border-[rgba(200,192,178,0.2)] p-8 lg:p-10 flex flex-col gap-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-[13px] font-semibold text-[#0F0F0F]">Movimientos de hoy</p>
+                    <span className="text-[11px] text-[#7A7A72]">Martes 13 mayo · 50 empleados</span>
+                  </div>
+
+                  {/* Detailed logs */}
+                  {[
+                    { time:"07:55", name:"José Hernández",  type:"Entrada", color:"#DCFCE7", tc:"#16A34A", tag:"entrada" },
+                    { time:"07:58", name:"Ana García",      type:"Entrada", color:"#DBEAFE", tc:"#2563EB", tag:"entrada" },
+                    { time:"08:01", name:"Luis Martínez",   type:"Entrada", color:"#DBEAFE", tc:"#2563EB", tag:"entrada" },
+                    { time:"08:12", name:"Carlos Ruiz",     type:"Entrada", color:"#DCFCE7", tc:"#16A34A", tag:"entrada" },
+                    { time:"08:47", name:"María López",     type:"Entrada", color:"#FEF3C7", tc:"#D97706", tag:"tarde"   },
+                    { time:"16:58", name:"José Hernández",  type:"Salida",  color:"#EDE9FE", tc:"#6D28D9", tag:"salida"  },
+                    { time:"17:00", name:"Luis Martínez",   type:"Salida",  color:"#DBEAFE", tc:"#2563EB", tag:"salida"  },
+                    { time:"17:02", name:"Ana García",      type:"Salida",  color:"#DBEAFE", tc:"#2563EB", tag:"salida"  },
+                    { time:"17:15", name:"Carlos Ruiz",     type:"Salida",  color:"#DCFCE7", tc:"#16A34A", tag:"salida"  },
+                  ].map((log, i) => (
+                    <div key={i} className="flex items-center gap-3 py-2 px-3 rounded-xl bg-white/50 hover:bg-white/75 transition-colors">
+                      <span className="font-mono text-[12px] font-bold text-[#AEAEA6] w-12 shrink-0">{log.time}</span>
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
+                        style={{ background: log.color, color: log.tc }}>
+                        {log.name.split(" ").map(n=>n[0]).join("").slice(0,2)}
+                      </div>
+                      <span className="text-[12.5px] font-medium text-[#0F0F0F] flex-1 truncate">{log.name}</span>
+                      <span className={`tag-${log.tag}`}>{log.type}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════════ PLANS ════════════════ */}
+        <section id="plans" className="py-28 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <p className="text-[12px] font-bold text-[#2563EB] uppercase tracking-[0.14em] mb-3">Planes</p>
+              <h2 className="text-[2.375rem] font-bold tracking-[-0.025em] text-[#0F0F0F]">
+                Una licencia. Tu servidor.
+                <br />
+                <span className="text-[#7A7A72]">Sin suscripciones.</span>
+              </h2>
+              <p className="text-[#7A7A72] mt-4 text-[15px]">Pago único. Actualizaciones incluidas. Datos 100% tuyos.</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {plans.map(p => (
+                <div key={p.tier}
+                  className={`glass rounded-2xl p-6 flex flex-col ${p.featured ? "plan-featured" : ""} hover:-translate-y-0.5 transition-all duration-300`}>
+                  {p.featured && (
+                    <span className="text-[11px] font-bold text-[#2563EB] bg-[#DBEAFE] px-2.5 py-0.5 rounded-full self-start mb-4">
+                      ⭐ Más popular
+                    </span>
+                  )}
+                  <p className="text-[11px] font-bold text-[#AEAEA6] uppercase tracking-wider mb-1">{p.label}</p>
+                  <div className="mb-1">
+                    <span className="text-5xl font-extrabold text-[#0F0F0F] tracking-tight">{p.tier}</span>
+                    <span className="text-[13px] text-[#7A7A72] ml-1.5">empleados</span>
+                  </div>
+                  <p className="text-[12.5px] text-[#7A7A72] mb-5 leading-snug">{p.desc}</p>
+
+                  <ul className="space-y-2.5 mb-6 flex-1">
+                    {p.feats.map(f => (
+                      <li key={f} className="flex items-start gap-2 text-[13px] text-[#3A3A35]">
+                        <svg className="mt-0.5 shrink-0" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                          <circle cx="7" cy="7" r="6.5" fill={p.featured ? "#2563EB" : "#F0F0EC"} />
+                          <path d="M4.5 7l2 2 3-3" stroke={p.featured ? "white" : "#7A7A72"} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <a href="mailto:contacto@d99-tech.com"
+                    className={`justify-center text-[13.5px] ${p.featured ? "btn-primary" : "btn-ghost"}`}>
+                    Solicitar licencia
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════════ HOW IT WORKS ════════════════ */}
+        <section className="py-28 px-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-16">
+              <p className="text-[12px] font-bold text-[#2563EB] uppercase tracking-[0.14em] mb-3">Cómo funciona</p>
+              <h2 className="text-[2.375rem] font-bold tracking-[-0.025em] text-[#0F0F0F]">
+                Del cero al control
+                <br />
+                <span className="text-[#7A7A72]">en minutos.</span>
+              </h2>
+            </div>
+
+            <div className="space-y-4">
+              {steps.map((s, i) => (
+                <div key={s.n} className="glass rounded-2xl p-6 flex gap-5 items-start hover:shadow-[0_4px_32px_rgba(37,99,235,0.07)] transition-all">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 font-mono font-bold text-[13px]"
+                    style={{ background: i === 0 ? "#2563EB" : "#EFF6FF", color: i === 0 ? "white" : "#2563EB" }}>
+                    {s.n}
+                  </div>
+                  <div className="pt-0.5">
+                    <h3 className="font-semibold text-[#0F0F0F] mb-1.5 text-[15px]">{s.title}</h3>
+                    <p className="text-[13.5px] text-[#7A7A72] leading-relaxed">{s.body}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════════ DOWNLOAD ════════════════ */}
+        <section id="download" className="py-28 px-6">
+          <div className="max-w-3xl mx-auto">
+            <div className="glass rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
+              <div className="blob w-96 h-96 bg-blue-200 opacity-20 -top-24 -right-24" />
+              <div className="blob w-72 h-72 bg-indigo-100 opacity-15 -bottom-20 -left-20" />
+              <div className="relative z-10">
+                <div className="w-16 h-16 rounded-2xl bg-[#2563EB] flex items-center justify-center mx-auto mb-6 shadow-[0_10px_40px_rgba(37,99,235,0.35)]">
+                  <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                    <path d="M13 3v16M6.5 13l6.5 6.5 6.5-6.5M3 22.5h20" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <h2 className="text-[2.125rem] font-bold tracking-[-0.025em] text-[#0F0F0F] mb-3">Descarga D-CLOCK</h2>
+                <p className="text-[#7A7A72] text-[14.5px] mb-1.5">Versión 1.0 · Windows 10 / 11 · 64-bit</p>
+                <p className="text-[13px] text-[#AEAEA6] mb-9">Necesitas una licencia activa para usar la aplicación.</p>
 
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <a
-                    href="/downloads/dclock-setup.exe"
-                    className="btn-primary text-base"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                      <path d="M9 2v10M5 8l4 4 4-4M3 15h12" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <a href="/downloads/dclock-setup.exe" className="btn-primary text-[15px]">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M8 2v9M4.5 7.5 8 11l3.5-3.5M2 13.5h12" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     Descargar para Windows
                   </a>
-                  <a href="mailto:contacto@d99-tech.com" className="btn-outline text-base">
+                  <a href="mailto:contacto@d99-tech.com" className="btn-ghost text-[15px]">
                     Solicitar licencia
                   </a>
                 </div>
 
-                <p className="mt-6 text-xs text-[#bbb]">
-                  ¿Problemas con la descarga?{" "}
-                  <a href="mailto:contacto@d99-tech.com" className="text-[#2563EB] hover:underline">
-                    Contacta a soporte
+                <p className="mt-7 text-[12.5px] text-[#AEAEA6]">
+                  ¿Dudas?{" "}
+                  <a href="mailto:contacto@d99-tech.com" className="text-[#2563EB] hover:underline font-medium">
+                    Escríbenos a contacto@d99-tech.com
                   </a>
                 </p>
               </div>
@@ -365,26 +450,22 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── FOOTER ── */}
-        <footer className="border-t border-[rgba(180,170,155,0.2)] py-10 px-6">
-          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* ════════════════ FOOTER ════════════════ */}
+        <footer className="border-t border-[rgba(200,192,178,0.22)] py-10 px-6">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-[#2563EB] flex items-center justify-center">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="8" r="6" stroke="white" strokeWidth="1.5"/>
-                  <path d="M8 4.5V8.5L10.5 10" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+              <div className="w-7 h-7 rounded-[8px] bg-[#2563EB] flex items-center justify-center">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="5.5" stroke="white" strokeWidth="1.4"/>
+                  <path d="M8 4.5v3.8l2.2 1.4" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
                 </svg>
               </div>
-              <span className="font-semibold text-sm text-[#111111]">D-CLOCK</span>
-              <span className="text-[#ccc] text-sm">·</span>
-              <span className="text-xs text-[#999]">by D99-TECH</span>
+              <span className="font-bold text-[13px] text-[#0F0F0F]">D-CLOCK</span>
+              <span className="text-[#D0CBC0]">·</span>
+              <span className="text-[12px] text-[#AEAEA6]">by D99-TECH</span>
             </div>
-
-            <p className="text-xs text-[#999]">
-              © {new Date().getFullYear()} D99-TECH. Todos los derechos reservados.
-            </p>
-
-            <div className="flex gap-5 text-xs text-[#999]">
+            <p className="text-[12px] text-[#AEAEA6]">© {new Date().getFullYear()} D99-TECH. Todos los derechos reservados.</p>
+            <div className="flex gap-5 text-[12px] text-[#AEAEA6]">
               <a href="mailto:contacto@d99-tech.com" className="hover:text-[#2563EB] transition-colors">Contacto</a>
               <a href="#" className="hover:text-[#2563EB] transition-colors">Privacidad</a>
               <a href="#" className="hover:text-[#2563EB] transition-colors">Términos</a>
