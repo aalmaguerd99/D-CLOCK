@@ -1,6 +1,14 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+
+const links = [
+  { href:"#features", label:"Características" },
+  { href:"#geo",      label:"Geo-cercas" },
+  { href:"#plans",    label:"Planes" },
+  { href:"#download", label:"Descargar" },
+];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -8,52 +16,49 @@ export default function Navbar() {
     <nav className="glass-nav fixed top-0 left-0 right-0 z-50">
       <div className="max-w-6xl mx-auto px-6 h-[3.75rem] flex items-center justify-between">
 
-        {/* Logo */}
+        {/* ── Logo ── */}
         <Link href="/" className="flex items-center gap-2.5 select-none">
-          <div className="w-8 h-8 rounded-[10px] bg-[#2563EB] flex items-center justify-center shadow-[0_2px_8px_rgba(37,99,235,0.35)]">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <circle cx="8" cy="8" r="5.5" stroke="white" strokeWidth="1.4"/>
-              <path d="M8 4.5v3.8l2.2 1.4" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
-            </svg>
+          <Image src="/D99logo.png" alt="D99-TECH" width={32} height={32}
+            className="rounded-[8px] object-contain" style={{ background:"transparent" }} />
+          <div className="flex items-center gap-1.5">
+            <span className="font-extrabold text-[15px] tracking-tight text-[#0D0D0C]">D-CLOCK</span>
+            <span className="hidden sm:block text-[10px] font-semibold text-[#2563EB] bg-[#DBEAFE] px-2 py-0.5 rounded-full leading-none">
+              by D99-TECH
+            </span>
           </div>
-          <span className="font-bold text-[15px] tracking-tight text-[#0F0F0F]">D-CLOCK</span>
-          <span className="hidden sm:inline-block text-[11px] font-medium text-[#2563EB] bg-[#DBEAFE] px-2 py-0.5 rounded-full">by D99-TECH</span>
         </Link>
 
-        {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-7 text-[13.5px] font-medium text-[#7A7A72]">
-          <Link href="#features" className="hover:text-[#0F0F0F] transition-colors">Características</Link>
-          <Link href="#demo"     className="hover:text-[#0F0F0F] transition-colors">Demo</Link>
-          <Link href="#plans"    className="hover:text-[#0F0F0F] transition-colors">Planes</Link>
-          <Link href="#download" className="hover:text-[#0F0F0F] transition-colors">Descargar</Link>
+        {/* ── Desktop nav ── */}
+        <div className="hidden md:flex items-center gap-7 text-[13px] font-medium text-[#78786E]">
+          {links.map(l => (
+            <Link key={l.href} href={l.href} className="hover:text-[#0D0D0C] transition-colors">{l.label}</Link>
+          ))}
         </div>
 
-        {/* CTA */}
+        {/* ── CTA ── */}
         <div className="hidden md:flex items-center gap-2.5">
-          <a href="#download" className="btn-primary" style={{ fontSize:"13.5px", padding:"0.5rem 1.1rem", borderRadius:"0.75rem" }}>
+          <a href="#download" className="btn-primary" style={{ fontSize:"13px", padding:".45rem 1.1rem", borderRadius:".75rem" }}>
             Descargar gratis
           </a>
         </div>
 
-        {/* Mobile */}
-        <button className="md:hidden p-2 rounded-xl hover:bg-white/50 transition-colors" onClick={() => setOpen(!open)}>
+        {/* ── Mobile toggle ── */}
+        <button onClick={() => setOpen(!open)}
+          className="md:hidden p-2 rounded-xl hover:bg-white/50 transition-colors">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             {open
-              ? <path d="M4 4l10 10M14 4L4 14" stroke="#0F0F0F" strokeWidth="1.5" strokeLinecap="round"/>
-              : <path d="M2.5 5.5h13M2.5 9h13M2.5 12.5h13" stroke="#0F0F0F" strokeWidth="1.5" strokeLinecap="round"/>
-            }
+              ? <path d="M4 4l10 10M14 4L4 14" stroke="#0D0D0C" strokeWidth="1.5" strokeLinecap="round"/>
+              : <path d="M2.5 5h13M2.5 9h13M2.5 13h13"  stroke="#0D0D0C" strokeWidth="1.5" strokeLinecap="round"/>}
           </svg>
         </button>
       </div>
 
-      {/* Mobile menu */}
+      {/* ── Mobile menu ── */}
       {open && (
-        <div className="md:hidden border-t border-[rgba(200,192,178,0.25)] bg-[rgba(245,241,235,0.97)] backdrop-blur-2xl px-6 py-5 flex flex-col gap-4">
-          {["#features","#demo","#plans","#download"].map(href => (
-            <Link key={href} href={href} onClick={() => setOpen(false)}
-              className="text-sm font-medium text-[#3A3A35] capitalize">
-              {href.replace("#","")}
-            </Link>
+        <div className="md:hidden border-t border-[rgba(200,192,178,.25)] bg-[rgba(245,241,235,.97)] backdrop-blur-2xl px-6 py-5 flex flex-col gap-4">
+          {links.map(l => (
+            <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
+              className="text-sm font-medium text-[#38382F]">{l.label}</Link>
           ))}
           <a href="#download" onClick={() => setOpen(false)} className="btn-primary justify-center mt-1">Descargar gratis</a>
         </div>
