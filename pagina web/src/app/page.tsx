@@ -88,8 +88,8 @@ export default function Home() {
             {/* copy */}
             <div>
               <div className="flex items-center gap-3 mb-8">
-                <Image src="/D99logo.png" alt="D99-TECH" width={48} height={48}
-                  className="rounded-xl object-contain shadow-sm" />
+                <Image src="/D-CLOCKlogo.png" alt="D-CLOCK" width={54} height={54}
+                  className="object-contain drop-shadow-md" />
                 <div>
                   <p className="text-[10.5px] font-bold text-[#78786E] uppercase tracking-widest">D99-TECH presenta</p>
                   <p className="text-[1.3rem] font-extrabold tracking-tight text-[#0D0D0C] leading-none">D-CLOCK</p>
@@ -479,8 +479,8 @@ export default function Home() {
               <div className="blob w-72 h-72 bg-indigo-100 opacity-15 -bottom-20 -left-20"/>
               <div className="relative z-10">
                 <div className="flex items-center justify-center gap-3 mb-7">
-                  <Image src="/D99logo.png" alt="D99-TECH" width={44} height={44}
-                    className="rounded-xl object-contain shadow-sm" />
+                  <Image src="/D-CLOCKlogo.png" alt="D-CLOCK" width={52} height={52}
+                    className="object-contain drop-shadow-md" />
                   <div className="text-left">
                     <p className="font-extrabold text-[1.2rem] tracking-tight text-[#0D0D0C] leading-none">D-CLOCK</p>
                     <p className="text-[11px] text-[#78786E]">by D99-TECH</p>
@@ -513,8 +513,8 @@ export default function Home() {
         <footer className="border-t border-[rgba(200,192,178,.2)] py-10 px-6">
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
             <div className="flex items-center gap-2.5">
-              <Image src="/D99logo.png" alt="D99-TECH" width={28} height={28}
-                className="rounded-[7px] object-contain"/>
+              <Image src="/D-CLOCKlogo.png" alt="D-CLOCK" width={26} height={26}
+                className="object-contain"/>
               <span className="font-extrabold text-[13px] text-[#0D0D0C]">D-CLOCK</span>
               <span className="text-[#D0CBC0]">·</span>
               <span className="text-[11.5px] text-[#AEAEA4]">by D99-TECH</span>

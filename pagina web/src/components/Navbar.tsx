@@ -18,8 +18,8 @@ export default function Navbar() {
 
         {/* ── Logo ── */}
         <Link href="/" className="flex items-center gap-2.5 select-none">
-          <Image src="/D99logo.png" alt="D99-TECH" width={32} height={32}
-            className="rounded-[8px] object-contain" style={{ background:"transparent" }} />
+          <Image src="/D-CLOCKlogo.png" alt="D-CLOCK" width={32} height={32}
+            className="object-contain" style={{ background:"transparent" }} />
           <div className="flex items-center gap-1.5">
             <span className="font-extrabold text-[15px] tracking-tight text-[#0D0D0C]">D-CLOCK</span>
             <span className="hidden sm:block text-[10px] font-semibold text-[#2563EB] bg-[#DBEAFE] px-2 py-0.5 rounded-full leading-none">
