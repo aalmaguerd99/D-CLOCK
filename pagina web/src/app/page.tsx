@@ -546,7 +546,7 @@ export default function Home() {
                     ))}
                   </ul>
                   <a
-                    href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.0.0/D-CLOCK%20Setup%201.0.0.exe"
+                    href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.0.0/D-CLOCK.Setup.1.0.0.exe"
                     className="btn-primary justify-center text-[14.5px] group relative overflow-hidden"
                     download>
                     <IDownload size={16} color="white"
@@ -580,7 +580,7 @@ export default function Home() {
                     ))}
                   </ul>
                   <a
-                    href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.0.0/D-CLOCK%201.0.0.exe"
+                    href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.0.0/D-CLOCK.1.0.0.exe"
                     className="btn-ghost justify-center text-[14.5px]"
                     download>
                     <IDownload size={16} color="#38382F"/>
