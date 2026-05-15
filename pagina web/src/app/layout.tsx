@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   title: "D-CLOCK — Sistema de Checador Empresarial",
   description: "Control de asistencia profesional para tu empresa. Gestiona empleados, horarios y reportes desde cualquier dispositivo.",
   keywords: "checador, asistencia, empleados, control, D99-TECH",
+  icons: {
+    icon: '/D-CLOCKlogo.png',
+    shortcut: '/D-CLOCKlogo.png',
+    apple: '/D-CLOCKlogo.png',
+  },
 };
 
 export default function RootLayout({

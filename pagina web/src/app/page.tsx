@@ -191,69 +191,98 @@ export default function Home() {
               {/* main card */}
               <div className="glass rounded-3xl overflow-hidden shadow-[0_28px_90px_rgba(13,13,12,.11)]">
                 {/* browser bar */}
-                <div className="flex items-center justify-between px-5 py-3 border-b border-[rgba(200,192,178,.18)] bg-white/25">
+                <div className="flex items-center justify-between px-4 py-2.5 border-b border-[rgba(200,192,178,.18)] bg-white/25">
                   <div className="flex items-center gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-full bg-red-300"/>
                     <div className="w-2.5 h-2.5 rounded-full bg-amber-300"/>
                     <div className="w-2.5 h-2.5 rounded-full bg-green-300"/>
                   </div>
-                  <span className="text-[10.5px] text-[#AEAEA4] font-mono">D-CLOCK · Panel de Asistencia</span>
-                  <div className="flex items-center gap-1 text-[10.5px] text-[#16A34A] font-bold">
+                  <span className="text-[10px] text-[#AEAEA4] font-mono">D-CLOCK · Panel de Asistencia</span>
+                  <div className="flex items-center gap-1 text-[10px] text-[#16A34A] font-bold">
                     <span className="pdot w-1.5 h-1.5 rounded-full bg-[#16A34A] inline-block"/>En vivo
                   </div>
                 </div>
 
-                <div className="p-4 space-y-3.5">
-                  {/* stat cards */}
-                  <div className="grid grid-cols-4 gap-2">
+                <div className="flex">
+                  {/* SIDEBAR */}
+                  <div className="w-11 bg-[#111] flex flex-col items-center py-3 gap-1.5 shrink-0 border-r border-black/20">
+                    <div className="w-7 h-7 rounded-[6px] bg-[#2563EB] flex items-center justify-center mb-2 shrink-0">
+                      <span className="text-[9px] text-white font-black">D</span>
+                    </div>
                     {[
-                      { l:"Presentes", v:44, c:"#16A34A", bar:88 },
-                      { l:"Tarde",     v: 4, c:"#D97706", bar:8  },
-                      { l:"Ausentes",  v: 2, c:"#DC2626", bar:4  },
-                      { l:"En campo",  v:12, c:"#7C3AED", bar:24 },
-                    ].map(s => (
-                      <div key={s.l} className="glass rounded-xl p-2.5 text-center">
-                        <p className="text-[1.3rem] font-extrabold leading-none" style={{color:s.c}}>{s.v}</p>
-                        <p className="text-[9px] text-[#AEAEA4] mt-1 font-medium">{s.l}</p>
-                        <div className="mt-1.5 h-[2px] rounded-full bg-[#EDE8DF]">
-                          <div className="h-full rounded-full" style={{width:`${s.bar}%`,background:s.c}}/>
-                        </div>
+                      { Icon: IClock,    active: true  },
+                      { Icon: IUsers,    active: false },
+                      { Icon: IPin,      active: false },
+                      { Icon: IHistory,  active: false },
+                      { Icon: IBarChart, active: false },
+                    ].map(({ Icon, active }, i) => (
+                      <div key={i} className={`w-8 h-8 rounded-lg flex items-center justify-center ${active ? "bg-[#2563EB]" : ""}`}>
+                        <Icon size={14} color={active ? "white" : "#444"} />
                       </div>
                     ))}
                   </div>
 
-                  {/* table header */}
-                  <div className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-x-2 px-2 text-[9.5px] font-bold text-[#AEAEA4] uppercase tracking-wider">
-                    <span/><span>Empleado</span><span>Entrada</span><span>Salida</span><span>Estado</span>
-                  </div>
-
-                  {/* rows */}
-                  <div className="space-y-1">
-                    {EMPLOYEES.map(e => (
-                      <div key={e.name} className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-x-2 items-center py-2 px-2.5 rounded-xl bg-white/45 hover:bg-white/70 transition-colors">
-                        <div className="av" style={{background:e.bg,color:e.tc}}>{e.ini}</div>
-                        <div className="min-w-0">
-                          <p className="text-[11.5px] font-semibold text-[#0D0D0C] truncate leading-none">{e.name.split(" ")[0]}</p>
-                          <p className="text-[9.5px] text-[#AEAEA4] flex items-center gap-0.5 mt-0.5">
-                            <IPin size={8} color="#AEAEA4" />{e.loc}
-                          </p>
-                        </div>
-                        <span className="font-mono text-[11px] font-bold text-[#16A34A]">{e.entrada}</span>
-                        <span className="font-mono text-[11px] font-bold text-[#2563EB]">{e.salida}</span>
-                        <STag s={e.s}/>
+                  {/* CONTENT */}
+                  <div className="flex-1 p-3.5 space-y-3 overflow-hidden">
+                    {/* top bar */}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-[11px] font-bold text-[#0D0D0C]">Panel de Asistencia</p>
+                        <p className="text-[9px] text-[#AEAEA4]">Jue 15 mayo · Turno matutino</p>
                       </div>
-                    ))}
-                  </div>
+                    </div>
 
-                  {/* timeline */}
-                  <div className="px-1">
-                    <div className="flex justify-between text-[9px] text-[#AEAEA4] mb-1">
-                      <span>07:00</span><span>09:00</span><span>13:00</span><span>17:00</span><span>19:00</span>
+                    {/* stat cards */}
+                    <div className="grid grid-cols-4 gap-2">
+                      {[
+                        { l:"Presentes", v:44, c:"#16A34A", bar:88 },
+                        { l:"Tarde",     v: 4, c:"#D97706", bar:8  },
+                        { l:"Ausentes",  v: 2, c:"#DC2626", bar:4  },
+                        { l:"En campo",  v:12, c:"#7C3AED", bar:24 },
+                      ].map(s => (
+                        <div key={s.l} className="glass rounded-xl p-2 text-center">
+                          <p className="text-[1.2rem] font-extrabold leading-none" style={{color:s.c}}>{s.v}</p>
+                          <p className="text-[8.5px] text-[#AEAEA4] mt-0.5 font-medium">{s.l}</p>
+                          <div className="mt-1 h-[2px] rounded-full bg-[#EDE8DF]">
+                            <div className="h-full rounded-full" style={{width:`${s.bar}%`,background:s.c}}/>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="h-[3px] rounded-full bg-[#EDE8DF]">
-                      <div className="h-full rounded-full" style={{width:"62%",background:"linear-gradient(90deg,#16A34A,#2563EB 60%,#D97706)"}}/>
+
+                    {/* table header */}
+                    <div className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-x-2 px-2 text-[9px] font-bold text-[#AEAEA4] uppercase tracking-wider">
+                      <span/><span>Empleado</span><span>Entrada</span><span>Salida</span><span>Estado</span>
                     </div>
-                    <p className="text-[9px] text-[#AEAEA4] mt-1">Jornada 08:00–17:00 · Turno matutino</p>
+
+                    {/* rows */}
+                    <div className="space-y-1">
+                      {EMPLOYEES.map(e => (
+                        <div key={e.name} className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-x-2 items-center py-1.5 px-2.5 rounded-xl bg-white/45 hover:bg-white/70 transition-colors">
+                          <div className="av" style={{background:e.bg,color:e.tc}}>{e.ini}</div>
+                          <div className="min-w-0">
+                            <p className="text-[11px] font-semibold text-[#0D0D0C] truncate leading-none">{e.name.split(" ")[0]}</p>
+                            <p className="text-[9px] text-[#AEAEA4] flex items-center gap-0.5 mt-0.5">
+                              <IPin size={7} color="#AEAEA4" />{e.loc}
+                            </p>
+                          </div>
+                          <span className="font-mono text-[10px] font-bold text-[#16A34A]">{e.entrada}</span>
+                          <span className="font-mono text-[10px] font-bold text-[#2563EB]">{e.salida}</span>
+                          <STag s={e.s}/>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* timeline */}
+                    <div className="px-1">
+                      <div className="flex justify-between text-[8.5px] text-[#AEAEA4] mb-1">
+                        <span>07:00</span><span>09:00</span><span>13:00</span><span>17:00</span><span>19:00</span>
+                      </div>
+                      <div className="h-[3px] rounded-full bg-[#EDE8DF]">
+                        <div className="h-full rounded-full" style={{width:"62%",background:"linear-gradient(90deg,#16A34A,#2563EB 60%,#D97706)"}}/>
+                      </div>
+                      <p className="text-[8.5px] text-[#AEAEA4] mt-1">Jornada 08:00–17:00</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -430,11 +459,17 @@ export default function Home() {
                 </div>
                 <div className="mt-8 flex items-center gap-3">
                   <div className="glass rounded-xl px-4 py-2.5 flex items-center gap-2.5">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#0D0D0C"><path d="M17.523 15.341a8 8 0 1 1 0-6.682l1.905-1.048A10 10 0 1 0 21.95 12l-4.427 3.34z"/><path d="M12 8v4l3 3"/></svg>
+                    {/* Android robot */}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#3DDC84">
+                      <path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85a.637.637 0 0 0-.83.22l-1.88 3.24a11.463 11.463 0 0 0-8.94 0L5.65 5.67a.643.643 0 0 0-.87-.2c-.28.18-.37.54-.22.83L6.4 9.48A10.78 10.78 0 0 0 1 18h22a10.78 10.78 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/>
+                    </svg>
                     <span className="text-[12px] font-semibold text-[#0D0D0C]">Android</span>
                   </div>
                   <div className="glass rounded-xl px-4 py-2.5 flex items-center gap-2.5">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#0D0D0C"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83"/></svg>
+                    {/* Apple logo */}
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#0D0D0C">
+                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                    </svg>
                     <span className="text-[12px] font-semibold text-[#0D0D0C]">iPhone</span>
                   </div>
                   <span className="text-[11px] text-[#AEAEA4]">Próximamente en tiendas</span>
@@ -497,14 +532,7 @@ export default function Home() {
                         </div>
                       </div>
                       {/* tab bar */}
-                      <div className="bg-white border-t border-[#eee] flex py-2 px-3 gap-0">
-                        {[{label:"Registro",active:true},{label:"Historial",active:false},{label:"Perfil",active:false}].map(t=>(
-                          <div key={t.label} className="flex-1 flex flex-col items-center gap-0.5">
-                            <div className={`w-3 h-3 rounded-sm ${t.active?"bg-[#0D0D0C]":"bg-[#ddd]"}`}/>
-                            <span className={`text-[5.5px] font-bold ${t.active?"text-[#0D0D0C]":"text-[#bbb]"}`}>{t.label}</span>
-                          </div>
-                        ))}
-                      </div>
+                      <PhoneTabBar active={0} />
                     </div>
                   </div>
                 </div>
@@ -556,14 +584,7 @@ export default function Home() {
                           </div>
                         </div>
                       </div>
-                      <div className="bg-white border-t border-[#eee] flex py-2 px-3">
-                        {[{label:"Registro",active:false},{label:"Historial",active:true},{label:"Perfil",active:false}].map(t=>(
-                          <div key={t.label} className="flex-1 flex flex-col items-center gap-0.5">
-                            <div className={`w-3 h-3 rounded-sm ${t.active?"bg-[#0D0D0C]":"bg-[#ddd]"}`}/>
-                            <span className={`text-[5.5px] font-bold ${t.active?"text-[#0D0D0C]":"text-[#bbb]"}`}>{t.label}</span>
-                          </div>
-                        ))}
-                      </div>
+                      <PhoneTabBar active={1} />
                     </div>
                   </div>
                 </div>
@@ -618,14 +639,7 @@ export default function Home() {
                           ))}
                         </div>
                       </div>
-                      <div className="bg-white border-t border-[#eee] flex py-2 px-3">
-                        {[{label:"Registro",active:false},{label:"Historial",active:false},{label:"Perfil",active:true}].map(t=>(
-                          <div key={t.label} className="flex-1 flex flex-col items-center gap-0.5">
-                            <div className={`w-3 h-3 rounded-sm ${t.active?"bg-[#0D0D0C]":"bg-[#ddd]"}`}/>
-                            <span className={`text-[5.5px] font-bold ${t.active?"text-[#0D0D0C]":"text-[#bbb]"}`}>{t.label}</span>
-                          </div>
-                        ))}
-                      </div>
+                      <PhoneTabBar active={2} />
                     </div>
                   </div>
                 </div>
@@ -699,20 +713,6 @@ export default function Home() {
               ))}
             </div>
 
-            {/* annual note */}
-            <div className="mt-10 glass rounded-2xl p-5 flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
-              <div className="w-10 h-10 rounded-[10px] bg-[#EFF6FF] flex items-center justify-center shrink-0 mx-auto md:mx-0">
-                <IShield size={18} color="#2563EB"/>
-              </div>
-              <div>
-                <p className="font-bold text-[#0D0D0C] text-[14px] mb-0.5">¿Por qué licencia anual?</p>
-                <p className="text-[13px] text-[#78786E]">
-                  La renovación anual incluye actualizaciones del software, soporte técnico durante todo el año
-                  y acceso a las nuevas funciones que liberamos. Sin ella, el software sigue funcionando
-                  pero no recibes actualizaciones ni soporte.
-                </p>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -889,5 +889,44 @@ export default function Home() {
         </footer>
       </main>
     </>
+  );
+}
+
+function PhoneTabBar({ active }: { active: 0 | 1 | 2 }) {
+  const tabs = [
+    { label: "Registro",
+      icon: (on: boolean) => (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="2"/>
+          <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+    },
+    { label: "Historial",
+      icon: (on: boolean) => (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="2"/>
+          <path d="M12 7v5l3.5 2" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+    { label: "Perfil",
+      icon: (on: boolean) => (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="4" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="2"/>
+          <path d="M4 20c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+  ];
+  return (
+    <div className="bg-white border-t border-[#eee] flex py-2 px-3">
+      {tabs.map((t, i) => (
+        <div key={t.label} className="flex-1 flex flex-col items-center gap-0.5">
+          {t.icon(i === active)}
+          <span className={`text-[5.5px] font-bold ${i === active ? "text-[#0D0D0C]" : "text-[#bbb]"}`}>{t.label}</span>
+        </div>
+      ))}
+    </div>
   );
 }
