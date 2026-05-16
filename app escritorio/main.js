@@ -1,4 +1,3 @@
-require("dotenv").config();
 const {
   app, BrowserWindow, Tray, Menu,
   ipcMain, nativeImage, shell,
@@ -6,9 +5,36 @@ const {
 const path    = require("path");
 const fs      = require("fs");
 const os      = require("os");
+const https   = require("https");
 const NatAPI  = require("nat-api");
 const server  = require("./server/local");
 const config  = require("./config");
+
+// Reliable HTTPS POST using Node built-in (works in packaged Electron)
+function httpsPost(url, data) {
+  return new Promise((resolve, reject) => {
+    const body   = JSON.stringify(data);
+    const parsed = new URL(url);
+    const opts   = {
+      hostname: parsed.hostname,
+      port:     parsed.port || 443,
+      path:     parsed.pathname + parsed.search,
+      method:   "POST",
+      headers:  { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) },
+    };
+    const req = https.request(opts, (res) => {
+      let raw = "";
+      res.on("data", c => raw += c);
+      res.on("end", () => {
+        try { resolve({ status: res.statusCode, body: JSON.parse(raw) }); }
+        catch { resolve({ status: res.statusCode, body: {} }); }
+      });
+    });
+    req.on("error", reject);
+    req.write(body);
+    req.end();
+  });
+}
 
 // ── Network state (populated after server starts) ────
 let cachedPublicIP  = null;
@@ -16,11 +42,16 @@ let cachedUpnpOk    = false;
 let natClient       = null;
 
 async function getPublicIP() {
-  try {
-    const r = await fetch("https://api.ipify.org?format=json");
-    const d = await r.json();
-    return d.ip || null;
-  } catch { return null; }
+  return new Promise((resolve) => {
+    https.get("https://api.ipify.org?format=json", (res) => {
+      let raw = "";
+      res.on("data", c => raw += c);
+      res.on("end", () => {
+        try { resolve(JSON.parse(raw).ip || null); }
+        catch { resolve(null); }
+      });
+    }).on("error", () => resolve(null));
+  });
 }
 
 async function openUPnPPort() {
@@ -191,6 +222,7 @@ app.whenReady().then(async () => {
 
   if (license) {
     try {
+      server.configure(app.getPath("userData"));
       await server.start();
       startNetworkServices(); // non-blocking
     } catch (e) { console.error("Server start failed:", e.message); }
@@ -214,14 +246,12 @@ ipcMain.handle("activate", async (_, licenseKey) => {
   const key       = licenseKey.trim().toUpperCase();
 
   try {
-    const res  = await fetch(`${config.API_URL}/api/license/validate`, {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({ license_key: key, machine_id: machineId }),
-    });
-    const data = await res.json();
+    const { status, body: data } = await httpsPost(
+      `${config.API_URL}/api/license/validate`,
+      { license_key: key, machine_id: machineId },
+    );
 
-    if (!res.ok || !data.valid) {
+    if (status !== 200 || !data.valid) {
       return { ok: false, error: data.error || "Licencia inválida o ya activada en otro equipo." };
     }
 
@@ -235,21 +265,25 @@ ipcMain.handle("activate", async (_, licenseKey) => {
 
     resizeForDashboard();
 
-    try { await server.start(); } catch (e) { console.error("Server:", e.message); }
+    try {
+      server.configure(app.getPath("userData"));
+      await server.start();
+    } catch (e) { console.error("Server:", e.message); }
 
     return { ok: true, license: licenseData };
   } catch (e) {
-    return { ok: false, error: `Error de conexión: ${e.message}` };
+    return { ok: false, error: `Error de conexión [${e.code || e.constructor?.name || "?"}]: ${e.message}` };
   }
 });
 
 // ── IPC: get local server info ────────────────────────
 ipcMain.handle("get-server-info", () => ({
-  ips:       getLocalIPs(),
-  port:      server.getPort(),
-  hostname:  os.hostname(),
-  publicIP:  cachedPublicIP,
-  upnpOk:   cachedUpnpOk,
+  ips:           getLocalIPs(),
+  port:          server.getPort(),
+  hostname:      os.hostname(),
+  publicIP:      cachedPublicIP,
+  upnpOk:        cachedUpnpOk,
+  adminPassword: server.getAdminPassword(),
 }));
 
 // ── IPC: deactivate ───────────────────────────────────

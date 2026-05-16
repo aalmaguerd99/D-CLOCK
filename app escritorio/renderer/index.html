@@ -427,6 +427,32 @@
         </div>
       </div>
 
+      <!-- Panel web card -->
+      <div class="card glass">
+        <div class="card-title">Panel web</div>
+        <div class="lic-row">
+          <div>
+            <div class="lic-key">Usuario</div>
+            <div class="lic-val" style="font-family:'Courier New',monospace;font-size:.85rem">admin</div>
+          </div>
+        </div>
+        <div class="lic-divider"></div>
+        <div class="lic-row" style="align-items:center">
+          <div>
+            <div class="lic-key">Contraseña</div>
+            <div class="lic-val" style="font-family:'Courier New',monospace;font-size:.85rem;letter-spacing:.08em" id="admin-pass-val">••••••••••••</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="togglePass()" id="pass-toggle-btn" title="Mostrar">
+            <svg id="pass-eye-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="lic-divider"></div>
+        <button class="btn btn-primary btn-sm" style="width:100%;margin-top:.25rem" id="open-panel-btn" onclick="openPanel()">
+          <svg width="14" height="14" fill="none" stroke="white" stroke-width="1.7" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Abrir panel web
+        </button>
+      </div>
+
       <!-- Stats card -->
       <div class="card glass">
         <div class="card-title">Actividad</div>
@@ -544,10 +570,32 @@
     await refreshServerInfo();
   }
 
+  /* ── Panel web ── */
+  let adminPassPlain = "";
+  let passVisible = false;
+
+  function togglePass() {
+    passVisible = !passVisible;
+    document.getElementById("admin-pass-val").textContent = passVisible ? adminPassPlain : "••••••••••••";
+    document.getElementById("pass-eye-icon").innerHTML = passVisible
+      ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>`
+      : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+  }
+
+  function openPanel() {
+    const ip = document.querySelector(".ip-addr")?.textContent || "localhost";
+    const port = document.getElementById("dash-port").textContent || "7474";
+    window.open(`http://${ip}:${port}`);
+  }
+
   /* ── Refresh server info (LAN + internet) ── */
   async function refreshServerInfo() {
     const info = await window.dclock.getServerInfo();
     const port = info.port;
+    if (info.adminPassword) {
+      adminPassPlain = info.adminPassword;
+      document.getElementById("admin-pass-val").textContent = passVisible ? adminPassPlain : "••••••••••••";
+    }
     document.getElementById("dash-port").textContent = port;
 
     // ── LAN IPs ──
