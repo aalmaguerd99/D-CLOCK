@@ -19,7 +19,10 @@
         "NSLocationWhenInUseUsageDescription": "D-CLOCK necesita tu ubicación para validar que estás en la zona de trabajo al registrar tu asistencia.",
         "NSLocationAlwaysUsageDescription": "D-CLOCK necesita tu ubicación para validar que estás en la zona de trabajo.",
         "NSCameraUsageDescription": "D-CLOCK toma una foto para verificar tu identidad al registrar la asistencia.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
       }
     },
     "android": {
