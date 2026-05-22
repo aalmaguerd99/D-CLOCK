@@ -141,6 +141,16 @@ function init(dataDir) {
     try { db.exec(sql); } catch {}
   }
 
+  // One-time fix: add +1 hour to check_ins stored with wrong UTC-7 timezone
+  const fixApplied = db.prepare("SELECT value FROM config WHERE key='timestamp_fix_v1'").get();
+  if (!fixApplied) {
+    const count = db.prepare("SELECT COUNT(*) AS n FROM check_ins").get().n;
+    if (count > 0) {
+      db.prepare("UPDATE check_ins SET timestamp = datetime(timestamp, '+1 hour')").run();
+    }
+    db.prepare("INSERT OR REPLACE INTO config VALUES ('timestamp_fix_v1','applied')").run();
+  }
+
   // Create admin on first run
   let plain = db.prepare("SELECT value FROM config WHERE key='admin_password'").get()?.value;
   const isFirstRun = !plain;
