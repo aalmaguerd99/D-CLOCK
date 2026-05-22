@@ -35,6 +35,10 @@ function broadcast(event, data) {
   sseClients.forEach(c => c.write(msg));
 }
 
+function nowMX() {
+  return new Date().toLocaleString('sv', { timeZone: 'America/Mexico_City' });
+}
+
 // ── Status ────────────────────────────────────────────
 app.get("/",           (req, res) => res.redirect("/api/status"));
 app.get("/api/status", (req, res) => res.json({ app: "D-CLOCK", version: "1.0.0", status: "active", timestamp: new Date().toISOString() }));
@@ -114,8 +118,8 @@ app.post("/api/mobile/checkin", (req, res) => {
 
   const dbType = type === "in" ? "entrada" : "salida";
   const result = db.prepare(
-    "INSERT INTO check_ins (employee_id, type, timestamp, latitude, longitude, photo, geofence_id) VALUES (?, ?, datetime('now','localtime'), ?, ?, ?, ?)"
-  ).run(employee_id, dbType, lat ?? null, lng ?? null, photo, geofence_id);
+    "INSERT INTO check_ins (employee_id, type, timestamp, latitude, longitude, photo, geofence_id) VALUES (?, ?, ?, ?, ?, ?, ?)"
+  ).run(employee_id, dbType, nowMX(), lat ?? null, lng ?? null, photo, geofence_id);
 
   const row = db.prepare("SELECT id, type, timestamp FROM check_ins WHERE id=?").get(result.lastInsertRowid);
   res.json({
@@ -363,9 +367,10 @@ app.post("/api/checkin", (req, res) => {
   const emp = DB.getDb().prepare("SELECT * FROM employees WHERE id=? AND active=1").get(employee_id);
   if (!emp) return res.status(404).json({ error: "Empleado no encontrado" });
 
+  const ts = nowMX();
   const r = DB.getDb().prepare(
-    "INSERT INTO check_ins (employee_id,type,latitude,longitude,geofence_id,device_id) VALUES (?,?,?,?,?,?)"
-  ).run(employee_id, type, latitude||null, longitude||null, geofence_id||null, device_id||null);
+    "INSERT INTO check_ins (employee_id,type,timestamp,latitude,longitude,geofence_id,device_id) VALUES (?,?,?,?,?,?,?)"
+  ).run(employee_id, type, ts, latitude||null, longitude||null, geofence_id||null, device_id||null);
 
   const checkin = {
     id: r.lastInsertRowid,
@@ -374,7 +379,7 @@ app.post("/api/checkin", (req, res) => {
     employee_number: emp.employee_number,
     photo: emp.photo || null,
     type,
-    timestamp: new Date().toISOString(),
+    timestamp: ts,
     latitude, longitude,
   };
   broadcast("checkin", checkin);
@@ -399,15 +404,16 @@ app.get("/api/checkins", auth, (req, res) => {
 });
 
 app.get("/api/checkins/today", auth, (req, res) => {
+  const today = nowMX().slice(0, 10);
   const rows = DB.getDb().prepare(`
     SELECT ci.*, e.name AS employee_name, e.last_name AS employee_last_name, e.employee_number, e.photo AS employee_photo,
            g.name AS geofence_name
     FROM check_ins ci
     JOIN employees e ON ci.employee_id=e.id
     LEFT JOIN geofences g ON ci.geofence_id=g.id
-    WHERE date(ci.timestamp)=date('now','localtime')
+    WHERE date(ci.timestamp)=?
     ORDER BY ci.timestamp DESC
-  `).all();
+  `).all(today);
   res.json(rows);
 });
 
