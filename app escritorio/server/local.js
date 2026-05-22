@@ -65,7 +65,7 @@ app.post("/api/mobile/auth", (req, res) => {
     WHERE e.employee_number = ? AND e.pin = ? AND e.active = 1
   `).get(employee_number.trim(), pin.trim());
   if (!emp) return res.status(401).json({ error: "Número de empleado o PIN incorrecto" });
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
   const last  = DB.getDb().prepare(
     "SELECT type, timestamp FROM check_ins WHERE employee_id=? AND date(timestamp,'localtime')=? ORDER BY timestamp DESC LIMIT 1"
   ).get(emp.id, today);
@@ -76,7 +76,7 @@ app.post("/api/mobile/auth", (req, res) => {
 app.get("/api/mobile/checkins/today", (req, res) => {
   const { employee_id } = req.query;
   if (!employee_id) return res.status(400).json({ error: "employee_id requerido" });
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
   const rows  = DB.getDb().prepare(
     "SELECT id, type, timestamp FROM check_ins WHERE employee_id=? AND date(timestamp,'localtime')=? ORDER BY timestamp ASC"
   ).all(employee_id, today);
@@ -435,10 +435,10 @@ app.get("/api/checkins/live", (req, res) => {
 
 app.get("/api/stats", auth, (req, res) => {
   const db = DB.getDb();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
   const totalEmployees = db.prepare("SELECT COUNT(*) AS n FROM employees WHERE active=1").get().n;
-  const presentToday   = db.prepare("SELECT COUNT(DISTINCT employee_id) AS n FROM check_ins WHERE type='entrada' AND date(timestamp)=?").get(today).n;
-  const checkinsToday  = db.prepare("SELECT COUNT(*) AS n FROM check_ins WHERE date(timestamp)=?").get(today).n;
+  const presentToday   = db.prepare("SELECT COUNT(DISTINCT employee_id) AS n FROM check_ins WHERE type='entrada' AND date(timestamp,'localtime')=?").get(today).n;
+  const checkinsToday  = db.prepare("SELECT COUNT(*) AS n FROM check_ins WHERE date(timestamp,'localtime')=?").get(today).n;
   res.json({ totalEmployees, presentToday, checkinsToday, date: today });
 });
 
