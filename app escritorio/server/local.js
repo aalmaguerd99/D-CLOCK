@@ -417,6 +417,12 @@ app.get("/api/checkins/today", auth, (req, res) => {
   res.json(rows);
 });
 
+app.delete("/api/checkins/:id", auth, (req, res) => {
+  const r = DB.getDb().prepare("DELETE FROM check_ins WHERE id=?").run(req.params.id);
+  if (r.changes === 0) return res.status(404).json({ error: "Registro no encontrado" });
+  res.json({ ok: true });
+});
+
 app.delete("/api/checkins", auth, (req, res) => {
   const { before } = req.query;
   if (before) {
