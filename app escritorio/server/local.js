@@ -445,13 +445,47 @@ app.get("/api/checkins/live", (req, res) => {
   req.on("close", () => sseClients.delete(res));
 });
 
+app.get("/api/stats/week", auth, (req, res) => {
+  const db = DB.getDb();
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const date = d.toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
+    const present = db.prepare(
+      "SELECT COUNT(DISTINCT employee_id) AS n FROM check_ins WHERE type='entrada' AND date(timestamp)=?"
+    ).get(date).n;
+    days.push({ date, present });
+  }
+  res.json(days);
+});
+
 app.get("/api/stats", auth, (req, res) => {
   const db = DB.getDb();
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
   const totalEmployees = db.prepare("SELECT COUNT(*) AS n FROM employees WHERE active=1").get().n;
-  const presentToday   = db.prepare("SELECT COUNT(DISTINCT employee_id) AS n FROM check_ins WHERE type='entrada' AND date(timestamp,'localtime')=?").get(today).n;
-  const checkinsToday  = db.prepare("SELECT COUNT(*) AS n FROM check_ins WHERE date(timestamp,'localtime')=?").get(today).n;
-  res.json({ totalEmployees, presentToday, checkinsToday, date: today });
+  const presentToday   = db.prepare("SELECT COUNT(DISTINCT employee_id) AS n FROM check_ins WHERE type='entrada' AND date(timestamp)=?").get(today).n;
+  const checkinsToday  = db.prepare("SELECT COUNT(*) AS n FROM check_ins WHERE date(timestamp)=?").get(today).n;
+  const insideNow = db.prepare(`
+    SELECT COUNT(*) AS n FROM employees e
+    WHERE e.active=1 AND (
+      SELECT type FROM check_ins WHERE employee_id=e.id AND date(timestamp)=?
+      ORDER BY timestamp DESC LIMIT 1
+    )='entrada'
+  `).get(today).n;
+  const insideList = db.prepare(`
+    SELECT e.id, e.name, e.last_name, e.photo, e.employee_number,
+           ci.timestamp AS last_checkin
+    FROM employees e
+    JOIN check_ins ci ON ci.employee_id=e.id
+    WHERE ci.id=(
+      SELECT id FROM check_ins WHERE employee_id=e.id AND date(timestamp)=?
+      ORDER BY timestamp DESC LIMIT 1
+    ) AND ci.type='entrada' AND e.active=1
+    ORDER BY ci.timestamp DESC
+  `).all(today);
+  const absentToday = Math.max(0, totalEmployees - presentToday);
+  res.json({ totalEmployees, presentToday, checkinsToday, insideNow, insideList, absentToday, date: today });
 });
 
 // ── Server lifecycle ──────────────────────────────────
