@@ -154,6 +154,22 @@ html,body{height:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
 .rec-view-btn.active{background:var(--text,#1a1a1a);color:#fff;border-color:var(--text,#1a1a1a)}
 .rec-hours{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-bg);padding:3px 9px;border-radius:20px;white-space:nowrap}
 #rec-full-map{width:100%;flex:1;min-height:520px}
+/* PERIOD / EMPLOYEE VIEW */
+.rec-mode-btn{padding:7px 18px;font-size:13px;font-weight:700;border:1.5px solid var(--border2);cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
+.rec-mode-btn:first-child{border-radius:8px 0 0 8px}
+.rec-mode-btn:last-child{border-radius:0 8px 8px 0;margin-left:-1.5px}
+.rec-mode-btn.active{background:var(--text);color:#fff;border-color:var(--text)}
+.period-btn{padding:5px 13px;font-size:12px;font-weight:700;border:1px solid var(--border2);cursor:pointer;background:transparent;color:var(--text2);transition:all .15s;border-radius:6px}
+.period-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.emp-period-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:box-shadow .2s}
+.emp-period-card:hover{box-shadow:var(--shadow-md)}
+.day-dot{width:34px;height:34px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;flex-shrink:0;cursor:default}
+.day-dot.full{background:var(--green-bg);color:var(--green)}
+.day-dot.in-only{background:var(--accent-bg);color:var(--accent)}
+.day-dot.absent{background:var(--red-bg);color:var(--red)}
+.day-dot.weekend{background:var(--bg);color:var(--muted)}
+.emp-day-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.emp-day-row:last-child{border-bottom:none}
 /* TABLE */
 .tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
@@ -462,7 +478,15 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
         <!-- REGISTROS -->
         <div class="section" id="sec-registros">
-          <div class="toolbar" style="gap:8px;flex-wrap:wrap">
+          <!-- Mode switcher -->
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <div style="display:flex">
+              <button class="rec-mode-btn active" id="btn-mode-day" onclick="setRecMode('day')">Por día</button>
+              <button class="rec-mode-btn" id="btn-mode-emp" onclick="setRecMode('employee')">Por empleado</button>
+            </div>
+          </div>
+          <!-- Per-day toolbar -->
+          <div id="rec-toolbar-day" class="toolbar" style="gap:8px;flex-wrap:wrap">
             <input type="date" id="rec-date" class="inp" style="width:160px" onchange="loadRecords()">
             <input type="text" id="rec-search" class="search-inp" placeholder="Buscar empleado..." oninput="loadRecords()" style="flex:1;min-width:140px;max-width:210px">
             <select id="rec-geo-filter" class="inp" style="width:170px" onchange="loadRecords()">
@@ -476,6 +500,21 @@ input[type=range]{width:100%;accent-color:var(--accent)}
               <button class="rec-view-btn" id="btn-rec-list" onclick="setRecView('list')">Lista</button>
               <button class="rec-view-btn" id="btn-rec-map" onclick="setRecView('map')">Mapa</button>
             </div>
+          </div>
+          <!-- Per-employee toolbar -->
+          <div id="rec-toolbar-emp" style="display:none;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px">
+            <div style="display:flex;gap:4px">
+              <button class="period-btn active" id="pb-week" onclick="setRecPeriod('week')">Esta semana</button>
+              <button class="period-btn" id="pb-month" onclick="setRecPeriod('month')">Este mes</button>
+              <button class="period-btn" id="pb-custom" onclick="setRecPeriod('custom')">Rango</button>
+            </div>
+            <div id="rec-range-inputs" style="display:none;align-items:center;gap:6px">
+              <input type="date" id="rec-from" class="inp" style="width:148px">
+              <span style="color:var(--muted);font-size:13px">—</span>
+              <input type="date" id="rec-to" class="inp" style="width:148px">
+              <button class="btn btn-primary btn-sm" onclick="loadPeriodRecords()">Buscar</button>
+            </div>
+            <input type="text" id="rec-emp-search" class="search-inp" placeholder="Buscar empleado..." oninput="loadPeriodRecords()" style="flex:1;min-width:140px;max-width:240px;margin-left:auto">
           </div>
           <div id="rec-body" style="flex:1;overflow:auto"></div>
         </div>
@@ -1715,6 +1754,169 @@ async function delGeo(id){if(!confirm("¿Eliminar geocerca?"))return;await api("
 
 // RECORDS
 let recView='cards';
+let recMode='day';
+let recPeriod='week';
+
+function setRecMode(mode){
+  recMode=mode;
+  document.getElementById('btn-mode-day').classList.toggle('active',mode==='day');
+  document.getElementById('btn-mode-emp').classList.toggle('active',mode==='employee');
+  document.getElementById('rec-toolbar-day').style.display=mode==='day'?'':'none';
+  document.getElementById('rec-toolbar-emp').style.display=mode==='employee'?'flex':'none';
+  if(mode==='day')loadRecords();else loadPeriodRecords();
+}
+
+function setRecPeriod(p){
+  recPeriod=p;
+  ['week','month','custom'].forEach(n=>{const el=document.getElementById(`pb-${n}`);if(el)el.classList.toggle('active',n===p);});
+  document.getElementById('rec-range-inputs').style.display=p==='custom'?'flex':'none';
+  if(p!=='custom')loadPeriodRecords();
+}
+
+function getPeriodDates(){
+  const toStr=d=>d.toLocaleDateString('en-CA',{timeZone:'America/Mexico_City'});
+  const today=new Date();
+  if(recPeriod==='week'){
+    const mon=new Date(today);
+    mon.setDate(today.getDate()-(today.getDay()===0?6:today.getDay()-1));
+    return{from:toStr(mon),to:toStr(today)};
+  }
+  if(recPeriod==='month'){
+    const first=new Date(today.getFullYear(),today.getMonth(),1);
+    return{from:toStr(first),to:toStr(today)};
+  }
+  return{from:document.getElementById('rec-from').value,to:document.getElementById('rec-to').value};
+}
+
+function getDaysInRange(from,to){
+  const days=[];
+  const d=new Date(from+'T12:00:00');
+  const end=new Date(to+'T12:00:00');
+  while(d<=end){days.push(d.toLocaleDateString('en-CA',{timeZone:'America/Mexico_City'}));d.setDate(d.getDate()+1);}
+  return days;
+}
+
+async function loadPeriodRecords(){
+  const{from,to}=getPeriodDates();
+  if(!from||!to)return;
+  const search=(document.getElementById('rec-emp-search')?.value||'').toLowerCase().trim();
+  const body=document.getElementById('rec-body');
+  body.innerHTML='<div class="empty" style="margin:48px auto"><svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>Cargando...</p></div>';
+  const rows=await api("GET",`/api/checkins/period?from=${from}&to=${to}`);
+  const empMap=new Map();
+  for(const r of rows){
+    if(!empMap.has(r.employee_id))empMap.set(r.employee_id,{employee_id:r.employee_id,employee_name:r.employee_name,employee_last_name:r.employee_last_name||'',employee_number:r.employee_number,employee_photo:r.employee_photo,records:[]});
+    empMap.get(r.employee_id).records.push(r);
+  }
+  let emps=[...empMap.values()];
+  if(search)emps=emps.filter(e=>`${e.employee_name} ${e.employee_last_name} ${e.employee_number}`.toLowerCase().includes(search));
+  renderEmployeeSummary(emps,from,to);
+}
+
+function renderEmployeeSummary(emps,from,to){
+  const body=document.getElementById('rec-body');
+  const days=getDaysInRange(from,to);
+  const weekdays=days.filter(d=>{const dow=new Date(d+'T12:00:00').getDay();return dow!==0&&dow!==6;});
+  const DN=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const MN=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+  if(!emps.length){body.innerHTML='<div class="empty" style="margin:48px auto"><p>Sin registros en este período</p></div>';return;}
+
+  body.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;padding-bottom:16px">${emps.map(emp=>{
+    const name=`${emp.employee_name}${emp.employee_last_name?' '+emp.employee_last_name:''}`;
+    const byDate={};
+    for(const r of emp.records){
+      const date=r.timestamp.slice(0,10);
+      if(!byDate[date])byDate[date]={entrada:null,salida:null};
+      if(r.type==='entrada'&&!byDate[date].entrada)byDate[date].entrada=r;
+      if(r.type==='salida')byDate[date].salida=r;
+    }
+    const daysAttended=weekdays.filter(d=>byDate[d]?.entrada).length;
+    const totalWeekdays=weekdays.length;
+    const pct=totalWeekdays>0?Math.round((daysAttended/totalWeekdays)*100):0;
+    let totalMins=0;
+    for(const rec of Object.values(byDate)){if(rec.entrada&&rec.salida)totalMins+=(new Date(rec.salida.timestamp)-new Date(rec.entrada.timestamp))/60000;}
+    const totalHrs=Math.floor(totalMins/60),totalMin=Math.round(totalMins%60);
+    const pctColor=pct>=80?'var(--green)':pct>=50?'var(--yellow)':'var(--red)';
+
+    const dotsHtml=days.map(d=>{
+      const dow=new Date(d+'T12:00:00').getDay();
+      const isWe=dow===0||dow===6;
+      const rec=byDate[d];
+      let cls;
+      if(isWe)cls='weekend';
+      else if(rec?.entrada&&rec?.salida)cls='full';
+      else if(rec?.entrada)cls='in-only';
+      else cls='absent';
+      const dayNum=parseInt(d.slice(8));
+      const icon=cls==='full'?'✓':cls==='in-only'?'→':cls==='absent'?'✕':'-';
+      return`<div class="day-dot ${cls}" title="${DN[dow]} ${dayNum}"><span style="font-size:8px;opacity:.7">${DN[dow].slice(0,1)}</span><span style="font-size:10px;font-weight:800">${dayNum}</span></div>`;
+    }).join('');
+
+    const dayRowsHtml=weekdays.map(d=>{
+      const rec=byDate[d];
+      const dt=new Date(d+'T12:00:00');
+      const label=`${DN[dt.getDay()]} ${dt.getDate()} ${MN[dt.getMonth()]}`;
+      if(!rec?.entrada)return`<div class="emp-day-row">
+        <span style="width:110px;font-size:12px;color:var(--muted);font-weight:600">${label}</span>
+        <span class="badge badge-red" style="font-size:10px">Sin registro</span>
+      </div>`;
+      let saliHtml=`<span style="color:var(--muted);font-size:12px">sin salida</span>`;
+      let hoursHtml='';
+      if(rec.salida){
+        const mins=(new Date(rec.salida.timestamp)-new Date(rec.entrada.timestamp))/60000;
+        const h=Math.floor(mins/60),m=Math.round(mins%60);
+        hoursHtml=`<span class="rec-hours" style="margin-left:auto">⏱ ${h}h${m>0?' '+m+'m':''}</span>`;
+        saliHtml=`<span class="badge badge-yellow" style="font-size:10px">${fmtTime(rec.salida.timestamp)}</span>`;
+      }
+      const photoHtml=rec.entrada?.photo?`<img src="${rec.entrada.photo}" style="width:28px;height:28px;border-radius:4px;object-fit:cover;cursor:zoom-in;border:1px solid var(--border);flex-shrink:0" onclick="openPhoto('${rec.entrada.photo}')">`:'';
+      return`<div class="emp-day-row">
+        <span style="width:110px;font-size:12px;color:var(--text2);font-weight:600;flex-shrink:0">${label}</span>
+        <span class="badge badge-green" style="font-size:10px">${fmtTime(rec.entrada.timestamp)}</span>
+        <span style="color:var(--muted)">→</span>
+        ${saliHtml}
+        ${photoHtml}
+        ${hoursHtml}
+      </div>`;
+    }).join('');
+
+    return`<div class="emp-period-card" id="epc-${emp.employee_id}">
+      <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;user-select:none" onclick="toggleEmpCard(${emp.employee_id})">
+        ${avatarHtml(emp.employee_photo,emp.employee_name,44)}
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">${emp.employee_number}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px;flex-shrink:0">
+          <div style="text-align:center">
+            <div style="font-size:22px;font-weight:800;color:${pctColor};line-height:1">${pct}%</div>
+            <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-top:2px">Asistencia</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:22px;font-weight:800;color:var(--text);line-height:1">${daysAttended}<span style="font-size:14px;color:var(--muted);font-weight:500">/${totalWeekdays}</span></div>
+            <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-top:2px">Días</div>
+          </div>
+          ${totalHrs>0?`<div style="text-align:center">
+            <div style="font-size:22px;font-weight:800;color:var(--text);line-height:1">${totalHrs}<span style="font-size:13px;color:var(--muted);font-weight:500">h${totalMin>0?' '+totalMin+'m':''}</span></div>
+            <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-top:2px">Horas</div>
+          </div>`:''}
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" id="epc-arr-${emp.employee_id}" style="color:var(--muted);transition:transform .2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      ${days.length>1?`<div style="display:flex;gap:4px;padding:0 20px 14px;flex-wrap:wrap">${dotsHtml}</div>`:''}
+      <div id="epc-detail-${emp.employee_id}" style="display:none;border-top:1px solid var(--border);padding:12px 20px 16px">${dayRowsHtml}</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function toggleEmpCard(empId){
+  const detail=document.getElementById(`epc-detail-${empId}`);
+  const arrow=document.getElementById(`epc-arr-${empId}`);
+  const open=detail.style.display==='none';
+  detail.style.display=open?'block':'none';
+  if(arrow)arrow.style.transform=open?'rotate(180deg)':'';
+}
+
 function setRecView(v){
   recView=v;
   ['cards','list','map'].forEach(n=>{const el=document.getElementById(`btn-rec-${n}`);if(el)el.classList.toggle("active",v===n);});
@@ -1892,7 +2094,7 @@ function goto(name,el){
   document.getElementById("sec-"+name).classList.add("active");
   const titles={dashboard:"Dashboard",registros:"Registros de asistencia",empleados:"Empleados",departamentos:"Departamentos",areas:"Áreas",puestos:"Puestos",horarios:"Horarios",geocercas:"Geocercas",configuracion:"Configuración"};
   document.getElementById("page-title").textContent=titles[name]||name;
-  if(name==="registros")loadRecords();
+  if(name==="registros"){if(recMode==='day')loadRecords();else loadPeriodRecords();}
   if(name==="horarios")loadAssignments();
 }
 

@@ -403,6 +403,21 @@ app.get("/api/checkins", auth, (req, res) => {
   res.json(DB.getDb().prepare(sql).all(...params));
 });
 
+app.get("/api/checkins/period", auth, (req, res) => {
+  const { from, to, employee_id } = req.query;
+  if (!from || !to) return res.status(400).json({ error: "from y to requeridos" });
+  let sql = `SELECT ci.*, e.id AS emp_id, e.name AS employee_name, e.last_name AS employee_last_name,
+                    e.employee_number, e.photo AS employee_photo, g.name AS geofence_name
+             FROM check_ins ci
+             JOIN employees e ON ci.employee_id=e.id
+             LEFT JOIN geofences g ON ci.geofence_id=g.id
+             WHERE date(ci.timestamp)>=? AND date(ci.timestamp)<=? AND e.active=1`;
+  const params = [from, to];
+  if (employee_id) { sql += " AND ci.employee_id=?"; params.push(employee_id); }
+  sql += " ORDER BY e.name, e.last_name, ci.timestamp";
+  res.json(DB.getDb().prepare(sql).all(...params));
+});
+
 app.get("/api/checkins/today", auth, (req, res) => {
   const today = nowMX().slice(0, 10);
   const rows = DB.getDb().prepare(`
