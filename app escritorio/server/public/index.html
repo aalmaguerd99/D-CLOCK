@@ -136,17 +136,18 @@ html,body{height:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
 .ml-auto{margin-left:auto}
 
 /* RECORD CARDS */
-.rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(460px,1fr));gap:16px;padding:20px}
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px;padding:20px}
 .rec-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05),0 1px 8px rgba(0,0,0,.04);transition:box-shadow .2s,transform .15s}
 .rec-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.10);transform:translateY(-1px)}
-.rec-card-header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface)}
-.rec-card-body{display:grid;grid-template-columns:1fr 1fr}
-.rec-col{padding:14px 16px;border-right:1px solid var(--border)}
-.rec-col:last-child{border-right:none}
-.rec-col-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;text-transform:uppercase}
-.rec-col-time{font-size:22px;font-weight:900;color:var(--text);margin-bottom:10px;font-variant-numeric:tabular-nums}
-.rec-selfie{width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:6px;cursor:pointer;border:1px solid var(--border);display:block;margin-bottom:8px}
-.rec-no-data{display:flex;align-items:center;justify-content:center;height:80px;color:var(--muted);font-size:12px;letter-spacing:.5px}
+.rec-card-header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.rec-card-body{padding:0}
+.rec-row{display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--border)}
+.rec-row-label{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;width:58px;flex-shrink:0;color:var(--muted)}
+.rec-row-time{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text)}
+.rec-row-no{font-size:13px;color:var(--muted)}
+.rec-card-footer{display:flex;justify-content:flex-end;padding:10px 16px}
+.rec-selfie{width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:6px;cursor:zoom-in;border:1px solid var(--border);display:block}
+.rec-no-data{display:flex;align-items:center;justify-content:center;height:60px;color:var(--muted);font-size:12px;letter-spacing:.5px}
 .rec-map-frame{width:100%;height:130px;border:none;border-radius:6px;display:block;overflow:hidden}
 .rec-map-link{display:inline-block;font-size:11px;color:var(--accent);margin-top:6px;text-decoration:none;letter-spacing:.3px}
 .rec-map-link:hover{text-decoration:underline}
@@ -154,6 +155,22 @@ html,body{height:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
 .rec-view-btn.active{background:var(--text,#1a1a1a);color:#fff;border-color:var(--text,#1a1a1a)}
 .rec-hours{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-bg);padding:3px 9px;border-radius:20px;white-space:nowrap}
 #rec-full-map{width:100%;flex:1;min-height:520px}
+/* REPORTES */
+.rpt-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px;flex:1;min-height:0}
+.rpt-table{border-collapse:collapse;white-space:nowrap;width:100%}
+.rpt-table th{background:var(--surface);padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border);position:sticky;top:0;z-index:3}
+.rpt-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12.5px}
+.rpt-table tbody tr:hover td{background:rgba(0,0,0,.013)}
+.rpt-th-s0{position:sticky!important;left:0;z-index:5!important;background:var(--surface)!important}
+.rpt-td-s0{position:sticky;left:0;z-index:2;background:var(--surface)}
+.rpt-th-s1{position:sticky!important;left:42px;z-index:5!important;background:var(--surface)!important;box-shadow:2px 0 6px rgba(0,0,0,.06)}
+.rpt-td-s1{position:sticky;left:42px;z-index:2;background:var(--surface);box-shadow:2px 0 6px rgba(0,0,0,.06)}
+.rpt-day-th{padding:4px 2px!important;text-align:center!important;width:32px;min-width:32px;max-width:32px;font-size:9px!important;line-height:1.3}
+.rpt-day-td{padding:3px 2px!important;text-align:center}
+.rpt-cell{width:26px;height:24px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}
+.rpt-legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;padding:10px 14px;background:var(--glass);border:1px solid var(--border);border-radius:10px}
+.rpt-legend-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700}
+.rpt-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
 /* PERIOD / EMPLOYEE VIEW */
 .rec-mode-btn{padding:7px 18px;font-size:13px;font-weight:700;border:1.5px solid var(--border2);cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
 .rec-mode-btn:first-child{border-radius:8px 0 0 8px}
@@ -374,6 +391,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           Registros
         </div>
+        <div class="nav-item" onclick="goto('reportes',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Reportes
+        </div>
 
         <div class="nav-section">Organización</div>
         <div class="nav-item" onclick="goto('empleados',this)">
@@ -517,6 +538,48 @@ input[type=range]{width:100%;accent-color:var(--accent)}
             <input type="text" id="rec-emp-search" class="search-inp" placeholder="Buscar empleado..." oninput="loadPeriodRecords()" style="flex:1;min-width:140px;max-width:240px;margin-left:auto">
           </div>
           <div id="rec-body" style="flex:1;overflow:auto"></div>
+        </div>
+
+        <!-- REPORTES -->
+        <div class="section" id="sec-reportes">
+          <div class="toolbar" style="flex-wrap:wrap;gap:8px">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <span style="font-size:12px;font-weight:700;color:var(--muted)">Del</span>
+              <input type="date" id="rpt-from" class="inp" style="width:148px">
+              <span style="font-size:12px;font-weight:700;color:var(--muted)">al</span>
+              <input type="date" id="rpt-to" class="inp" style="width:148px">
+            </div>
+            <select id="rpt-dept" class="inp" style="width:170px"><option value="">Todos los departamentos</option></select>
+            <select id="rpt-area" class="inp" style="width:150px"><option value="">Todas las áreas</option></select>
+            <select id="rpt-job" class="inp" style="width:165px"><option value="">Todos los puestos</option></select>
+            <input type="text" id="rpt-search" class="search-inp" placeholder="Buscar empleado..." style="flex:1;min-width:130px;max-width:200px">
+            <div style="margin-left:auto;display:flex;gap:6px">
+              <button class="btn btn-primary btn-sm" onclick="generateReport()">
+                <svg width="13" height="13" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Generar
+              </button>
+              <button class="btn btn-ghost btn-sm" id="rpt-excel-btn" onclick="downloadReportExcel()" style="display:none;gap:5px">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Descargar Excel
+              </button>
+            </div>
+          </div>
+          <!-- Leyenda -->
+          <div class="rpt-legend" id="rpt-legend" style="display:none">
+            <span style="font-size:11px;font-weight:700;color:var(--muted)">Leyenda:</span>
+            <span class="rpt-legend-chip"><span class="rpt-cell" style="background:#15803d;color:#fff">✓</span> Completo</span>
+            <span class="rpt-legend-chip"><span class="rpt-cell" style="background:#86efac;color:#15803d">E</span> Solo entrada</span>
+            <span class="rpt-legend-chip"><span class="rpt-cell" style="background:#fca5a5;color:#dc2626">F</span> Falta</span>
+            <span class="rpt-legend-chip"><span class="rpt-cell" style="background:#fde047;color:#a16207">I</span> Incapacidad</span>
+            <span class="rpt-legend-chip"><span class="rpt-cell" style="background:#e5e7eb;color:#6b7280">D</span> Descanso</span>
+            <span class="rpt-legend-chip"><span class="rpt-cell" style="background:#93c5fd;color:#1e40af">V</span> Vacaciones</span>
+          </div>
+          <!-- Resumen -->
+          <div class="rpt-summary" id="rpt-summary" style="display:none"></div>
+          <!-- Tabla -->
+          <div id="rpt-body" style="flex:1;overflow:auto">
+            <div class="empty" style="margin:48px auto"><svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><p>Selecciona el período y presiona Generar</p></div>
+          </div>
         </div>
 
         <!-- EMPLEADOS -->
@@ -912,6 +975,45 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       </div>
     </div>
     <div class="modal-foot"><button class="btn btn-ghost btn-sm" onclick="closeModal('m-geo')">Cancelar</button><button class="btn btn-primary btn-sm" onclick="saveGeo()">Guardar</button></div>
+  </div>
+</div>
+
+<!-- Modal: Más info registro -->
+<div class="overlay" id="m-rec-info">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-head">
+      <div>
+        <h3 id="mri-name">—</h3>
+        <div id="mri-date" style="font-size:12px;color:var(--muted);margin-top:3px"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('m-rec-info')"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" style="padding-top:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div id="mri-in-section">
+          <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--green);text-transform:uppercase;margin-bottom:8px">Entrada</div>
+          <div id="mri-in-time" style="font-size:30px;font-weight:900;line-height:1;margin-bottom:6px;font-variant-numeric:tabular-nums"></div>
+          <div id="mri-in-geo" style="margin-bottom:12px"></div>
+          <img id="mri-in-photo" src="" style="width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:8px;cursor:zoom-in;border:1px solid var(--border);margin-bottom:10px;display:none" onclick="openPhoto(this.src)">
+          <div id="mri-in-map" style="width:100%;height:170px;border-radius:8px;overflow:hidden;border:1px solid var(--border);margin-bottom:8px;display:none"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <a id="mri-in-gmap" href="#" target="_blank" style="font-size:11px;color:var(--accent);display:none;text-decoration:none">Ver en Google Maps →</a>
+            <button id="mri-in-del" class="btn btn-danger btn-xs" style="margin-left:auto">Eliminar entrada</button>
+          </div>
+        </div>
+        <div id="mri-out-section">
+          <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--yellow);text-transform:uppercase;margin-bottom:8px">Salida</div>
+          <div id="mri-out-time" style="font-size:30px;font-weight:900;line-height:1;margin-bottom:6px;font-variant-numeric:tabular-nums"></div>
+          <div id="mri-out-geo" style="margin-bottom:12px"></div>
+          <img id="mri-out-photo" src="" style="width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:8px;cursor:zoom-in;border:1px solid var(--border);margin-bottom:10px;display:none" onclick="openPhoto(this.src)">
+          <div id="mri-out-map" style="width:100%;height:170px;border-radius:8px;overflow:hidden;border:1px solid var(--border);margin-bottom:8px;display:none"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <a id="mri-out-gmap" href="#" target="_blank" style="font-size:11px;color:var(--accent);display:none;text-decoration:none">Ver en Google Maps →</a>
+            <button id="mri-out-del" class="btn btn-danger btn-xs" style="margin-left:auto">Eliminar salida</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1756,6 +1858,8 @@ async function delGeo(id){if(!confirm("¿Eliminar geocerca?"))return;await api("
 let recView='cards';
 let recMode='day';
 let recPeriod='week';
+let _recCards=[];
+let _mriMapIn=null,_mriMapOut=null;
 
 function setRecMode(mode){
   recMode=mode;
@@ -1802,7 +1906,10 @@ async function loadPeriodRecords(){
   const search=(document.getElementById('rec-emp-search')?.value||'').toLowerCase().trim();
   const body=document.getElementById('rec-body');
   body.innerHTML='<div class="empty" style="margin:48px auto"><svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>Cargando...</p></div>';
-  const rows=await api("GET",`/api/checkins/period?from=${from}&to=${to}`);
+  const [rows,schedStatus]=await Promise.all([
+    api("GET",`/api/checkins/period?from=${from}&to=${to}`),
+    api("GET",`/api/schedule-status?from=${from}&to=${to}`)
+  ]);
   const empMap=new Map();
   for(const r of rows){
     if(!empMap.has(r.employee_id))empMap.set(r.employee_id,{employee_id:r.employee_id,employee_name:r.employee_name,employee_last_name:r.employee_last_name||'',employee_number:r.employee_number,employee_photo:r.employee_photo,records:[]});
@@ -1810,15 +1917,43 @@ async function loadPeriodRecords(){
   }
   let emps=[...empMap.values()];
   if(search)emps=emps.filter(e=>`${e.employee_name} ${e.employee_last_name} ${e.employee_number}`.toLowerCase().includes(search));
-  renderEmployeeSummary(emps,from,to);
+  renderEmployeeSummary(emps,from,to,schedStatus);
 }
 
-function renderEmployeeSummary(emps,from,to){
+function getSchedStatus(empId,date,schedStatus){
+  const DOW=['dom','lun','mar','mie','jue','vie','sab'];
+  const dow=new Date(date+'T12:00:00').getDay();
+  const key=`${empId}_${date}`;
+  const assign=schedStatus._assignLookup?.[key];
+  if(assign){
+    const t=assign.sched_type||'trabajo';
+    return{shouldWork:t==='trabajo',type:t,name:assign.sched_name||t};
+  }
+  const emp=schedStatus._empMap?.[empId];
+  if(!emp||!emp.sched_days)return{shouldWork:false,type:'noSchedule',name:'Sin horario'};
+  let days=[];try{days=JSON.parse(emp.sched_days);}catch(e){}
+  if(days.includes(DOW[dow])){
+    const t=emp.sched_type||'trabajo';
+    return{shouldWork:t==='trabajo',type:t,name:t};
+  }
+  return{shouldWork:false,type:'free',name:'Descanso'};
+}
+
+function renderEmployeeSummary(emps,from,to,schedStatus){
+  if(schedStatus&&!schedStatus._built){
+    schedStatus._assignLookup={};
+    for(const a of (schedStatus.assignments||[]))schedStatus._assignLookup[`${a.employee_id}_${a.date}`]=a;
+    schedStatus._empMap={};
+    for(const e of (schedStatus.emps||[]))schedStatus._empMap[e.employee_id]=e;
+    schedStatus._built=true;
+  }
   const body=document.getElementById('rec-body');
   const days=getDaysInRange(from,to);
   const weekdays=days.filter(d=>{const dow=new Date(d+'T12:00:00').getDay();return dow!==0&&dow!==6;});
   const DN=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
   const MN=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const SCHED_LABELS={trabajo:'Trabajo',descanso:'Descanso',vacaciones:'Vacaciones',incapacidad:'Incapacidad',free:'Descanso',noSchedule:'Sin horario'};
+  const SCHED_BADGE={trabajo:'badge-green',descanso:'badge-gray',vacaciones:'badge-blue',incapacidad:'badge-yellow',free:'badge-gray',noSchedule:'badge-gray'};
 
   if(!emps.length){body.innerHTML='<div class="empty" style="margin:48px auto"><p>Sin registros en este período</p></div>';return;}
 
@@ -1832,8 +1967,13 @@ function renderEmployeeSummary(emps,from,to){
       if(r.type==='salida')byDate[date].salida=r;
     }
     const daysAttended=weekdays.filter(d=>byDate[d]?.entrada).length;
-    const totalWeekdays=weekdays.length;
-    const pct=totalWeekdays>0?Math.round((daysAttended/totalWeekdays)*100):0;
+    const faltaDays=weekdays.filter(d=>{
+      if(byDate[d]?.entrada)return false;
+      const ss=getSchedStatus(emp.employee_id,d,schedStatus||{});
+      return ss.shouldWork;
+    }).length;
+    const totalWeekdays=weekdays.filter(d=>{const ss=getSchedStatus(emp.employee_id,d,schedStatus||{});return ss.shouldWork;}).length;
+    const pct=totalWeekdays>0?Math.round((daysAttended/totalWeekdays)*100):daysAttended>0?100:0;
     let totalMins=0;
     for(const rec of Object.values(byDate)){if(rec.entrada&&rec.salida)totalMins+=(new Date(rec.salida.timestamp)-new Date(rec.entrada.timestamp))/60000;}
     const totalHrs=Math.floor(totalMins/60),totalMin=Math.round(totalMins%60);
@@ -1843,39 +1983,53 @@ function renderEmployeeSummary(emps,from,to){
       const dow=new Date(d+'T12:00:00').getDay();
       const isWe=dow===0||dow===6;
       const rec=byDate[d];
-      let cls;
-      if(isWe)cls='weekend';
-      else if(rec?.entrada&&rec?.salida)cls='full';
-      else if(rec?.entrada)cls='in-only';
-      else cls='absent';
+      const ss=isWe?{shouldWork:false,type:'free'}:getSchedStatus(emp.employee_id,d,schedStatus||{});
+      let cls,icon;
+      if(rec?.entrada&&rec?.salida){cls='full';icon='✓';}
+      else if(rec?.entrada){cls='in-only';icon='→';}
+      else if(ss.shouldWork){cls='absent';icon='✕';}
+      else if(isWe){cls='weekend';icon='';}
+      else{
+        const typeIcon={descanso:'D',vacaciones:'V',incapacidad:'I',free:'—',noSchedule:'?'};
+        cls='weekend';icon=typeIcon[ss.type]||'—';
+      }
       const dayNum=parseInt(d.slice(8));
-      const icon=cls==='full'?'✓':cls==='in-only'?'→':cls==='absent'?'✕':'-';
-      return`<div class="day-dot ${cls}" title="${DN[dow]} ${dayNum}"><span style="font-size:8px;opacity:.7">${DN[dow].slice(0,1)}</span><span style="font-size:10px;font-weight:800">${dayNum}</span></div>`;
+      return`<div class="day-dot ${cls}" title="${DN[dow]} ${dayNum}: ${ss.shouldWork?'Trabajo':SCHED_LABELS[ss.type]||'Descanso'}${rec?.entrada?' — Entró '+fmtTime(rec.entrada.timestamp):''}"><span style="font-size:8px;opacity:.7">${DN[dow].slice(0,1)}</span><span style="font-size:10px;font-weight:800">${dayNum}</span></div>`;
     }).join('');
 
     const dayRowsHtml=weekdays.map(d=>{
       const rec=byDate[d];
       const dt=new Date(d+'T12:00:00');
       const label=`${DN[dt.getDay()]} ${dt.getDate()} ${MN[dt.getMonth()]}`;
-      if(!rec?.entrada)return`<div class="emp-day-row">
-        <span style="width:110px;font-size:12px;color:var(--muted);font-weight:600">${label}</span>
-        <span class="badge badge-red" style="font-size:10px">Sin registro</span>
-      </div>`;
-      let saliHtml=`<span style="color:var(--muted);font-size:12px">sin salida</span>`;
+      const ss=getSchedStatus(emp.employee_id,d,schedStatus||{});
+      if(!rec?.entrada&&!ss.shouldWork){
+        const badgeCls=SCHED_BADGE[ss.type]||'badge-gray';
+        const badgeLabel=SCHED_LABELS[ss.type]||'Descanso';
+        return`<div class="emp-day-row">
+          <span style="width:110px;font-size:12px;color:var(--muted);font-weight:600;flex-shrink:0">${label}</span>
+          <span class="badge ${badgeCls}" style="font-size:10px">${badgeLabel}</span>
+        </div>`;
+      }
+      if(!rec?.entrada){
+        return`<div class="emp-day-row">
+          <span style="width:110px;font-size:12px;color:var(--muted);font-weight:600;flex-shrink:0">${label}</span>
+          <span class="badge badge-red" style="font-size:10px">Falta</span>
+        </div>`;
+      }
+      const entradaInfo=`<span class="badge badge-green" style="font-size:10px">${fmtTime(rec.entrada.timestamp)}</span>${rec.entrada.geofence_name?`<span style="font-size:11px;color:var(--green);font-weight:700">&#10003; ${rec.entrada.geofence_name}</span>`:''}${rec.entrada.photo?`<img src="${rec.entrada.photo}" style="width:26px;height:26px;border-radius:4px;object-fit:cover;cursor:zoom-in;border:1px solid var(--border);flex-shrink:0" onclick="openPhoto('${rec.entrada.photo}')" title="Foto entrada">`:''}${rec.entrada.latitude!=null?`<a href="https://maps.google.com/?q=${rec.entrada.latitude},${rec.entrada.longitude}" target="_blank" style="font-size:10px;color:var(--accent);text-decoration:none;border:1px solid var(--border);border-radius:4px;padding:2px 5px;flex-shrink:0">GPS</a>`:''}`;
+      let saliInfo=`<span style="color:var(--muted);font-size:12px">sin salida</span>`;
       let hoursHtml='';
       if(rec.salida){
         const mins=(new Date(rec.salida.timestamp)-new Date(rec.entrada.timestamp))/60000;
         const h=Math.floor(mins/60),m=Math.round(mins%60);
-        hoursHtml=`<span class="rec-hours" style="margin-left:auto">⏱ ${h}h${m>0?' '+m+'m':''}</span>`;
-        saliHtml=`<span class="badge badge-yellow" style="font-size:10px">${fmtTime(rec.salida.timestamp)}</span>`;
+        hoursHtml=`<span class="rec-hours" style="margin-left:auto;flex-shrink:0">⏱ ${h}h${m>0?' '+m+'m':''}</span>`;
+        saliInfo=`<span class="badge badge-yellow" style="font-size:10px">${fmtTime(rec.salida.timestamp)}</span>${rec.salida.geofence_name?`<span style="font-size:11px;color:var(--yellow);font-weight:700">&#10003; ${rec.salida.geofence_name}</span>`:''}${rec.salida.photo?`<img src="${rec.salida.photo}" style="width:26px;height:26px;border-radius:4px;object-fit:cover;cursor:zoom-in;border:1px solid var(--border);flex-shrink:0" onclick="openPhoto('${rec.salida.photo}')" title="Foto salida">`:''}${rec.salida.latitude!=null?`<a href="https://maps.google.com/?q=${rec.salida.latitude},${rec.salida.longitude}" target="_blank" style="font-size:10px;color:var(--accent);text-decoration:none;border:1px solid var(--border);border-radius:4px;padding:2px 5px;flex-shrink:0">GPS</a>`:''}`;
       }
-      const photoHtml=rec.entrada?.photo?`<img src="${rec.entrada.photo}" style="width:28px;height:28px;border-radius:4px;object-fit:cover;cursor:zoom-in;border:1px solid var(--border);flex-shrink:0" onclick="openPhoto('${rec.entrada.photo}')">`:'';
-      return`<div class="emp-day-row">
-        <span style="width:110px;font-size:12px;color:var(--text2);font-weight:600;flex-shrink:0">${label}</span>
-        <span class="badge badge-green" style="font-size:10px">${fmtTime(rec.entrada.timestamp)}</span>
-        <span style="color:var(--muted)">→</span>
-        ${saliHtml}
-        ${photoHtml}
+      return`<div class="emp-day-row" style="flex-wrap:wrap;gap:6px">
+        <span style="width:110px;font-size:12px;color:var(--text2);font-weight:700;flex-shrink:0">${label}</span>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${entradaInfo}</div>
+        <span style="color:var(--muted);font-size:11px">→</span>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${saliInfo}</div>
         ${hoursHtml}
       </div>`;
     }).join('');
@@ -1896,10 +2050,8 @@ function renderEmployeeSummary(emps,from,to){
             <div style="font-size:22px;font-weight:800;color:var(--text);line-height:1">${daysAttended}<span style="font-size:14px;color:var(--muted);font-weight:500">/${totalWeekdays}</span></div>
             <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-top:2px">Días</div>
           </div>
-          ${totalHrs>0?`<div style="text-align:center">
-            <div style="font-size:22px;font-weight:800;color:var(--text);line-height:1">${totalHrs}<span style="font-size:13px;color:var(--muted);font-weight:500">h${totalMin>0?' '+totalMin+'m':''}</span></div>
-            <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-top:2px">Horas</div>
-          </div>`:''}
+          ${faltaDays>0?`<div style="text-align:center"><div style="font-size:22px;font-weight:800;color:var(--red);line-height:1">${faltaDays}</div><div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-top:2px">Faltas</div></div>`:''}
+          ${totalHrs>0?`<div style="text-align:center"><div style="font-size:22px;font-weight:800;color:var(--text);line-height:1">${totalHrs}<span style="font-size:13px;color:var(--muted);font-weight:500">h${totalMin>0?' '+totalMin+'m':''}</span></div><div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-top:2px">Horas</div></div>`:''}
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" id="epc-arr-${emp.employee_id}" style="color:var(--muted);transition:transform .2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
@@ -1957,19 +2109,59 @@ async function deleteCheckin(id){
   await api("DELETE",`/api/checkins/${id}`);
   loadRecords();
 }
-function checkinCol(ci,label,empPhoto){
-  if(!ci)return`<div class="rec-col"><div class="rec-col-label">${label}</div><div class="rec-no-data">Sin registro</div></div>`;
-  return`<div class="rec-col">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <div class="rec-col-label" style="margin-bottom:0">${label}</div>
-      <button onclick="deleteCheckin(${ci.id})" title="Eliminar registro" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:2px 4px;border-radius:4px;line-height:1;font-size:15px;opacity:.5;transition:opacity .15s" onmouseover="this.style.opacity='1';this.style.color='#ef4444'" onmouseout="this.style.opacity='.5';this.style.color='var(--muted)'">&#x2715;</button>
-    </div>
-    <div class="rec-col-time">${fmtTime(ci.timestamp)}</div>
-    ${geoBadge(ci.geofence_name||null)}
-    ${ci.photo?`<img src="${ci.photo}" class="rec-selfie" onclick="openPhoto('${ci.photo}')" title="Ver foto completa">`:''}
-    ${mapDiv(ci,empPhoto)}
+function checkinRowCompact(ci,label){
+  if(!ci)return`<div class="rec-row"><span class="rec-row-label">${label}</span><span class="rec-row-no">Sin registro</span></div>`;
+  const geoHtml=ci.geofence_name?`<span class="badge badge-green" style="font-size:10px;margin-left:6px">&#10003; ${ci.geofence_name}</span>`:'';
+  return`<div class="rec-row">
+    <span class="rec-row-label">${label}</span>
+    <button onclick="deleteCheckin(${ci.id})" title="Eliminar" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:2px;line-height:1;font-size:14px;opacity:.5;transition:all .15s;flex-shrink:0" onmouseover="this.style.opacity='1';this.style.color='#ef4444'" onmouseout="this.style.opacity='.5';this.style.color='var(--muted)'">&#x2715;</button>
+    <span class="rec-row-time">${fmtTime(ci.timestamp)}</span>
+    ${geoHtml}
   </div>`;
 }
+function openRecInfo(idx){
+  const g=_recCards[idx];
+  const name=`${g.employee_name}${g.employee_last_name?' '+g.employee_last_name:''}`;
+  const dateStr=g.entrada||g.salida?new Date((g.entrada||g.salida).timestamp).toLocaleDateString("es-MX",{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
+  document.getElementById('mri-name').textContent=name;
+  document.getElementById('mri-date').textContent=dateStr;
+  function fillSide(prefix,ci){
+    const sec=document.getElementById(`mri-${prefix}-section`);
+    if(!ci){sec.style.opacity='.4';sec.style.pointerEvents='none';document.getElementById(`mri-${prefix}-time`).textContent='Sin registro';document.getElementById(`mri-${prefix}-geo`).innerHTML='';document.getElementById(`mri-${prefix}-photo`).style.display='none';document.getElementById(`mri-${prefix}-map`).style.display='none';document.getElementById(`mri-${prefix}-gmap`).style.display='none';document.getElementById(`mri-${prefix}-del`).style.display='none';return;}
+    sec.style.opacity='';sec.style.pointerEvents='';
+    document.getElementById(`mri-${prefix}-time`).textContent=fmtTime(ci.timestamp);
+    document.getElementById(`mri-${prefix}-geo`).innerHTML=ci.geofence_name?`<span class="badge badge-green">&#10003; ${ci.geofence_name}</span>`:`<span style="font-size:12px;color:var(--muted)">Sin geocerca</span>`;
+    const photoEl=document.getElementById(`mri-${prefix}-photo`);
+    if(ci.photo){photoEl.src=ci.photo;photoEl.style.display='';}else{photoEl.style.display='none';}
+    document.getElementById(`mri-${prefix}-map`).style.display=ci.latitude!=null?'':'none';
+    const gmapEl=document.getElementById(`mri-${prefix}-gmap`);
+    if(ci.latitude!=null){gmapEl.style.display='';gmapEl.href=`https://maps.google.com/?q=${ci.latitude},${ci.longitude}`;}else{gmapEl.style.display='none';}
+    document.getElementById(`mri-${prefix}-del`).style.display='';
+    document.getElementById(`mri-${prefix}-del`).onclick=()=>{deleteCheckin(ci.id);closeModal('m-rec-info');};
+  }
+  fillSide('in',g.entrada);
+  fillSide('out',g.salida);
+  openModal('m-rec-info');
+  setTimeout(()=>{
+    if(_mriMapIn){try{_mriMapIn.remove();}catch(e){}_mriMapIn=null;}
+    if(_mriMapOut){try{_mriMapOut.remove();}catch(e){}_mriMapOut=null;}
+    function initMriMap(prefix,ci){
+      const el=document.getElementById(`mri-${prefix}-map`);
+      if(!el||!ci||ci.latitude==null){return;}
+      el.innerHTML='';
+      const m=L.map(el,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false});
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(m);
+      m.setView([ci.latitude,ci.longitude],16);
+      const ph=g.employee_photo||'';
+      const iconHtml=ph?`<img src="${ph}" style="width:36px;height:36px;border-radius:50%;border:2.5px solid #fff;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,.4)">`:`<div style="width:18px;height:18px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4)"></div>`;
+      L.marker([ci.latitude,ci.longitude],{icon:L.divIcon({className:'',html:iconHtml,iconSize:[36,36],iconAnchor:[18,18]})}).addTo(m);
+      if(prefix==='in')_mriMapIn=m;else _mriMapOut=m;
+    }
+    initMriMap('in',g.entrada);
+    initMriMap('out',g.salida);
+  },200);
+}
+
 async function renderRecMap(rows){
   const body=document.getElementById("rec-body");
   body.innerHTML='<div id="rec-full-map" style="width:100%;height:100%;min-height:520px"></div>';
@@ -2035,7 +2227,8 @@ async function loadRecords(){
   if(recView==='cards'){
     const groups=groupCheckins(rows);
     if(!groups.length){body.innerHTML='<div class="empty" style="margin:48px auto"><p>Sin registros este día</p></div>';return;}
-    body.innerHTML=`<div class="rec-grid">${groups.map(g=>{
+    _recCards=groups;
+    body.innerHTML=`<div class="rec-grid">${groups.map((g,idx)=>{
       const name=`${g.employee_name}${g.employee_last_name?' '+g.employee_last_name:''}`;
       const hasIn=!!g.entrada,hasOut=!!g.salida;
       const stripe=hasIn&&hasOut?'#16a34a':hasIn?'#2563eb':'#d97706';
@@ -2045,24 +2238,29 @@ async function loadRecords(){
         const h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000);
         if(h>=0&&h<24)hoursHtml=`<span class="rec-hours">⏱ ${h}h${m>0?' '+m+'m':''}</span>`;
       }
+      const dateStr=g.entrada||g.salida?new Date((g.entrada||g.salida).timestamp).toLocaleDateString("es-MX",{day:"numeric",month:"short"}):'';
       return`<div class="rec-card">
         <div style="height:3px;background:${stripe}"></div>
         <div class="rec-card-header">
-          ${avatarHtml(g.employee_photo,g.employee_name,42)}
+          ${avatarHtml(g.employee_photo,g.employee_name,40)}
           <div style="flex:1;min-width:0">
             <div style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:1px">${g.employee_number}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">${g.employee_number} · ${dateStr}</div>
           </div>
           ${hoursHtml}
-          <div style="font-size:11px;color:var(--muted);margin-left:8px">${g.entrada||g.salida?new Date((g.entrada||g.salida).timestamp).toLocaleDateString("es-MX",{day:"numeric",month:"short"}):''}</div>
         </div>
         <div class="rec-card-body">
-          ${checkinCol(g.entrada,'ENTRADA',g.employee_photo)}
-          ${checkinCol(g.salida,'SALIDA',g.employee_photo)}
+          ${checkinRowCompact(g.entrada,'ENTRADA')}
+          ${checkinRowCompact(g.salida,'SALIDA')}
+        </div>
+        <div class="rec-card-footer">
+          <button class="btn btn-ghost btn-xs" onclick="openRecInfo(${idx})" style="gap:5px;color:var(--accent);border-color:var(--accent)">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Más info
+          </button>
         </div>
       </div>`;
     }).join('')}</div>`;
-    setTimeout(initRecordMaps,0);
   }else if(recView==='list'){
     body.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Empleado</th><th>Tipo</th><th>Fecha y hora</th><th>Geocerca</th><th style="text-align:center">Foto</th><th style="text-align:center">Ubicación</th><th></th></tr></thead>
     <tbody>${rows.map((r,i)=>`<tr>
@@ -2082,6 +2280,158 @@ async function loadRecords(){
 }
 
 
+// ── REPORTES ─────────────────────────────────────────
+let _reportData=null;
+const RPT_STATUS={
+  completo:   {bg:'#15803d',fg:'#fff',    lbl:'✓'},
+  entrada:    {bg:'#86efac',fg:'#15803d', lbl:'E'},
+  falta:      {bg:'#fca5a5',fg:'#dc2626', lbl:'F'},
+  incapacidad:{bg:'#fde047',fg:'#a16207', lbl:'I'},
+  descanso:   {bg:'#e5e7eb',fg:'#6b7280', lbl:'D'},
+  vacaciones: {bg:'#93c5fd',fg:'#1e40af', lbl:'V'},
+  weekend:    {bg:'#f3f4f6',fg:'#d1d5db', lbl:'' },
+  libre:      {bg:'#f9fafb',fg:'#e5e7eb', lbl:'' },
+};
+
+function initReportFilters(){
+  const dSel=document.getElementById('rpt-dept');
+  const aSel=document.getElementById('rpt-area');
+  const jSel=document.getElementById('rpt-job');
+  if(!dSel)return;
+  const curD=dSel.value,curA=aSel.value,curJ=jSel.value;
+  dSel.innerHTML='<option value="">Todos los departamentos</option>'+departments.map(d=>`<option value="${esc(d.name)}"${d.name===curD?' selected':''}>${d.name}</option>`).join('');
+  aSel.innerHTML='<option value="">Todas las áreas</option>'+areas.map(a=>`<option value="${esc(a.name)}"${a.name===curA?' selected':''}>${a.name}</option>`).join('');
+  jSel.innerHTML='<option value="">Todos los puestos</option>'+jobTitles.map(j=>`<option value="${esc(j.name)}"${j.name===curJ?' selected':''}>${j.name}</option>`).join('');
+  if(!document.getElementById('rpt-from').value){
+    const today=new Date();
+    const mon=new Date(today);
+    mon.setDate(today.getDate()-(today.getDay()===0?6:today.getDay()-1));
+    document.getElementById('rpt-from').value=mon.toLocaleDateString('en-CA',{timeZone:'America/Mexico_City'});
+    document.getElementById('rpt-to').value=today.toLocaleDateString('en-CA',{timeZone:'America/Mexico_City'});
+  }
+}
+
+async function generateReport(){
+  const from=document.getElementById('rpt-from').value;
+  const to=document.getElementById('rpt-to').value;
+  if(!from||!to)return alert('Selecciona el rango de fechas');
+  if(from>to)return alert('La fecha inicial debe ser anterior a la final');
+  document.getElementById('rpt-body').innerHTML='<div class="empty" style="margin:32px auto"><svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>Generando reporte...</p></div>';
+  document.getElementById('rpt-summary').style.display='none';
+  document.getElementById('rpt-legend').style.display='none';
+  document.getElementById('rpt-excel-btn').style.display='none';
+
+  const [checkins,schedStatus]=await Promise.all([
+    api("GET",`/api/checkins/period?from=${from}&to=${to}`),
+    api("GET",`/api/schedule-status?from=${from}&to=${to}`)
+  ]);
+  if(!schedStatus._built){
+    schedStatus._assignLookup={};
+    for(const a of (schedStatus.assignments||[]))schedStatus._assignLookup[`${a.employee_id}_${a.date}`]=a;
+    schedStatus._empMap={};
+    for(const e of (schedStatus.emps||[]))schedStatus._empMap[e.employee_id]=e;
+    schedStatus._built=true;
+  }
+  const ciMap={};
+  for(const r of checkins){
+    if(!ciMap[r.employee_id])ciMap[r.employee_id]={};
+    const date=r.timestamp.slice(0,10);
+    if(!ciMap[r.employee_id][date])ciMap[r.employee_id][date]={entrada:null,salida:null};
+    if(r.type==='entrada'&&!ciMap[r.employee_id][date].entrada)ciMap[r.employee_id][date].entrada=r;
+    if(r.type==='salida')ciMap[r.employee_id][date].salida=r;
+  }
+  const geoFreq={};
+  for(const r of checkins){
+    if(!r.geofence_name)continue;
+    if(!geoFreq[r.employee_id])geoFreq[r.employee_id]={};
+    geoFreq[r.employee_id][r.geofence_name]=(geoFreq[r.employee_id][r.geofence_name]||0)+1;
+  }
+  const deptFilter=document.getElementById('rpt-dept').value;
+  const areaFilter=document.getElementById('rpt-area').value;
+  const jobFilter=document.getElementById('rpt-job').value;
+  const search=(document.getElementById('rpt-search').value||'').toLowerCase().trim();
+  let emps=employees.filter(e=>e.active===1);
+  if(deptFilter)emps=emps.filter(e=>e.department_name===deptFilter);
+  if(areaFilter)emps=emps.filter(e=>e.area_name===areaFilter);
+  if(jobFilter)emps=emps.filter(e=>e.job_title_name===jobFilter);
+  if(search)emps=emps.filter(e=>`${e.name} ${e.last_name||''} ${e.employee_number}`.toLowerCase().includes(search));
+  const days=getDaysInRange(from,to);
+  const reportRows=emps.map(emp=>{
+    const byDate=ciMap[emp.id]||{};
+    const g=geoFreq[emp.id];
+    const topGeo=g?Object.entries(g).sort((a,b)=>b[1]-a[1])[0][0]:'—';
+    const dayCells=days.map(d=>{
+      const dow=new Date(d+'T12:00:00').getDay();
+      const isWe=dow===0||dow===6;
+      const rec=byDate[d];
+      const ss=isWe?{shouldWork:false,type:'free'}:getSchedStatus(emp.id,d,schedStatus);
+      if(rec?.entrada&&rec?.salida)return'completo';
+      if(rec?.entrada)return'entrada';
+      if(ss.shouldWork)return'falta';
+      if(ss.type==='vacaciones')return'vacaciones';
+      if(ss.type==='incapacidad')return'incapacidad';
+      if(ss.type==='descanso'||ss.type==='free')return'descanso';
+      return isWe?'weekend':'libre';
+    });
+    return{id:emp.id,employee_number:emp.employee_number,name:`${emp.name}${emp.last_name?' '+emp.last_name:''}`,department:emp.department_name||'—',area:emp.area_name||'—',job_title:emp.job_title_name||'—',geocerca:topGeo,dayCells};
+  });
+  _reportData={reportRows,days,from,to};
+  renderReportTable(reportRows,days);
+  document.getElementById('rpt-excel-btn').style.display='';
+  document.getElementById('rpt-legend').style.display='flex';
+  let nCompleto=0,nEntrada=0,nFalta=0;
+  for(const row of reportRows)for(const s of row.dayCells){if(s==='completo')nCompleto++;if(s==='entrada')nEntrada++;if(s==='falta')nFalta++;}
+  const sumEl=document.getElementById('rpt-summary');
+  sumEl.style.display='grid';
+  sumEl.innerHTML=`
+    <div class="stat" style="padding:14px 18px"><div class="stat-label">Empleados</div><div class="stat-value blue" style="font-size:26px">${reportRows.length}</div></div>
+    <div class="stat" style="padding:14px 18px"><div class="stat-label">Asistencias</div><div class="stat-value green" style="font-size:26px">${nCompleto+nEntrada}</div></div>
+    <div class="stat" style="padding:14px 18px"><div class="stat-label">Faltas</div><div class="stat-value red" style="font-size:26px">${nFalta}</div></div>
+    <div class="stat" style="padding:14px 18px"><div class="stat-label">Días del período</div><div style="font-size:20px;font-weight:800;color:var(--text);margin-top:4px">${days.length}</div></div>`;
+}
+
+function renderReportTable(rows,days){
+  if(!rows.length){document.getElementById('rpt-body').innerHTML='<div class="empty" style="margin:32px auto"><p>Sin empleados para mostrar con los filtros seleccionados</p></div>';return;}
+  const DN=['D','L','M','X','J','V','S'];
+  const dayHeaders=days.map(d=>{const dt=new Date(d+'T12:00:00');return`<th class="rpt-day-th">${DN[dt.getDay()]}<br>${dt.getDate()}</th>`;}).join('');
+  const bodyRows=rows.map((row,i)=>{
+    const cells=row.dayCells.map(s=>{const st=RPT_STATUS[s]||RPT_STATUS.libre;return`<td class="rpt-day-td"><div class="rpt-cell" style="background:${st.bg};color:${st.fg};margin:auto">${st.lbl}</div></td>`;}).join('');
+    return`<tr>
+      <td class="rpt-td-s0" style="text-align:center;width:40px;color:var(--muted)">${i+1}</td>
+      <td class="rpt-td-s1" style="min-width:170px"><div style="display:flex;align-items:center;gap:8px">${avatarHtml(null,row.name,28)}<div><div style="font-weight:700;font-size:13px">${row.name}</div><div style="font-size:11px;color:var(--muted)">${row.employee_number}</div></div></div></td>
+      <td style="color:var(--text2)">${row.department}</td>
+      <td style="color:var(--text2)">${row.area}</td>
+      <td style="color:var(--text2)">${row.job_title}</td>
+      <td style="font-weight:600;color:var(--accent)">${row.geocerca}</td>
+      ${cells}</tr>`;
+  }).join('');
+  document.getElementById('rpt-body').innerHTML=`<div class="rpt-wrap"><table class="rpt-table">
+    <thead><tr>
+      <th class="rpt-th-s0" style="text-align:center;width:40px">#</th>
+      <th class="rpt-th-s1" style="min-width:170px">Empleado</th>
+      <th>Departamento</th><th>Área</th><th>Puesto</th><th>Geocerca frecuente</th>
+      ${dayHeaders}
+    </tr></thead>
+    <tbody>${bodyRows}</tbody>
+  </table></div>`;
+}
+
+function downloadReportExcel(){
+  if(!_reportData)return;
+  const{reportRows,days,from,to}=_reportData;
+  const DN=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const hd='background:#1e3a8a;color:#fff;font-weight:700;padding:6px 10px;border:1px solid #1e3a8a;font-size:11px';
+  const dayHds=days.map(d=>{const dt=new Date(d+'T12:00:00');return`<th style="${hd};text-align:center;min-width:30px">${DN[dt.getDay()].slice(0,1)}<br>${dt.getDate()}</th>`;}).join('');
+  const bodyRows=reportRows.map((row,i)=>{
+    const cells=row.dayCells.map(s=>{const st=RPT_STATUS[s]||RPT_STATUS.libre;return`<td style="background:${st.bg};color:${st.fg};text-align:center;font-weight:800;border:1px solid #e5e7eb;padding:4px;font-size:11px">${st.lbl}</td>`;}).join('');
+    return`<tr><td style="border:1px solid #e5e7eb;padding:5px;text-align:center;color:#6b7280">${i+1}</td><td style="border:1px solid #e5e7eb;padding:5px;font-weight:700">${row.name}</td><td style="border:1px solid #e5e7eb;padding:5px">${row.employee_number}</td><td style="border:1px solid #e5e7eb;padding:5px">${row.department}</td><td style="border:1px solid #e5e7eb;padding:5px">${row.area}</td><td style="border:1px solid #e5e7eb;padding:5px">${row.job_title}</td><td style="border:1px solid #e5e7eb;padding:5px;font-weight:600;color:#1d4ed8">${row.geocerca}</td>${cells}</tr>`;
+  }).join('');
+  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Reporte</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table><thead><tr><th style="${hd};text-align:center">#</th><th style="${hd}">Nombre</th><th style="${hd}">Nº Empleado</th><th style="${hd}">Departamento</th><th style="${hd}">Área</th><th style="${hd}">Puesto</th><th style="${hd}">Geocerca Frecuente</th>${dayHds}</tr></thead><tbody>${bodyRows}</tbody></table></body></html>`;
+  const blob=new Blob(['﻿'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`reporte-${from}-al-${to}.xls`;a.click();URL.revokeObjectURL(url);
+}
+
 // HELPERS
 function fmtTime(ts){return new Date(ts).toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});}
 function fmtDateTime(ts){return new Date(ts).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"});}
@@ -2092,9 +2442,10 @@ function goto(name,el){
   el.classList.add("active");
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.getElementById("sec-"+name).classList.add("active");
-  const titles={dashboard:"Dashboard",registros:"Registros de asistencia",empleados:"Empleados",departamentos:"Departamentos",areas:"Áreas",puestos:"Puestos",horarios:"Horarios",geocercas:"Geocercas",configuracion:"Configuración"};
+  const titles={dashboard:"Dashboard",registros:"Registros de asistencia",reportes:"Reportes de asistencia",empleados:"Empleados",departamentos:"Departamentos",areas:"Áreas",puestos:"Puestos",horarios:"Horarios",geocercas:"Geocercas",configuracion:"Configuración"};
   document.getElementById("page-title").textContent=titles[name]||name;
   if(name==="registros"){if(recMode==='day')loadRecords();else loadPeriodRecords();}
+  if(name==="reportes")initReportFilters();
   if(name==="horarios")loadAssignments();
 }
 

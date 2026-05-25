@@ -460,6 +460,30 @@ app.get("/api/checkins/live", (req, res) => {
   req.on("close", () => sseClients.delete(res));
 });
 
+app.get("/api/employees/report", auth, (req, res) => {
+  res.json(DB.getDb().prepare(EMP_SELECT + " WHERE e.active=1 ORDER BY e.name, e.last_name").all());
+});
+
+app.get("/api/schedule-status", auth, (req, res) => {
+  const { from, to } = req.query;
+  if (!from || !to) return res.status(400).json({ error: "from y to requeridos" });
+  const db = DB.getDb();
+  const emps = db.prepare(`
+    SELECT e.id AS employee_id, e.schedule_id,
+           s.type AS sched_type, s.days AS sched_days
+    FROM employees e
+    LEFT JOIN schedules s ON e.schedule_id=s.id
+    WHERE e.active=1
+  `).all();
+  const assignments = db.prepare(`
+    SELECT sa.employee_id, sa.date, s.type AS sched_type, s.name AS sched_name
+    FROM schedule_assignments sa
+    JOIN schedules s ON sa.schedule_id=s.id
+    WHERE sa.date>=? AND sa.date<=?
+  `).all(from, to);
+  res.json({ emps, assignments });
+});
+
 app.get("/api/stats/week", auth, (req, res) => {
   const db = DB.getDb();
   const days = [];
