@@ -618,28 +618,39 @@ app.get("/api/wallet/config", auth, (req, res) => {
   const db = DB.getDb();
   const get = k => db.prepare("SELECT value FROM config WHERE key=?").get(k)?.value ?? null;
   res.json({
-    pass_type_id:   get("wallet_pass_type_id"),
-    team_id:        get("wallet_team_id"),
-    bg_color:       get("wallet_bg_color")    || "rgb(26,26,26)",
-    fg_color:       get("wallet_fg_color")    || "rgb(255,255,255)",
-    label_color:    get("wallet_label_color") || "rgb(170,170,170)",
-    has_cert:       !!(get("wallet_signer_cert_pem")),
-    has_key:        !!(get("wallet_signer_key_pem")),
-    has_wwdr:       !!(get("wallet_wwdr_pem")),
-    fields_config:  get("wallet_fields_config") || null,
+    pass_type_id:    get("wallet_pass_type_id"),
+    team_id:         get("wallet_team_id"),
+    bg_color:        get("wallet_bg_color")        || "rgb(26,26,26)",
+    fg_color:        get("wallet_fg_color")        || "rgb(255,255,255)",
+    label_color:     get("wallet_label_color")     || "rgb(170,170,170)",
+    has_cert:        !!(get("wallet_signer_cert_pem")),
+    has_key:         !!(get("wallet_signer_key_pem")),
+    has_wwdr:        !!(get("wallet_wwdr_pem")),
+    fields_config:   get("wallet_fields_config")   || null,
+    bg_type:         get("wallet_bg_type")         || "preset",
+    bg_preset:       get("wallet_bg_preset")       || "midnight",
+    bg_image:        get("wallet_bg_image")        || null,
+    overlay_color:   get("wallet_overlay_color")   || "#000000",
+    overlay_opacity: get("wallet_overlay_opacity") || "0",
   });
 });
 
 app.post("/api/wallet/config", auth, (req, res) => {
   const db = DB.getDb();
   const set = (k, v) => { if (v !== undefined && v !== null) db.prepare("INSERT OR REPLACE INTO config VALUES (?,?)").run(k, v); };
-  const { pass_type_id, team_id, bg_color, fg_color, label_color, signer_cert_pem, signer_key_pem, wwdr_pem, fields_config } = req.body;
+  const { pass_type_id, team_id, bg_color, fg_color, label_color, signer_cert_pem, signer_key_pem, wwdr_pem, fields_config,
+          bg_type, bg_preset, bg_image, overlay_color, overlay_opacity } = req.body;
   set("wallet_pass_type_id",    pass_type_id);
   set("wallet_team_id",         team_id);
   set("wallet_bg_color",        bg_color);
   set("wallet_fg_color",        fg_color);
   set("wallet_label_color",     label_color);
   set("wallet_fields_config",   fields_config);
+  set("wallet_bg_type",         bg_type);
+  set("wallet_bg_preset",       bg_preset);
+  set("wallet_overlay_color",   overlay_color);
+  set("wallet_overlay_opacity", overlay_opacity);
+  if (bg_image !== undefined && bg_image !== null) set("wallet_bg_image", bg_image);
   if (signer_cert_pem) set("wallet_signer_cert_pem", signer_cert_pem);
   if (signer_key_pem)  set("wallet_signer_key_pem",  signer_key_pem);
   if (wwdr_pem)        set("wallet_wwdr_pem",         wwdr_pem);
@@ -651,21 +662,19 @@ async function getWalletCerts() {
   const db  = DB.getDb();
   const get = k => db.prepare("SELECT value FROM config WHERE key=?").get(k)?.value ?? null;
 
-  // Check cache freshness
-  const cachedAt = get("wallet_certs_cached_at");
-  if (cachedAt) {
-    const age = Date.now() - new Date(cachedAt).getTime();
+  // Use local certs if available — fetch from Railway only when stale (>7 days)
+  const certPem = get("wallet_signer_cert_pem");
+  const keyPem  = get("wallet_signer_key_pem");
+  const wwdrPem = get("wallet_wwdr_pem");
+  if (certPem && keyPem && wwdrPem) {
+    const cachedAt = get("wallet_certs_cached_at");
+    const age = cachedAt ? Date.now() - new Date(cachedAt).getTime() : 0;
     if (age < 7 * 24 * 60 * 60 * 1000) {
-      const certPem = get("wallet_signer_cert_pem");
-      const keyPem  = get("wallet_signer_key_pem");
-      const wwdrPem = get("wallet_wwdr_pem");
-      if (certPem && keyPem && wwdrPem) {
-        return {
-          signer_cert_pem: certPem, signer_key_pem: keyPem, wwdr_pem: wwdrPem,
-          pass_type_id: get("wallet_pass_type_id") || "pass.com.d99tech.dclock",
-          team_id:      get("wallet_team_id")      || "56SBW74WX9",
-        };
-      }
+      return {
+        signer_cert_pem: certPem, signer_key_pem: keyPem, wwdr_pem: wwdrPem,
+        pass_type_id: get("wallet_pass_type_id") || "pass.com.d99tech.dclock",
+        team_id:      get("wallet_team_id")      || "56SBW74WX9",
+      };
     }
   }
 
@@ -815,13 +824,20 @@ app.get("/api/employees/:id/pass.pkpass", async (req, res) => {
     const files = { "pass.json": Buffer.from(JSON.stringify(passJson)) };
     if (iconBuf) { files["icon.png"] = iconBuf; files["icon@2x.png"] = iconBuf; }
 
-    if (emp.photo) {
+    if (emp.photo && fieldsConfig.showPhoto !== false) {
       const pb = b64ToBuffer(emp.photo);
       if (pb) { files["thumbnail.png"] = pb; files["thumbnail@2x.png"] = pb; }
     }
     if (companyLogo) {
       const lb = b64ToBuffer(companyLogo);
       if (lb) { files["logo.png"] = lb; files["logo@2x.png"] = lb; }
+    }
+    // Include custom background image if user uploaded one
+    const bgType  = get("wallet_bg_type")  || "preset";
+    const bgImage = get("wallet_bg_image") || null;
+    if (bgType === "image" && bgImage) {
+      const bb = b64ToBuffer(bgImage);
+      if (bb) { files["background.png"] = bb; files["background@2x.png"] = bb; }
     }
 
     const pass   = new PKPass(files, { wwdr: wwdrPem, signerCert: certPem, signerKey: keyPem });
