@@ -136,8 +136,8 @@ html,body{height:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
 .ml-auto{margin-left:auto}
 
 /* WALLET CREDENTIAL DESIGNER */
-.wallet-designer{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
-.wallet-preview-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;position:sticky;top:0}
+.wallet-designer{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start}
+.wallet-preview-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;position:sticky;top:0}
 .wallet-card{width:320px;border-radius:18px;padding:22px 22px 28px;box-shadow:0 12px 48px rgba(0,0,0,.35),0 2px 8px rgba(0,0,0,.2);position:relative;overflow:hidden;transition:background .3s}
 .wallet-card-stripe{position:absolute;top:0;left:0;right:0;height:5px;background:rgba(255,255,255,.12);border-radius:18px 18px 0 0}
 .wallet-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
@@ -147,11 +147,11 @@ html,body{height:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
 .wallet-photo{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden}
 .wallet-primary-label{font-size:9px;font-weight:700;letter-spacing:1.4px;opacity:.65;margin-bottom:3px}
 .wallet-primary-value{font-size:17px;font-weight:800;letter-spacing:-.2px;line-height:1.2;margin-bottom:14px}
-.wallet-fields-row{display:flex;gap:18px;margin-bottom:10px}
+.wallet-fields-row{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap}
 .wallet-field{display:flex;flex-direction:column;gap:2px}
 .wallet-field-label{font-size:8px;font-weight:700;letter-spacing:1.2px;opacity:.6}
 .wallet-field-value{font-size:12px;font-weight:600;opacity:.92}
-.wallet-aux-row{display:flex;gap:18px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12)}
+.wallet-aux-row{display:flex;gap:14px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12);flex-wrap:wrap}
 .wallet-hint{font-size:11px;color:var(--muted);text-align:center}
 .cert-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--border2);border-radius:10px;margin-bottom:8px}
 .cert-status{width:8px;height:8px;border-radius:50%;flex-shrink:0}
@@ -164,6 +164,33 @@ html,body{height:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
 .color-picker-wrap{display:flex;align-items:center;gap:8px;flex:1}
 .color-picker-wrap input[type=color]{width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;background:none}
 .color-hex{font-size:12px;font-family:monospace;color:var(--muted);width:80px}
+.field-palette{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--bg);border-radius:10px;border:1.5px dashed var(--border2);min-height:44px}
+.field-chip{display:inline-flex;align-items:center;padding:4px 11px;background:var(--surface);border:1.5px solid var(--border2);border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.4px;color:var(--text2);cursor:grab;user-select:none;transition:all .15s}
+.field-chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.field-chip.chip-used{opacity:.3;cursor:default;pointer-events:none}
+.zone-wrap{margin-top:12px}
+.zone-label{font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.zone-cap{font-size:10px;background:var(--bg);color:var(--muted);padding:1px 6px;border-radius:99px;border:1px solid var(--border)}
+.zone-drop{min-height:40px;border:1.5px dashed var(--border2);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:5px;transition:border .15s,background .15s}
+.zone-drop.dz-over{border-color:var(--accent);background:var(--accent-bg)}
+.zone-drop.dz-full{border-style:solid;border-color:var(--border2)}
+.zone-field{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface);border:1.5px solid var(--border2);border-radius:8px;cursor:grab;transition:border .15s}
+.zone-field:hover{border-color:var(--border-strong,#d1d5db)}
+.zone-field.dragging{opacity:.35}
+.zf-handle{color:var(--muted);font-size:14px;cursor:grab;flex-shrink:0;line-height:1}
+.zf-lbl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);cursor:text;border-bottom:1px solid transparent;transition:border .15s;outline:none;background:none;min-width:50px;max-width:110px}
+.zf-lbl:focus{border-color:var(--accent);color:var(--accent)}
+.zf-hint{font-size:11px;color:var(--text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zf-del{color:var(--muted);cursor:pointer;font-size:17px;line-height:1;padding:0 3px;flex-shrink:0}
+.zf-del:hover{color:var(--red)}
+.wallet-toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.wallet-toggle-row label{font-size:13px;font-weight:600;color:var(--text2);flex:1}
+.toggle-sw{position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0}
+.toggle-sw input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{position:absolute;inset:0;background:var(--border2);border-radius:24px;cursor:pointer;transition:.2s}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.toggle-sw input:checked+.toggle-slider{background:var(--accent)}
+.toggle-sw input:checked+.toggle-slider::before{transform:translateX(18px)}
 
 /* RECORD CARDS */
 .rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px;padding:20px}
@@ -811,7 +838,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
               <!-- Colores -->
               <div class="card">
-                <div class="card-header"><div class="card-title">Diseño de la credencial</div></div>
+                <div class="card-header"><div class="card-title">Colores</div></div>
                 <div class="card-body" style="display:flex;flex-direction:column;gap:4px">
                   <div class="color-row">
                     <label>Fondo</label>
@@ -837,6 +864,28 @@ input[type=range]{width:100%;accent-color:var(--accent)}
                 </div>
               </div>
 
+              <!-- Campos designer -->
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Campos de la credencial</div>
+                    <div class="card-sub">Arrastra campos a cada zona · Haz clic en la etiqueta para editarla · × para quitar</div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="wallet-toggle-row">
+                    <label>Mostrar foto del empleado</label>
+                    <label class="toggle-sw" style="flex-shrink:0">
+                      <input type="checkbox" id="w-show-photo" checked onchange="updateWalletPreview()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <p style="font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Campos disponibles — arrastra a la zona deseada</p>
+                  <div class="field-palette" id="wf-palette"></div>
+                  <div id="wf-zones"></div>
+                </div>
+              </div>
+
               <div style="display:flex;gap:10px">
                 <button class="btn btn-primary" style="flex:1" onclick="saveWalletConfig()">Guardar diseño</button>
                 <button class="btn btn-ghost" onclick="testWalletPass()">Descargar pass de prueba</button>
@@ -846,7 +895,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
             <!-- Columna derecha: preview -->
             <div class="wallet-preview-wrap">
-              <p style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Vista previa</p>
+              <p style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Vista previa</p>
               <div class="wallet-card" id="wallet-card-preview">
                 <div class="wallet-card-stripe"></div>
                 <div class="wallet-card-header">
@@ -856,29 +905,17 @@ input[type=range]{width:100%;accent-color:var(--accent)}
                   </div>
                   <div class="wallet-photo" id="wc-photo">👤</div>
                 </div>
-                <div class="wallet-primary-label">EMPLEADO</div>
-                <div class="wallet-primary-value" id="wc-name">Juan Pérez García</div>
-                <div class="wallet-fields-row">
-                  <div class="wallet-field">
-                    <span class="wallet-field-label">PUESTO</span>
-                    <span class="wallet-field-value" id="wc-title">Gerente</span>
-                  </div>
-                  <div class="wallet-field">
-                    <span class="wallet-field-label">ÁREA</span>
-                    <span class="wallet-field-value" id="wc-area">Ventas</span>
-                  </div>
+                <div id="wc-primary-wrap">
+                  <div class="wallet-primary-label" id="wc-primary-label">EMPLEADO</div>
+                  <div class="wallet-primary-value" id="wc-primary-value">Juan Pérez García</div>
                 </div>
-                <div class="wallet-aux-row">
-                  <div class="wallet-field">
-                    <span class="wallet-field-label">NO. EMPLEADO</span>
-                    <span class="wallet-field-value" id="wc-num">001</span>
-                  </div>
-                </div>
+                <div class="wallet-fields-row" id="wc-secondary"></div>
+                <div class="wallet-aux-row" id="wc-auxiliary" style="display:none"></div>
               </div>
-              <p class="wallet-hint">La foto y nombre real del empleado<br>se usan al generar el pass</p>
+              <p class="wallet-hint">La foto y datos reales del empleado<br>se usan al generar el pass</p>
 
               <!-- Selector de empleado para prueba -->
-              <div style="width:320px;margin-top:8px">
+              <div style="width:320px;margin-top:4px">
                 <label style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;display:block;margin-bottom:6px">EMPLEADO PARA PRUEBA</label>
                 <select class="inp" id="w-test-emp" style="width:100%"></select>
               </div>
@@ -2941,17 +2978,163 @@ function esc(s){return(s||"").replace(/'/g,"\\'").replace(/"/g,"&quot;");}
 function hexToRgb(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgb(${r},${g},${b})`;}
 function rgbToHex(rgb){const m=rgb.match(/\d+/g);if(!m||m.length<3)return '#1a1a1a';return '#'+m.slice(0,3).map(v=>parseInt(v).toString(16).padStart(2,'0')).join('');}
 
+const WALLET_FIELDS=[
+  {dataKey:'fullName',        name:'Nombre completo',  sample:'Juan Pérez García'},
+  {dataKey:'employee_number', name:'No. empleado',     sample:'001'},
+  {dataKey:'title',           name:'Puesto',           sample:'Gerente'},
+  {dataKey:'area_name',       name:'Área',             sample:'Ventas'},
+  {dataKey:'dept',            name:'Departamento',     sample:'Comercial'},
+  {dataKey:'email',           name:'Email',            sample:'juan@empresa.com'},
+  {dataKey:'phone',           name:'Teléfono',         sample:'555-0001'},
+  {dataKey:'nss',             name:'NSS',              sample:'12345678901'},
+  {dataKey:'rfc',             name:'RFC',              sample:'PEGJ900101XYZ'},
+  {dataKey:'curp',            name:'CURP',             sample:'PEGJ900101HMXRZN01'},
+  {dataKey:'birth_date',      name:'Nacimiento',       sample:'01/01/1990'},
+  {dataKey:'gender',          name:'Género',           sample:'Masculino'},
+  {dataKey:'companyName',     name:'Empresa',          sample:'MI EMPRESA'},
+];
+const ZONE_DEFS={
+  primary:  {label:'Primario',  max:1,  desc:'El campo más grande — generalmente el nombre'},
+  secondary:{label:'Secundario',max:4,  desc:'Hasta 4 campos bajo el nombre'},
+  auxiliary:{label:'Auxiliar',  max:4,  desc:'Banda inferior del pass'},
+  back:     {label:'Reverso',   max:10, desc:'Datos al reverso (no visibles en la portada)'},
+};
+const defaultWFState={showPhoto:true,zones:{
+  primary:  [{dataKey:'fullName',        label:'EMPLEADO'}],
+  secondary:[{dataKey:'title',           label:'PUESTO'},{dataKey:'area_name',label:'ÁREA'}],
+  auxiliary:[{dataKey:'employee_number', label:'NO. EMPLEADO'}],
+  back:     [{dataKey:'companyName',     label:'EMPRESA'},{dataKey:'email',label:'EMAIL'},{dataKey:'phone',label:'TELÉFONO'}],
+}};
+let wfState=JSON.parse(JSON.stringify(defaultWFState));
+let wfDrag=null;
+
+function wfUsed(){const s=new Set();Object.values(wfState.zones).forEach(z=>z.forEach(f=>s.add(f.dataKey)));return s;}
+
+function wfRenderPalette(){
+  const used=wfUsed();
+  document.getElementById('wf-palette').innerHTML=WALLET_FIELDS.map(f=>
+    `<div class="field-chip${used.has(f.dataKey)?' chip-used':''}" draggable="${!used.has(f.dataKey)}" data-key="${f.dataKey}"
+      ondragstart="wfDragPalette(event,'${f.dataKey}')" title="${f.sample}">${f.name}</div>`
+  ).join('');
+}
+
+function wfRenderZones(){
+  document.getElementById('wf-zones').innerHTML=Object.entries(ZONE_DEFS).map(([zn,zd])=>{
+    const fields=wfState.zones[zn]||[];
+    const full=fields.length>=zd.max;
+    return `<div class="zone-wrap">
+      <div class="zone-label">${zd.label}<span class="zone-cap">${fields.length}/${zd.max}</span><span style="font-size:10px;color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none">${zd.desc}</span></div>
+      <div class="zone-drop${full?' dz-full':''}" data-zone="${zn}"
+        ondragover="wfOver(event)" ondragleave="wfLeave(event)" ondrop="wfDrop(event,'${zn}')">
+        ${fields.map((f,i)=>{
+          const fd=WALLET_FIELDS.find(d=>d.dataKey===f.dataKey)||{name:f.dataKey,sample:'—'};
+          return `<div class="zone-field" draggable="true"
+            ondragstart="wfDragZone(event,'${zn}',${i})" ondragend="wfDragEnd(event)">
+            <span class="zf-handle">⠿</span>
+            <span class="zf-lbl" contenteditable="true" spellcheck="false"
+              onblur="wfLblBlur('${zn}',${i},this)"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+            >${f.label}</span>
+            <span class="zf-hint">${fd.name}</span>
+            <span class="zf-del" onclick="wfRemove('${zn}',${i})">×</span>
+          </div>`;
+        }).join('')}
+        ${fields.length===0?'<span style="font-size:11px;color:var(--muted);padding:4px 6px">Arrastra un campo aquí</span>':''}
+      </div></div>`;
+  }).join('');
+}
+
+function wfRender(){wfRenderPalette();wfRenderZones();updateWalletPreview();}
+
+function wfDragPalette(e,dataKey){
+  const fd=WALLET_FIELDS.find(f=>f.dataKey===dataKey);
+  wfDrag={src:'palette',dataKey,label:(fd?fd.name:dataKey).toUpperCase()};
+  e.dataTransfer.effectAllowed='copy';
+  setTimeout(()=>e.currentTarget&&(e.currentTarget.style.opacity='.35'),0);
+}
+function wfDragZone(e,zn,idx){
+  const f=wfState.zones[zn][idx];
+  wfDrag={src:'zone',zn,idx,dataKey:f.dataKey,label:f.label};
+  e.dataTransfer.effectAllowed='move';
+  e.currentTarget.classList.add('dragging');
+}
+function wfDragEnd(e){e.currentTarget.style.opacity='';e.currentTarget.classList.remove('dragging');}
+function wfOver(e){e.preventDefault();e.currentTarget.classList.add('dz-over');e.dataTransfer.dropEffect=wfDrag&&wfDrag.src==='palette'?'copy':'move';}
+function wfLeave(e){e.currentTarget.classList.remove('dz-over');}
+function wfDrop(e,tz){
+  e.preventDefault();e.currentTarget.classList.remove('dz-over');
+  if(!wfDrag)return;
+  const zd=ZONE_DEFS[tz];const tf=wfState.zones[tz];
+  if(wfDrag.src==='palette'){
+    if(tf.length>=zd.max){showWalletMsg('Zona '+zd.label+' llena (máx '+zd.max+')','red');wfDrag=null;return;}
+    tf.push({dataKey:wfDrag.dataKey,label:wfDrag.label});
+  } else {
+    const already=wfDrag.zn!==tz&&tf.some(f=>f.dataKey===wfDrag.dataKey);
+    if(already){showWalletMsg('Ese campo ya está en '+zd.label,'red');wfDrag=null;return;}
+    if(wfDrag.zn===tz){
+      const [m]=wfState.zones[tz].splice(wfDrag.idx,1);wfState.zones[tz].push(m);
+    } else {
+      if(tf.length>=zd.max){showWalletMsg('Zona '+zd.label+' llena (máx '+zd.max+')','red');wfDrag=null;return;}
+      const [m]=wfState.zones[wfDrag.zn].splice(wfDrag.idx,1);tf.push(m);
+    }
+  }
+  wfDrag=null;wfRender();
+}
+function wfLblBlur(zn,idx,el){
+  const v=el.textContent.trim().toUpperCase();
+  wfState.zones[zn][idx].label=v||wfState.zones[zn][idx].label;
+  el.textContent=wfState.zones[zn][idx].label;
+  updateWalletPreview();
+}
+function wfRemove(zn,idx){wfState.zones[zn].splice(idx,1);wfRender();}
+
 function updateWalletPreview(){
-  const bg=document.getElementById('w-bg-color').value;
-  const fg=document.getElementById('w-fg-color').value;
-  const lb=document.getElementById('w-label-color').value;
-  document.getElementById('w-bg-hex').textContent=bg;
-  document.getElementById('w-fg-hex').textContent=fg;
-  document.getElementById('w-label-hex').textContent=lb;
+  const bg=document.getElementById('w-bg-color')?.value||'#1a1a1a';
+  const fg=document.getElementById('w-fg-color')?.value||'#ffffff';
+  const lb=document.getElementById('w-label-color')?.value||'#aaaaaa';
+  const bgEl=document.getElementById('w-bg-hex');if(bgEl)bgEl.textContent=bg;
+  const fgEl=document.getElementById('w-fg-hex');if(fgEl)fgEl.textContent=fg;
+  const lbEl=document.getElementById('w-label-hex');if(lbEl)lbEl.textContent=lb;
   const card=document.getElementById('wallet-card-preview');
+  if(!card)return;
   card.style.background=bg;card.style.color=fg;
-  card.querySelectorAll('.wallet-field-label,.wallet-primary-label').forEach(el=>el.style.color=lb);
-  card.querySelectorAll('.wallet-aux-row').forEach(el=>el.style.borderColor=lb+'44');
+  // Photo visibility
+  const showPhoto=document.getElementById('w-show-photo')?.checked!==false;
+  const photoEl=document.getElementById('wc-photo');
+  if(photoEl)photoEl.style.display=showPhoto?'flex':'none';
+  // Primary
+  const pri=wfState.zones.primary[0];
+  const prWrap=document.getElementById('wc-primary-wrap');
+  if(pri){
+    const fd=WALLET_FIELDS.find(f=>f.dataKey===pri.dataKey);
+    const lEl=document.getElementById('wc-primary-label');
+    const vEl=document.getElementById('wc-primary-value');
+    if(lEl){lEl.textContent=pri.label;lEl.style.color=lb;}
+    if(vEl)vEl.textContent=fd?.sample||'—';
+    if(prWrap)prWrap.style.display='';
+  } else {if(prWrap)prWrap.style.display='none';}
+  // Secondary
+  const secEl=document.getElementById('wc-secondary');
+  if(secEl){
+    const sf=wfState.zones.secondary;
+    if(sf.length){
+      secEl.innerHTML=sf.map(f=>{const fd=WALLET_FIELDS.find(d=>d.dataKey===f.dataKey);
+        return `<div class="wallet-field"><span class="wallet-field-label" style="color:${lb}">${f.label}</span><span class="wallet-field-value">${fd?.sample||'—'}</span></div>`;
+      }).join('');
+      secEl.style.display='flex';
+    } else {secEl.innerHTML='';secEl.style.display='none';}
+  }
+  // Auxiliary
+  const auxEl=document.getElementById('wc-auxiliary');
+  if(auxEl){
+    const af=wfState.zones.auxiliary;
+    if(af.length){
+      auxEl.innerHTML=af.map(f=>{const fd=WALLET_FIELDS.find(d=>d.dataKey===f.dataKey);
+        return `<div class="wallet-field"><span class="wallet-field-label" style="color:${lb}">${f.label}</span><span class="wallet-field-value">${fd?.sample||'—'}</span></div>`;
+      }).join('');
+      auxEl.style.display='flex';auxEl.style.borderColor=lb+'44';
+    } else {auxEl.innerHTML='';auxEl.style.display='none';}
+  }
 }
 
 async function loadWalletConfig(){
@@ -2960,35 +3143,38 @@ async function loadWalletConfig(){
     if(cfg.bg_color)    document.getElementById('w-bg-color').value=rgbToHex(cfg.bg_color);
     if(cfg.fg_color)    document.getElementById('w-fg-color').value=rgbToHex(cfg.fg_color);
     if(cfg.label_color) document.getElementById('w-label-color').value=rgbToHex(cfg.label_color);
-    // Show cert status
+    if(cfg.fields_config){
+      try{
+        const p=JSON.parse(cfg.fields_config);
+        if(p&&p.zones){wfState=p;const pc=document.getElementById('w-show-photo');if(pc)pc.checked=p.showPhoto!==false;}
+      }catch(e){}
+    }
     const dot=document.getElementById('wallet-certs-dot');
     const lbl=document.getElementById('wallet-certs-label');
-    if(cfg.has_cert && cfg.has_key && cfg.has_wwdr){
-      dot.style.background='var(--green)';
-      lbl.style.color='var(--green)';
+    if(cfg.has_cert&&cfg.has_key&&cfg.has_wwdr){
+      dot.style.background='var(--green)';lbl.style.color='var(--green)';
       lbl.textContent='Certificados activos — descargados desde Railway';
     } else {
-      dot.style.background='var(--yellow)';
-      lbl.style.color='var(--yellow)';
+      dot.style.background='var(--yellow)';lbl.style.color='var(--yellow)';
       lbl.textContent='Certificados pendientes — se descargarán al generar el primer pass';
     }
-    // Company info for preview
     const info=await api('GET','/api/info');
     document.getElementById('wc-company').textContent=(info.company_name||'EMPRESA').toUpperCase();
-    if(info.logo) document.getElementById('wc-logo').src=info.logo;
-    updateWalletPreview();
-    // Load employees for test selector
+    if(info.logo)document.getElementById('wc-logo').src=info.logo;
     const emps=await api('GET','/api/employees');
     const sel=document.getElementById('w-test-emp');
     sel.innerHTML='<option value="">— Selecciona empleado —</option>'+emps.map(e=>`<option value="${e.id}">${e.name}${e.last_name?' '+e.last_name:''} (${e.employee_number})</option>`).join('');
+    wfRender();
   }catch(e){console.error('walletConfig',e);}
 }
 
 async function saveWalletConfig(){
+  const showPhoto=document.getElementById('w-show-photo')?.checked!==false;
   const body={
-    bg_color:    hexToRgb(document.getElementById('w-bg-color').value),
-    fg_color:    hexToRgb(document.getElementById('w-fg-color').value),
-    label_color: hexToRgb(document.getElementById('w-label-color').value),
+    bg_color:      hexToRgb(document.getElementById('w-bg-color').value),
+    fg_color:      hexToRgb(document.getElementById('w-fg-color').value),
+    label_color:   hexToRgb(document.getElementById('w-label-color').value),
+    fields_config: JSON.stringify({showPhoto,zones:wfState.zones}),
   };
   await api('POST','/api/wallet/config',body);
   showWalletMsg('Diseño guardado','green');
@@ -3004,7 +3190,7 @@ async function testWalletPass(){
     if(!res.ok){const e=await res.json();showWalletMsg(e.error||'Error generando pass','red');return;}
     const blob=await res.blob();
     const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download=`dclock-test.pkpass`;a.click();
+    const a=document.createElement('a');a.href=url;a.download='dclock-test.pkpass';a.click();
     URL.revokeObjectURL(url);
     showWalletMsg('Pass descargado — ábrelo para verificar en iPhone','green');
   }catch(e){showWalletMsg(e.message,'red');}
@@ -3012,12 +3198,10 @@ async function testWalletPass(){
 
 function showWalletMsg(msg,type){
   const el=document.getElementById('wallet-msg');
-  el.style.display='block';
-  el.textContent=msg;
+  el.style.display='block';el.textContent=msg;
   const colors={green:'var(--green-bg)',red:'var(--red-bg)',blue:'var(--accent-bg)'};
   const texts={green:'var(--green)',red:'var(--red)',blue:'var(--accent)'};
-  el.style.background=colors[type]||colors.blue;
-  el.style.color=texts[type]||texts.blue;
+  el.style.background=colors[type]||colors.blue;el.style.color=texts[type]||texts.blue;
   setTimeout(()=>{el.style.display='none';},4000);
 }
 

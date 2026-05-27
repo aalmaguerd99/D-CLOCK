@@ -812,7 +812,7 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
-                  <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.0.0/D-CLOCK.Setup.1.0.0.exe"
+                  <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.0.0/D-CLOCK-Setup-1.0.0.exe"
                     className="btn-primary justify-center text-[14.5px]" download>
                     <IDownload size={16} color="white"/>
                     Descargar instalador
@@ -842,7 +842,7 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
-                  <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.0.0/D-CLOCK.1.0.0.exe"
+                  <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.0.0/D-CLOCK-Portable-1.0.0.exe"
                     className="btn-ghost justify-center text-[14.5px]" download>
                     <IDownload size={16} color="#38382F"/>
                     Descargar portable

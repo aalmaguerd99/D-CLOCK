@@ -618,26 +618,28 @@ app.get("/api/wallet/config", auth, (req, res) => {
   const db = DB.getDb();
   const get = k => db.prepare("SELECT value FROM config WHERE key=?").get(k)?.value ?? null;
   res.json({
-    pass_type_id:  get("wallet_pass_type_id"),
-    team_id:       get("wallet_team_id"),
-    bg_color:      get("wallet_bg_color")    || "rgb(26,26,26)",
-    fg_color:      get("wallet_fg_color")    || "rgb(255,255,255)",
-    label_color:   get("wallet_label_color") || "rgb(170,170,170)",
-    has_cert:      !!(get("wallet_signer_cert_pem")),
-    has_key:       !!(get("wallet_signer_key_pem")),
-    has_wwdr:      !!(get("wallet_wwdr_pem")),
+    pass_type_id:   get("wallet_pass_type_id"),
+    team_id:        get("wallet_team_id"),
+    bg_color:       get("wallet_bg_color")    || "rgb(26,26,26)",
+    fg_color:       get("wallet_fg_color")    || "rgb(255,255,255)",
+    label_color:    get("wallet_label_color") || "rgb(170,170,170)",
+    has_cert:       !!(get("wallet_signer_cert_pem")),
+    has_key:        !!(get("wallet_signer_key_pem")),
+    has_wwdr:       !!(get("wallet_wwdr_pem")),
+    fields_config:  get("wallet_fields_config") || null,
   });
 });
 
 app.post("/api/wallet/config", auth, (req, res) => {
   const db = DB.getDb();
   const set = (k, v) => { if (v !== undefined && v !== null) db.prepare("INSERT OR REPLACE INTO config VALUES (?,?)").run(k, v); };
-  const { pass_type_id, team_id, bg_color, fg_color, label_color, signer_cert_pem, signer_key_pem, wwdr_pem } = req.body;
-  set("wallet_pass_type_id", pass_type_id);
-  set("wallet_team_id",      team_id);
-  set("wallet_bg_color",     bg_color);
-  set("wallet_fg_color",     fg_color);
-  set("wallet_label_color",  label_color);
+  const { pass_type_id, team_id, bg_color, fg_color, label_color, signer_cert_pem, signer_key_pem, wwdr_pem, fields_config } = req.body;
+  set("wallet_pass_type_id",    pass_type_id);
+  set("wallet_team_id",         team_id);
+  set("wallet_bg_color",        bg_color);
+  set("wallet_fg_color",        fg_color);
+  set("wallet_label_color",     label_color);
+  set("wallet_fields_config",   fields_config);
   if (signer_cert_pem) set("wallet_signer_cert_pem", signer_cert_pem);
   if (signer_key_pem)  set("wallet_signer_key_pem",  signer_key_pem);
   if (wwdr_pem)        set("wallet_wwdr_pem",         wwdr_pem);
@@ -745,6 +747,44 @@ app.get("/api/employees/:id/pass.pkpass", async (req, res) => {
 
     const fullName = `${emp.name}${emp.last_name ? " " + emp.last_name : ""}`;
 
+    // Load dynamic field config (saved by the designer UI)
+    let fieldsConfig = null;
+    const rawFC = get("wallet_fields_config");
+    if (rawFC) { try { fieldsConfig = JSON.parse(rawFC); } catch {} }
+    if (!fieldsConfig || !fieldsConfig.zones) {
+      fieldsConfig = { showPhoto: true, zones: {
+        primary:   [{ dataKey: "fullName",        label: "EMPLEADO" }],
+        secondary: [{ dataKey: "title",            label: "PUESTO" }, { dataKey: "area_name", label: "ÁREA" }],
+        auxiliary: [{ dataKey: "employee_number",  label: "NO. EMPLEADO" }],
+        back:      [{ dataKey: "companyName",      label: "EMPRESA" }, { dataKey: "email", label: "EMAIL" }, { dataKey: "phone", label: "TELÉFONO" }],
+      }};
+    }
+
+    function resolveField(dataKey) {
+      const birthStr = emp.birth_date ? new Date(emp.birth_date).toLocaleDateString("es-MX") : "";
+      const map = {
+        fullName:        fullName,
+        employee_number: emp.employee_number || "",
+        title:           emp.title           || "",
+        area_name:       emp.area_name       || "",
+        dept:            emp.dept            || "",
+        email:           emp.email           || "",
+        phone:           emp.phone           || "",
+        nss:             emp.nss             || "",
+        rfc:             emp.rfc             || "",
+        curp:            emp.curp            || "",
+        birth_date:      birthStr,
+        gender:          emp.gender          || "",
+        companyName:     companyName,
+      };
+      return map[dataKey] ?? "";
+    }
+
+    const toPassFields = (zoneFields) =>
+      (zoneFields || [])
+        .map(f => ({ key: f.dataKey, label: f.label, value: resolveField(f.dataKey) }))
+        .filter(f => f.value !== "");
+
     const passJson = {
       formatVersion: 1,
       passTypeIdentifier: passTypeId,
@@ -756,20 +796,10 @@ app.get("/api/employees/:id/pass.pkpass", async (req, res) => {
       foregroundColor: fgColor,
       labelColor: lblColor,
       generic: {
-        primaryFields: [{ key: "name", label: "EMPLEADO", value: fullName }],
-        secondaryFields: [
-          ...(emp.title     ? [{ key: "title", label: "PUESTO", value: emp.title }]     : []),
-          ...(emp.area_name ? [{ key: "area",  label: "ÁREA",   value: emp.area_name }] : []),
-        ],
-        auxiliaryFields: [
-          { key: "empnum", label: "NO. EMPLEADO", value: emp.employee_number },
-          ...(emp.dept ? [{ key: "dept", label: "DEPTO", value: emp.dept }] : []),
-        ],
-        backFields: [
-          { key: "company", label: "EMPRESA",    value: companyName },
-          { key: "email",   label: "EMAIL",      value: emp.email || "—" },
-          { key: "phone",   label: "TELÉFONO",   value: emp.phone || "—" },
-        ],
+        primaryFields:   toPassFields(fieldsConfig.zones.primary),
+        secondaryFields: toPassFields(fieldsConfig.zones.secondary),
+        auxiliaryFields: toPassFields(fieldsConfig.zones.auxiliary),
+        backFields:      toPassFields(fieldsConfig.zones.back),
       },
     };
 
