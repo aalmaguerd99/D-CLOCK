@@ -793,51 +793,25 @@ input[type=range]{width:100%;accent-color:var(--accent)}
             <!-- Columna izquierda: configuración -->
             <div style="display:flex;flex-direction:column;gap:16px">
 
-              <!-- Certificados -->
+              <!-- Estado certificados -->
               <div class="card">
                 <div class="card-header">
                   <div>
-                    <div class="card-title">Certificados Apple Wallet</div>
-                    <div class="card-sub">Sube los archivos generados en dclock-wallet-certs</div>
+                    <div class="card-title">Apple Wallet</div>
+                    <div class="card-sub">Certificados administrados por D99-TECH vía Railway</div>
                   </div>
                 </div>
-                <div class="card-body" style="display:flex;flex-direction:column;gap:0">
-                  <div class="cert-row">
-                    <div class="cert-status" id="cert-status-cert"></div>
-                    <span class="cert-label">Certificado (pass.pem)</span>
-                    <label class="cert-file-btn">Subir<input type="file" accept=".pem,.cer" style="display:none" onchange="uploadCert('cert',this)"></label>
-                  </div>
-                  <div class="cert-row">
-                    <div class="cert-status" id="cert-status-key"></div>
-                    <span class="cert-label">Llave privada (pass.key)</span>
-                    <label class="cert-file-btn">Subir<input type="file" accept=".key,.pem" style="display:none" onchange="uploadCert('key',this)"></label>
-                  </div>
-                  <div class="cert-row">
-                    <div class="cert-status" id="cert-status-wwdr"></div>
-                    <span class="cert-label">WWDR Apple (wwdr.pem)</span>
-                    <label class="cert-file-btn">Subir<input type="file" accept=".pem,.cer" style="display:none" onchange="uploadCert('wwdr',this)"></label>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Identificadores -->
-              <div class="card">
-                <div class="card-header"><div class="card-title">Identificadores</div></div>
-                <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
-                  <div class="field" style="margin:0">
-                    <label>Pass Type ID</label>
-                    <input class="inp" id="w-pass-type-id" placeholder="pass.com.d99tech.dclock" value="pass.com.d99tech.dclock">
-                  </div>
-                  <div class="field" style="margin:0">
-                    <label>Team ID</label>
-                    <input class="inp" id="w-team-id" placeholder="56SBW74WX9" value="56SBW74WX9">
+                <div class="card-body">
+                  <div id="wallet-certs-status" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:var(--bg);border:1px solid var(--border)">
+                    <div style="width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0" id="wallet-certs-dot"></div>
+                    <span id="wallet-certs-label" style="font-size:13px;color:var(--muted)">Verificando conexión…</span>
                   </div>
                 </div>
               </div>
 
               <!-- Colores -->
               <div class="card">
-                <div class="card-header"><div class="card-title">Diseño</div></div>
+                <div class="card-header"><div class="card-title">Diseño de la credencial</div></div>
                 <div class="card-body" style="display:flex;flex-direction:column;gap:4px">
                   <div class="color-row">
                     <label>Fondo</label>
@@ -864,7 +838,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
               </div>
 
               <div style="display:flex;gap:10px">
-                <button class="btn btn-primary" style="flex:1" onclick="saveWalletConfig()">Guardar configuración</button>
+                <button class="btn btn-primary" style="flex:1" onclick="saveWalletConfig()">Guardar diseño</button>
                 <button class="btn btn-ghost" onclick="testWalletPass()">Descargar pass de prueba</button>
               </div>
               <div id="wallet-msg" style="display:none;font-size:13px;padding:9px 12px;border-radius:8px"></div>
@@ -2983,14 +2957,21 @@ function updateWalletPreview(){
 async function loadWalletConfig(){
   try{
     const cfg=await api('GET','/api/wallet/config');
-    if(cfg.pass_type_id) document.getElementById('w-pass-type-id').value=cfg.pass_type_id;
-    if(cfg.team_id)      document.getElementById('w-team-id').value=cfg.team_id;
     if(cfg.bg_color)    document.getElementById('w-bg-color').value=rgbToHex(cfg.bg_color);
     if(cfg.fg_color)    document.getElementById('w-fg-color').value=rgbToHex(cfg.fg_color);
     if(cfg.label_color) document.getElementById('w-label-color').value=rgbToHex(cfg.label_color);
-    document.getElementById('cert-status-cert').className='cert-status '+(cfg.has_cert?'ok':'no');
-    document.getElementById('cert-status-key').className='cert-status '+(cfg.has_key?'ok':'no');
-    document.getElementById('cert-status-wwdr').className='cert-status '+(cfg.has_wwdr?'ok':'no');
+    // Show cert status
+    const dot=document.getElementById('wallet-certs-dot');
+    const lbl=document.getElementById('wallet-certs-label');
+    if(cfg.has_cert && cfg.has_key && cfg.has_wwdr){
+      dot.style.background='var(--green)';
+      lbl.style.color='var(--green)';
+      lbl.textContent='Certificados activos — descargados desde Railway';
+    } else {
+      dot.style.background='var(--yellow)';
+      lbl.style.color='var(--yellow)';
+      lbl.textContent='Certificados pendientes — se descargarán al generar el primer pass';
+    }
     // Company info for preview
     const info=await api('GET','/api/info');
     document.getElementById('wc-company').textContent=(info.company_name||'EMPRESA').toUpperCase();
@@ -3003,33 +2984,14 @@ async function loadWalletConfig(){
   }catch(e){console.error('walletConfig',e);}
 }
 
-function uploadCert(type, input){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=async e=>{
-    const pem=e.target.result;
-    const body={};
-    if(type==='cert') body.signer_cert_pem=pem;
-    else if(type==='key') body.signer_key_pem=pem;
-    else if(type==='wwdr') body.wwdr_pem=pem;
-    await api('POST','/api/wallet/config',body);
-    const statusId='cert-status-'+type;
-    document.getElementById(statusId).className='cert-status ok';
-    showWalletMsg('Archivo subido correctamente','green');
-  };
-  reader.readAsText(file);
-}
-
 async function saveWalletConfig(){
   const body={
-    pass_type_id: document.getElementById('w-pass-type-id').value.trim(),
-    team_id:      document.getElementById('w-team-id').value.trim(),
-    bg_color:     hexToRgb(document.getElementById('w-bg-color').value),
-    fg_color:     hexToRgb(document.getElementById('w-fg-color').value),
-    label_color:  hexToRgb(document.getElementById('w-label-color').value),
+    bg_color:    hexToRgb(document.getElementById('w-bg-color').value),
+    fg_color:    hexToRgb(document.getElementById('w-fg-color').value),
+    label_color: hexToRgb(document.getElementById('w-label-color').value),
   };
   await api('POST','/api/wallet/config',body);
-  showWalletMsg('Configuración guardada','green');
+  showWalletMsg('Diseño guardado','green');
 }
 
 async function testWalletPass(){

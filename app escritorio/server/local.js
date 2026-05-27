@@ -644,18 +644,85 @@ app.post("/api/wallet/config", auth, (req, res) => {
   res.json({ ok: true });
 });
 
+// ── Fetch wallet certs from Railway (with local cache 7 days) ──
+async function getWalletCerts() {
+  const db  = DB.getDb();
+  const get = k => db.prepare("SELECT value FROM config WHERE key=?").get(k)?.value ?? null;
+
+  // Check cache freshness
+  const cachedAt = get("wallet_certs_cached_at");
+  if (cachedAt) {
+    const age = Date.now() - new Date(cachedAt).getTime();
+    if (age < 7 * 24 * 60 * 60 * 1000) {
+      const certPem = get("wallet_signer_cert_pem");
+      const keyPem  = get("wallet_signer_key_pem");
+      const wwdrPem = get("wallet_wwdr_pem");
+      if (certPem && keyPem && wwdrPem) {
+        return {
+          signer_cert_pem: certPem, signer_key_pem: keyPem, wwdr_pem: wwdrPem,
+          pass_type_id: get("wallet_pass_type_id") || "pass.com.d99tech.dclock",
+          team_id:      get("wallet_team_id")      || "56SBW74WX9",
+        };
+      }
+    }
+  }
+
+  // Fetch from Railway using the stored license key
+  const licenseKey = get("license_key");
+  if (!licenseKey) throw new Error("Licencia no activada");
+
+  const { API_URL } = require("../config");
+  const https = require("https");
+
+  const certs = await new Promise((resolve, reject) => {
+    const req = https.request(`${API_URL}/api/wallet/certs`, {
+      method: "GET",
+      headers: { "x-license-key": licenseKey },
+    }, res => {
+      let raw = "";
+      res.on("data", c => raw += c);
+      res.on("end", () => {
+        try {
+          const data = JSON.parse(raw);
+          if (res.statusCode !== 200) reject(new Error(data.error || `HTTP ${res.statusCode}`));
+          else resolve(data);
+        } catch { reject(new Error("Respuesta inválida del servidor de licencias")); }
+      });
+    });
+    req.on("error", reject);
+    req.end();
+  });
+
+  // Save to local cache
+  const set = (k, v) => db.prepare("INSERT OR REPLACE INTO config VALUES (?,?)").run(k, v);
+  set("wallet_signer_cert_pem", certs.signer_cert_pem);
+  set("wallet_signer_key_pem",  certs.signer_key_pem);
+  set("wallet_wwdr_pem",        certs.wwdr_pem);
+  set("wallet_pass_type_id",    certs.pass_type_id || "pass.com.d99tech.dclock");
+  set("wallet_team_id",         certs.team_id      || "56SBW74WX9");
+  set("wallet_certs_cached_at", new Date().toISOString());
+
+  return certs;
+}
+
 // ── Generate Apple Wallet pass ─────────────────────────
 app.get("/api/employees/:id/pass.pkpass", async (req, res) => {
   try {
     const { PKPass } = require("passkit-generator");
     const db = DB.getDb();
 
-    const get = k => db.prepare("SELECT value FROM config WHERE key=?").get(k)?.value ?? null;
-    const certPem  = get("wallet_signer_cert_pem");
-    const keyPem   = get("wallet_signer_key_pem");
-    const wwdrPem  = get("wallet_wwdr_pem");
+    // Get certs from Railway (or local cache)
+    let certs;
+    try {
+      certs = await getWalletCerts();
+    } catch (e) {
+      return res.status(503).json({ error: `No se pudieron obtener los certificados: ${e.message}` });
+    }
+    const certPem = certs.signer_cert_pem;
+    const keyPem  = certs.signer_key_pem;
+    const wwdrPem = certs.wwdr_pem;
     if (!certPem || !keyPem || !wwdrPem)
-      return res.status(503).json({ error: "Wallet no configurado. Sube los certificados en Credencial > Configuración." });
+      return res.status(503).json({ error: "Certificados incompletos en el servidor." });
 
     const emp = db.prepare(`
       SELECT e.*, d.name AS dept, a.name AS area_name, j.name AS title
@@ -667,13 +734,14 @@ app.get("/api/employees/:id/pass.pkpass", async (req, res) => {
     `).get(req.params.id);
     if (!emp) return res.status(404).json({ error: "Empleado no encontrado" });
 
-    const companyName = get("company_name")    || "D-CLOCK";
-    const companyLogo = get("company_logo")    || null;
-    const bgColor     = get("wallet_bg_color") || "rgb(26,26,26)";
-    const fgColor     = get("wallet_fg_color") || "rgb(255,255,255)";
+    const get = k => db.prepare("SELECT value FROM config WHERE key=?").get(k)?.value ?? null;
+    const companyName = get("company_name")       || "D-CLOCK";
+    const companyLogo = get("company_logo")       || null;
+    const bgColor     = get("wallet_bg_color")    || "rgb(26,26,26)";
+    const fgColor     = get("wallet_fg_color")    || "rgb(255,255,255)";
     const lblColor    = get("wallet_label_color") || "rgb(170,170,170)";
-    const passTypeId  = get("wallet_pass_type_id") || "pass.com.d99tech.dclock";
-    const teamId      = get("wallet_team_id")  || "56SBW74WX9";
+    const passTypeId  = certs.pass_type_id        || "pass.com.d99tech.dclock";
+    const teamId      = certs.team_id             || "56SBW74WX9";
 
     const fullName = `${emp.name}${emp.last_name ? " " + emp.last_name : ""}`;
 
@@ -752,6 +820,9 @@ function start() {
       const lic = JSON.parse(fs.readFileSync(path.join(dataDir, "license.json"), "utf8"));
       if (lic?.company_name) {
         DB.getDb().prepare("INSERT OR REPLACE INTO config VALUES ('company_name',?)").run(lic.company_name);
+      }
+      if (lic?.license_key) {
+        DB.getDb().prepare("INSERT OR REPLACE INTO config VALUES ('license_key',?)").run(lic.license_key);
       }
     } catch {}
     serverInstance = app.listen(LOCAL_PORT, "0.0.0.0", () => {

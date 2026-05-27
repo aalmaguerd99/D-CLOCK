@@ -132,6 +132,59 @@ function auth(req, res, next) {
   next();
 }
 
+/* ── Ensure wallet_config table exists ── */
+pool.query(`
+  CREATE TABLE IF NOT EXISTS wallet_config (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  )
+`).catch(e => console.warn("wallet_config table:", e.message));
+
+/* ────────────────────────────────────────────────────
+   GET /api/wallet/certs
+   Autenticado con license_key del cliente.
+   Devuelve los certificados de Apple Wallet si la
+   licencia está activa. La app escritorio cachea
+   el resultado localmente 7 días.
+──────────────────────────────────────────────────── */
+app.get("/api/wallet/certs", async (req, res) => {
+  const licenseKey = req.headers["x-license-key"];
+  if (!licenseKey) return res.status(401).json({ error: "license_key requerida" });
+
+  try {
+    // Validate license is active
+    const { rows } = await pool.query(
+      `SELECT l.status, c.name AS company_name
+       FROM licenses l JOIN companies c ON c.id = l.company_id
+       WHERE l.license_key = $1`,
+      [licenseKey.trim().toUpperCase()]
+    );
+    if (!rows.length) return res.status(404).json({ error: "Licencia no encontrada" });
+    if (rows[0].status !== "active") return res.status(403).json({ error: "Licencia no activa" });
+
+    // Fetch certs from wallet_config
+    const cfg = await pool.query("SELECT key, value FROM wallet_config");
+    const map = Object.fromEntries(cfg.rows.map(r => [r.key, r.value]));
+
+    const required = ["signer_cert_pem", "signer_key_pem", "wwdr_pem"];
+    const missing  = required.filter(k => !map[k]);
+    if (missing.length) {
+      return res.status(503).json({ error: "Certificados no configurados en el servidor" });
+    }
+
+    res.json({
+      signer_cert_pem: map.signer_cert_pem,
+      signer_key_pem:  map.signer_key_pem,
+      wwdr_pem:        map.wwdr_pem,
+      pass_type_id:    map.pass_type_id || "pass.com.d99tech.dclock",
+      team_id:         map.team_id      || "56SBW74WX9",
+    });
+  } catch (e) {
+    console.error("wallet/certs:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 /* ── Generate license key: DCXXX-XXXX-XXXX-XXXX ── */
 function genKey() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
