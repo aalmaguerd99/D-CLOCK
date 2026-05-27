@@ -59,6 +59,7 @@ app.post("/api/mobile/auth", (req, res) => {
     SELECT e.id, e.employee_number, e.name, e.last_name, e.photo, e.active,
            e.email, e.phone, e.rfc, e.curp, e.nss, e.birth_date, e.gender, e.address,
            e.department_id, e.area_id, e.job_title_id, e.schedule_id, e.geofence_id,
+           e.is_admin, e.face_descriptor,
            d.name AS department_name, a.name AS area_name, j.name AS job_title_name,
            s.name AS schedule_name
     FROM employees e
@@ -73,7 +74,8 @@ app.post("/api/mobile/auth", (req, res) => {
   const last  = DB.getDb().prepare(
     "SELECT type, timestamp FROM check_ins WHERE employee_id=? AND date(timestamp,'localtime')=? ORDER BY timestamp DESC LIMIT 1"
   ).get(emp.id, today);
-  res.json({ ok: true, employee: emp, last_checkin: last || null });
+  const { face_descriptor, ...empData } = emp;
+  res.json({ ok: true, employee: { ...empData, has_face: !!face_descriptor }, last_checkin: last || null });
 });
 
 // ── Checkins de hoy para empleado (móvil) ────────────
@@ -87,6 +89,11 @@ app.get("/api/mobile/checkins/today", (req, res) => {
   res.json(rows.map((r) => ({ ...r, type: r.type === "entrada" ? "in" : "out" })));
 });
 
+function faceDistance(d1, d2) {
+  if (!d1 || !d2 || d1.length !== d2.length) return Infinity;
+  return Math.sqrt(d1.reduce((sum, v, i) => sum + (v - d2[i]) ** 2, 0));
+}
+
 function haversineM(lat1, lon1, lat2, lon2) {
   const R = 6371000, toRad = x => x * Math.PI / 180;
   const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
@@ -95,39 +102,117 @@ function haversineM(lat1, lon1, lat2, lon2) {
 }
 
 // ── Registrar checkin desde móvil ────────────────────
-app.post("/api/mobile/checkin", (req, res) => {
+app.post("/api/mobile/checkin", async (req, res) => {
   const { employee_id, type, lat, lng, photo = null } = req.body;
   if (!employee_id || !["in", "out"].includes(type))
     return res.status(400).json({ error: "Datos requeridos" });
+
   const db = DB.getDb();
-  const emp = db.prepare("SELECT id FROM employees WHERE id=? AND active=1").get(employee_id);
+  const emp = db.prepare("SELECT id, face_descriptor FROM employees WHERE id=? AND active=1").get(employee_id);
   if (!emp) return res.status(404).json({ error: "Empleado no encontrado" });
 
-  // Detectar geocerca
-  let geofence_id = null, geofence_name = null;
-  if (lat != null && lng != null) {
-    const geos = db.prepare("SELECT id, name, latitude, longitude, radius_meters FROM geofences WHERE active=1").all();
-    for (const gf of geos) {
-      if (haversineM(lat, lng, gf.latitude, gf.longitude) <= gf.radius_meters) {
-        geofence_id = gf.id;
-        geofence_name = gf.name;
-        break;
+  // ── Ubicación obligatoria ──────────────────────────
+  if (lat == null || lng == null) {
+    return res.status(400).json({
+      error: "location_required",
+      message: "Activa la ubicación en Configuración para poder registrar tu asistencia.",
+    });
+  }
+
+  // ── Verificación facial (no bloquea, solo registra resultado) ────
+  let face_verified = null;
+  if (emp.face_descriptor) {
+    face_verified = 0;
+    if (photo) {
+      try {
+        const stored = JSON.parse(emp.face_descriptor);
+        const captured = await (global.processFaceImage ? global.processFaceImage(photo) : null);
+        if (captured) {
+          const dist = faceDistance(stored, captured);
+          if (dist <= 0.6) face_verified = 1;
+        }
+      } catch (e) {
+        console.error("Face verification error:", e.message);
       }
+    }
+  }
+
+  // ── Detectar geocerca ──────────────────────────────
+  let geofence_id = null, geofence_name = null;
+  const geos = db.prepare("SELECT id, name, latitude, longitude, radius_meters FROM geofences WHERE active=1").all();
+  for (const gf of geos) {
+    if (haversineM(lat, lng, gf.latitude, gf.longitude) <= gf.radius_meters) {
+      geofence_id = gf.id; geofence_name = gf.name; break;
     }
   }
 
   const dbType = type === "in" ? "entrada" : "salida";
   const result = db.prepare(
-    "INSERT INTO check_ins (employee_id, type, timestamp, latitude, longitude, photo, geofence_id) VALUES (?, ?, ?, ?, ?, ?, ?)"
-  ).run(employee_id, dbType, nowMX(), lat ?? null, lng ?? null, photo, geofence_id);
+    "INSERT INTO check_ins (employee_id, type, timestamp, latitude, longitude, photo, geofence_id, face_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+  ).run(employee_id, dbType, nowMX(), lat, lng, photo, geofence_id, face_verified);
 
   const row = db.prepare("SELECT id, type, timestamp FROM check_ins WHERE id=?").get(result.lastInsertRowid);
-  res.json({
-    id: row.id,
-    type: row.type === "entrada" ? "in" : "out",
-    timestamp: row.timestamp,
-    geofence_name,
-  });
+  res.json({ id: row.id, type: row.type === "entrada" ? "in" : "out", timestamp: row.timestamp, geofence_name, face_verified });
+});
+
+// ── Registro de rostro desde móvil ────────────────
+app.post("/api/mobile/register-face", async (req, res) => {
+  const { employee_id, photo } = req.body;
+  if (!employee_id || !photo) return res.status(400).json({ error: "Datos requeridos" });
+  const emp = DB.getDb().prepare("SELECT id FROM employees WHERE id=? AND active=1").get(employee_id);
+  if (!emp) return res.status(404).json({ error: "Empleado no encontrado" });
+  try {
+    const descriptor = await (global.processFaceImage ? global.processFaceImage(photo) : null);
+    if (!descriptor) return res.status(400).json({ ok: false, error: "no_face_detected" });
+    DB.getDb().prepare("UPDATE employees SET face_descriptor=? WHERE id=?")
+      .run(JSON.stringify(descriptor), employee_id);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── Registros del día para admin (móvil) ──────────
+app.get("/api/mobile/admin/checkins", (req, res) => {
+  const { employee_id, date } = req.query;
+  if (!employee_id) return res.status(400).json({ error: "employee_id requerido" });
+  const admin = DB.getDb().prepare("SELECT is_admin FROM employees WHERE id=? AND active=1").get(employee_id);
+  if (!admin?.is_admin) return res.status(403).json({ error: "No autorizado" });
+  const day = date || new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
+  const rows = DB.getDb().prepare(`
+    SELECT ci.id, ci.type, ci.timestamp, ci.geofence_id,
+           e.id AS employee_id, e.name, e.last_name, e.employee_number, e.photo,
+           d.name AS department_name, j.name AS job_title_name,
+           g.name AS geofence_name
+    FROM check_ins ci
+    JOIN employees e ON ci.employee_id = e.id
+    LEFT JOIN departments d ON e.department_id = d.id
+    LEFT JOIN job_titles  j ON e.job_title_id  = j.id
+    LEFT JOIN geofences   g ON ci.geofence_id  = g.id
+    WHERE date(ci.timestamp, 'localtime') = ?
+    ORDER BY ci.timestamp DESC
+  `).all(day);
+  res.json(rows.map(r => ({ ...r, type: r.type === "entrada" ? "in" : "out" })));
+});
+
+// ── Face descriptor (admin) ────────────────────────
+app.put("/api/employees/:id/face-descriptor", auth, (req, res) => {
+  const { descriptor } = req.body;
+  if (!Array.isArray(descriptor) || descriptor.length !== 128)
+    return res.status(400).json({ error: "Descriptor inválido" });
+  DB.getDb().prepare("UPDATE employees SET face_descriptor=? WHERE id=?")
+    .run(JSON.stringify(descriptor), req.params.id);
+  res.json({ ok: true });
+});
+
+app.delete("/api/employees/:id/face-descriptor", auth, (req, res) => {
+  DB.getDb().prepare("UPDATE employees SET face_descriptor=NULL WHERE id=?").run(req.params.id);
+  res.json({ ok: true });
+});
+
+app.get("/api/employees/:id/face-status", auth, (req, res) => {
+  const emp = DB.getDb().prepare("SELECT face_descriptor FROM employees WHERE id=?").get(req.params.id);
+  res.json({ has_face: !!(emp && emp.face_descriptor) });
 });
 
 // ── Auth ──────────────────────────────────────────────
@@ -304,15 +389,16 @@ const EMP_SELECT = `
   LEFT JOIN job_titles  j ON e.job_title_id   = j.id
 `;
 app.get("/api/employees", auth, (req, res) => {
-  res.json(DB.getDb().prepare(EMP_SELECT + " ORDER BY e.name").all());
+  const rows = DB.getDb().prepare(EMP_SELECT + " ORDER BY e.name").all();
+  res.json(rows.map(({ face_descriptor, ...r }) => ({ ...r, has_face: !!face_descriptor })));
 });
 app.post("/api/employees", auth, (req, res) => {
-  const { employee_number, name, last_name, email, phone, nss, curp, rfc, gender, birth_date, address, department_id, area_id, job_title_id, schedule_id, geofence_id, pin, photo } = req.body;
+  const { employee_number, name, last_name, email, phone, nss, curp, rfc, gender, birth_date, address, department_id, area_id, job_title_id, schedule_id, geofence_id, pin, photo, is_admin } = req.body;
   if (!employee_number || !name) return res.status(400).json({ error: "Número y nombre requeridos" });
   try {
     const r = DB.getDb().prepare(
-      "INSERT INTO employees (employee_number,name,last_name,email,phone,nss,curp,rfc,gender,birth_date,address,department_id,area_id,job_title_id,schedule_id,geofence_id,pin,photo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-    ).run(employee_number, name, last_name||null, email||null, phone||null, nss||null, curp||null, rfc||null, gender||null, birth_date||null, address||null, department_id||null, area_id||null, job_title_id||null, schedule_id||null, geofence_id||null, pin||null, photo||null);
+      "INSERT INTO employees (employee_number,name,last_name,email,phone,nss,curp,rfc,gender,birth_date,address,department_id,area_id,job_title_id,schedule_id,geofence_id,pin,photo,is_admin) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+    ).run(employee_number, name, last_name||null, email||null, phone||null, nss||null, curp||null, rfc||null, gender||null, birth_date||null, address||null, department_id||null, area_id||null, job_title_id||null, schedule_id||null, geofence_id||null, pin||null, photo||null, is_admin?1:0);
     res.json({ id: r.lastInsertRowid });
   } catch { res.status(400).json({ error: "El número de empleado ya existe" }); }
 });
@@ -322,10 +408,10 @@ app.get("/api/employees/:id", auth, (req, res) => {
   res.json(emp);
 });
 app.put("/api/employees/:id", auth, (req, res) => {
-  const { employee_number, name, last_name, email, phone, nss, curp, rfc, gender, birth_date, address, department_id, area_id, job_title_id, schedule_id, geofence_id, pin, photo, active } = req.body;
+  const { employee_number, name, last_name, email, phone, nss, curp, rfc, gender, birth_date, address, department_id, area_id, job_title_id, schedule_id, geofence_id, pin, photo, active, is_admin } = req.body;
   DB.getDb().prepare(
-    "UPDATE employees SET employee_number=?,name=?,last_name=?,email=?,phone=?,nss=?,curp=?,rfc=?,gender=?,birth_date=?,address=?,department_id=?,area_id=?,job_title_id=?,schedule_id=?,geofence_id=?,pin=?,photo=?,active=? WHERE id=?"
-  ).run(employee_number, name, last_name||null, email||null, phone||null, nss||null, curp||null, rfc||null, gender||null, birth_date||null, address||null, department_id||null, area_id||null, job_title_id||null, schedule_id||null, geofence_id||null, pin||null, photo||null, active?1:0, req.params.id);
+    "UPDATE employees SET employee_number=?,name=?,last_name=?,email=?,phone=?,nss=?,curp=?,rfc=?,gender=?,birth_date=?,address=?,department_id=?,area_id=?,job_title_id=?,schedule_id=?,geofence_id=?,pin=?,photo=?,active=?,is_admin=? WHERE id=?"
+  ).run(employee_number, name, last_name||null, email||null, phone||null, nss||null, curp||null, rfc||null, gender||null, birth_date||null, address||null, department_id||null, area_id||null, job_title_id||null, schedule_id||null, geofence_id||null, pin||null, photo||null, active?1:0, is_admin?1:0, req.params.id);
   res.json({ ok: true });
 });
 app.delete("/api/employees/:id", auth, (req, res) => {
@@ -525,6 +611,133 @@ app.get("/api/stats", auth, (req, res) => {
   `).all(today);
   const absentToday = Math.max(0, totalEmployees - presentToday);
   res.json({ totalEmployees, presentToday, checkinsToday, insideNow, insideList, absentToday, date: today });
+});
+
+// ── Wallet config ────────────────────────────────────
+app.get("/api/wallet/config", auth, (req, res) => {
+  const db = DB.getDb();
+  const get = k => db.prepare("SELECT value FROM config WHERE key=?").get(k)?.value ?? null;
+  res.json({
+    pass_type_id:  get("wallet_pass_type_id"),
+    team_id:       get("wallet_team_id"),
+    bg_color:      get("wallet_bg_color")    || "rgb(26,26,26)",
+    fg_color:      get("wallet_fg_color")    || "rgb(255,255,255)",
+    label_color:   get("wallet_label_color") || "rgb(170,170,170)",
+    has_cert:      !!(get("wallet_signer_cert_pem")),
+    has_key:       !!(get("wallet_signer_key_pem")),
+    has_wwdr:      !!(get("wallet_wwdr_pem")),
+  });
+});
+
+app.post("/api/wallet/config", auth, (req, res) => {
+  const db = DB.getDb();
+  const set = (k, v) => { if (v !== undefined && v !== null) db.prepare("INSERT OR REPLACE INTO config VALUES (?,?)").run(k, v); };
+  const { pass_type_id, team_id, bg_color, fg_color, label_color, signer_cert_pem, signer_key_pem, wwdr_pem } = req.body;
+  set("wallet_pass_type_id", pass_type_id);
+  set("wallet_team_id",      team_id);
+  set("wallet_bg_color",     bg_color);
+  set("wallet_fg_color",     fg_color);
+  set("wallet_label_color",  label_color);
+  if (signer_cert_pem) set("wallet_signer_cert_pem", signer_cert_pem);
+  if (signer_key_pem)  set("wallet_signer_key_pem",  signer_key_pem);
+  if (wwdr_pem)        set("wallet_wwdr_pem",         wwdr_pem);
+  res.json({ ok: true });
+});
+
+// ── Generate Apple Wallet pass ─────────────────────────
+app.get("/api/employees/:id/pass.pkpass", async (req, res) => {
+  try {
+    const { PKPass } = require("passkit-generator");
+    const db = DB.getDb();
+
+    const get = k => db.prepare("SELECT value FROM config WHERE key=?").get(k)?.value ?? null;
+    const certPem  = get("wallet_signer_cert_pem");
+    const keyPem   = get("wallet_signer_key_pem");
+    const wwdrPem  = get("wallet_wwdr_pem");
+    if (!certPem || !keyPem || !wwdrPem)
+      return res.status(503).json({ error: "Wallet no configurado. Sube los certificados en Credencial > Configuración." });
+
+    const emp = db.prepare(`
+      SELECT e.*, d.name AS dept, a.name AS area_name, j.name AS title
+      FROM employees e
+      LEFT JOIN departments d ON e.department_id=d.id
+      LEFT JOIN areas       a ON e.area_id=a.id
+      LEFT JOIN job_titles  j ON e.job_title_id=j.id
+      WHERE e.id=? AND e.active=1
+    `).get(req.params.id);
+    if (!emp) return res.status(404).json({ error: "Empleado no encontrado" });
+
+    const companyName = get("company_name")    || "D-CLOCK";
+    const companyLogo = get("company_logo")    || null;
+    const bgColor     = get("wallet_bg_color") || "rgb(26,26,26)";
+    const fgColor     = get("wallet_fg_color") || "rgb(255,255,255)";
+    const lblColor    = get("wallet_label_color") || "rgb(170,170,170)";
+    const passTypeId  = get("wallet_pass_type_id") || "pass.com.d99tech.dclock";
+    const teamId      = get("wallet_team_id")  || "56SBW74WX9";
+
+    const fullName = `${emp.name}${emp.last_name ? " " + emp.last_name : ""}`;
+
+    const passJson = {
+      formatVersion: 1,
+      passTypeIdentifier: passTypeId,
+      serialNumber: `DCLOCK-EMP-${emp.id}`,
+      teamIdentifier: teamId,
+      organizationName: companyName,
+      description: `Credencial — ${fullName}`,
+      backgroundColor: bgColor,
+      foregroundColor: fgColor,
+      labelColor: lblColor,
+      generic: {
+        primaryFields: [{ key: "name", label: "EMPLEADO", value: fullName }],
+        secondaryFields: [
+          ...(emp.title     ? [{ key: "title", label: "PUESTO", value: emp.title }]     : []),
+          ...(emp.area_name ? [{ key: "area",  label: "ÁREA",   value: emp.area_name }] : []),
+        ],
+        auxiliaryFields: [
+          { key: "empnum", label: "NO. EMPLEADO", value: emp.employee_number },
+          ...(emp.dept ? [{ key: "dept", label: "DEPTO", value: emp.dept }] : []),
+        ],
+        backFields: [
+          { key: "company", label: "EMPRESA",    value: companyName },
+          { key: "email",   label: "EMAIL",      value: emp.email || "—" },
+          { key: "phone",   label: "TELÉFONO",   value: emp.phone || "—" },
+        ],
+      },
+    };
+
+    function b64ToBuffer(dataUri) {
+      if (!dataUri) return null;
+      const b64 = dataUri.includes(",") ? dataUri.split(",")[1] : dataUri;
+      return Buffer.from(b64, "base64");
+    }
+
+    const iconPath = path.join(__dirname, "..", "assets", "icon.png");
+    const iconBuf  = fs.existsSync(iconPath) ? fs.readFileSync(iconPath) : null;
+
+    const files = { "pass.json": Buffer.from(JSON.stringify(passJson)) };
+    if (iconBuf) { files["icon.png"] = iconBuf; files["icon@2x.png"] = iconBuf; }
+
+    if (emp.photo) {
+      const pb = b64ToBuffer(emp.photo);
+      if (pb) { files["thumbnail.png"] = pb; files["thumbnail@2x.png"] = pb; }
+    }
+    if (companyLogo) {
+      const lb = b64ToBuffer(companyLogo);
+      if (lb) { files["logo.png"] = lb; files["logo@2x.png"] = lb; }
+    }
+
+    const pass   = new PKPass(files, { wwdr: wwdrPem, signerCert: certPem, signerKey: keyPem });
+    const buffer = await pass.getAsBuffer();
+
+    res.set({
+      "Content-Type": "application/vnd.apple.pkpass",
+      "Content-Disposition": `attachment; filename="dclock-${emp.employee_number}.pkpass"`,
+    });
+    res.send(buffer);
+  } catch (e) {
+    console.error("Pass generation error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // ── Server lifecycle ──────────────────────────────────

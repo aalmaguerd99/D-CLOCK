@@ -1,11 +1,19 @@
 import { Tabs } from "expo-router";
 import { Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useState, useEffect } from "react";
+import { getSession } from "@/lib/storage";
 
 const ACTIVE = "#1a1a1a";
 const INACTIVE = "#b0a99f";
 
 export default function HomeLayout() {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    getSession().then(s => setIsAdmin(!!s?.is_admin));
+  }, []);
+
   return (
     <Tabs
       screenOptions={{
@@ -38,11 +46,7 @@ export default function HomeLayout() {
         options={{
           title: "Registro",
           tabBarIcon: ({ focused, color }) => (
-            <Ionicons
-              name={focused ? "finger-print" : "finger-print-outline"}
-              size={26}
-              color={color}
-            />
+            <Ionicons name={focused ? "finger-print" : "finger-print-outline"} size={26} color={color} />
           ),
         }}
       />
@@ -51,11 +55,7 @@ export default function HomeLayout() {
         options={{
           title: "Historial",
           tabBarIcon: ({ focused, color }) => (
-            <Ionicons
-              name={focused ? "time" : "time-outline"}
-              size={26}
-              color={color}
-            />
+            <Ionicons name={focused ? "time" : "time-outline"} size={26} color={color} />
           ),
         }}
       />
@@ -64,11 +64,26 @@ export default function HomeLayout() {
         options={{
           title: "Perfil",
           tabBarIcon: ({ focused, color }) => (
-            <Ionicons
-              name={focused ? "person-circle" : "person-circle-outline"}
-              size={26}
-              color={color}
-            />
+            <Ionicons name={focused ? "person-circle" : "person-circle-outline"} size={26} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="credential"
+        options={{
+          title: "Credencial",
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons name={focused ? "card" : "card-outline"} size={26} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="records"
+        options={{
+          title: "Registros",
+          tabBarButton: isAdmin ? undefined : () => null,
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons name={focused ? "list-circle" : "list-circle-outline"} size={26} color={color} />
           ),
         }}
       />

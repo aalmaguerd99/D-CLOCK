@@ -53,7 +53,23 @@ export interface AuthEmployee {
   birth_date: string | null;
   gender: string | null;
   address: string | null;
+  is_admin: boolean;
+  has_face: boolean;
   last_checkin: { type: "in" | "out"; timestamp: string } | null;
+}
+
+export interface AdminCheckin {
+  id: number;
+  employee_id: number;
+  name: string;
+  last_name: string | null;
+  employee_number: string;
+  photo: string | null;
+  department_name: string | null;
+  job_title_name: string | null;
+  type: "in" | "out";
+  timestamp: string;
+  geofence_name: string | null;
 }
 
 export interface Checkin {
@@ -127,6 +143,8 @@ export async function authEmployee(
     gender: e.gender,
     address: e.address,
     last_checkin: res.last_checkin,
+    is_admin: !!e.is_admin,
+    has_face: !!e.has_face,
   };
 }
 
@@ -142,6 +160,27 @@ export async function registerCheckin(
   photo: string | null
 ): Promise<CheckinResult> {
   return post<CheckinResult>("/api/mobile/checkin", { employee_id, type, lat, lng, photo });
+}
+
+export async function registerFace(
+  employee_id: number,
+  photo: string
+): Promise<{ ok: boolean; error?: string }> {
+  return post<{ ok: boolean; error?: string }>("/api/mobile/register-face", { employee_id, photo });
+}
+
+export async function fetchAdminCheckins(
+  employee_id: number,
+  date?: string
+): Promise<AdminCheckin[]> {
+  const url = await base();
+  const params = new URLSearchParams({ employee_id: String(employee_id) });
+  if (date) params.append("date", date);
+  const res = await fetch(`${url}/api/mobile/admin/checkins?${params}`, {
+    headers: { Accept: "application/json" },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
 
 export async function testConnection(): Promise<boolean> {

@@ -135,6 +135,36 @@ html,body{height:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
 .search-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
 .ml-auto{margin-left:auto}
 
+/* WALLET CREDENTIAL DESIGNER */
+.wallet-designer{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.wallet-preview-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;position:sticky;top:0}
+.wallet-card{width:320px;border-radius:18px;padding:22px 22px 28px;box-shadow:0 12px 48px rgba(0,0,0,.35),0 2px 8px rgba(0,0,0,.2);position:relative;overflow:hidden;transition:background .3s}
+.wallet-card-stripe{position:absolute;top:0;left:0;right:0;height:5px;background:rgba(255,255,255,.12);border-radius:18px 18px 0 0}
+.wallet-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.wallet-logo-box{display:flex;align-items:center;gap:8px}
+.wallet-logo-img{width:32px;height:32px;border-radius:8px;object-fit:cover;background:rgba(255,255,255,.15)}
+.wallet-logo-name{font-size:11px;font-weight:800;letter-spacing:1.2px;opacity:.8}
+.wallet-photo{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden}
+.wallet-primary-label{font-size:9px;font-weight:700;letter-spacing:1.4px;opacity:.65;margin-bottom:3px}
+.wallet-primary-value{font-size:17px;font-weight:800;letter-spacing:-.2px;line-height:1.2;margin-bottom:14px}
+.wallet-fields-row{display:flex;gap:18px;margin-bottom:10px}
+.wallet-field{display:flex;flex-direction:column;gap:2px}
+.wallet-field-label{font-size:8px;font-weight:700;letter-spacing:1.2px;opacity:.6}
+.wallet-field-value{font-size:12px;font-weight:600;opacity:.92}
+.wallet-aux-row{display:flex;gap:18px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12)}
+.wallet-hint{font-size:11px;color:var(--muted);text-align:center}
+.cert-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--border2);border-radius:10px;margin-bottom:8px}
+.cert-status{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cert-status.ok{background:var(--green)}.cert-status.no{background:var(--muted)}
+.cert-label{font-size:13px;font-weight:500;flex:1}
+.cert-file-btn{padding:5px 12px;font-size:12px;font-weight:600;border:1.5px solid var(--border2);border-radius:7px;cursor:pointer;background:var(--surface);color:var(--text2);transition:all .15s}
+.cert-file-btn:hover{border-color:var(--accent);color:var(--accent)}
+.color-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.color-row label{font-size:12px;font-weight:600;color:var(--text2);width:130px;flex-shrink:0}
+.color-picker-wrap{display:flex;align-items:center;gap:8px;flex:1}
+.color-picker-wrap input[type=color]{width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;background:none}
+.color-hex{font-size:12px;font-family:monospace;color:var(--muted);width:80px}
+
 /* RECORD CARDS */
 .rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px;padding:20px}
 .rec-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05),0 1px 8px rgba(0,0,0,.04);transition:box-shadow .2s,transform .15s}
@@ -171,6 +201,18 @@ html,body{height:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
 .rpt-legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;padding:10px 14px;background:var(--glass);border:1px solid var(--border);border-radius:10px}
 .rpt-legend-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700}
 .rpt-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+/* REPORT COL EDITOR */
+.rpt-col-chip{padding:5px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-weight:700;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;user-select:none}
+.rpt-col-chip.fixed{background:var(--bg);color:var(--text2)}
+.rpt-col-chip.opt{background:var(--accent-bg);color:var(--accent);border-color:var(--accent);cursor:grab}
+.rpt-col-chip.opt.dragging{opacity:.45;cursor:grabbing}
+.rpt-col-chip.opt.drag-over{outline:2px dashed var(--accent);outline-offset:2px}
+.rpt-col-chip.day{background:var(--bg);color:var(--muted);text-align:center;line-height:1.2;padding:4px 8px;font-size:11px;flex-direction:column;gap:0}
+.rpt-col-add-btn{padding:5px 11px;border-radius:6px;font-size:13px;font-weight:800;cursor:pointer;border:1.5px dashed var(--accent);background:transparent;color:var(--accent);transition:all .15s;line-height:1;display:inline-flex;align-items:center}
+.rpt-col-add-btn:hover{background:var(--accent-bg)}
+.col-picker{position:absolute;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.14);padding:6px;z-index:2000;min-width:170px;top:calc(100% + 6px);left:0}
+.col-picker-item{padding:8px 12px;cursor:pointer;border-radius:6px;font-size:13px;font-weight:500;color:var(--text)}
+.col-picker-item:hover{background:var(--bg)}
 /* PERIOD / EMPLOYEE VIEW */
 .rec-mode-btn{padding:7px 18px;font-size:13px;font-weight:700;border:1.5px solid var(--border2);cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
 .rec-mode-btn:first-child{border-radius:8px 0 0 8px}
@@ -422,6 +464,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         <div class="nav-item" onclick="goto('geocercas',this)">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg>
           Geocercas
+        </div>
+        <div class="nav-item" onclick="goto('credencial',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          Credencial
         </div>
       </nav>
 
@@ -706,21 +752,169 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         <!-- GEOCERCAS -->
         <div class="section" id="sec-geocercas">
           <div class="toolbar">
-            <button class="btn btn-primary btn-sm ml-auto" onclick="openGeoModal()">
+            <div style="display:flex">
+              <button class="rec-mode-btn active" id="geo-btn-map" onclick="setGeoView('map')">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:inline;vertical-align:middle;margin-right:4px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>Mapa
+              </button>
+              <button class="rec-mode-btn" id="geo-btn-list" onclick="setGeoView('list')">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:inline;vertical-align:middle;margin-right:4px"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Lista
+              </button>
+            </div>
+          </div>
+          <!-- MAPA -->
+          <div id="geo-view-map" style="position:relative;flex:1;display:flex;flex-direction:column;min-height:0;z-index:0">
+            <div id="geo-list-map" style="flex:1;min-height:520px;border-radius:12px;overflow:hidden"></div>
+            <button class="btn btn-primary" onclick="openGeoModal()" style="position:absolute;bottom:20px;right:20px;z-index:500;box-shadow:0 4px 20px rgba(37,99,235,.4);display:flex;align-items:center;gap:6px;padding:10px 18px">
               <svg width="14" height="14" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Nueva geocerca
             </button>
           </div>
-          <div class="card" style="flex:1;display:flex;flex-direction:column">
-            <div class="tbl-wrap" style="flex:1;overflow:auto">
-              <table><thead><tr><th>Nombre</th><th>Latitud</th><th>Longitud</th><th>Radio</th><th>Estado</th><th></th></tr></thead>
-              <tbody id="geo-tbody"></tbody></table>
+          <!-- LISTA -->
+          <div id="geo-view-list" style="display:none;flex:1;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:flex-end">
+              <button class="btn btn-primary btn-sm" onclick="openGeoModal()">
+                <svg width="13" height="13" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Nueva geocerca
+              </button>
+            </div>
+            <div class="card" style="flex:1;display:flex;flex-direction:column">
+              <div class="tbl-wrap" style="flex:1;overflow:auto">
+                <table><thead><tr><th>Nombre</th><th>Latitud</th><th>Longitud</th><th>Radio</th><th>Estado</th><th></th></tr></thead>
+                <tbody id="geo-tbody"></tbody></table>
+              </div>
             </div>
           </div>
         </div>
 
+        <!-- CREDENCIAL -->
+        <div class="section" id="sec-credencial" style="overflow-y:auto">
+          <div class="wallet-designer">
+
+            <!-- Columna izquierda: configuración -->
+            <div style="display:flex;flex-direction:column;gap:16px">
+
+              <!-- Certificados -->
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Certificados Apple Wallet</div>
+                    <div class="card-sub">Sube los archivos generados en dclock-wallet-certs</div>
+                  </div>
+                </div>
+                <div class="card-body" style="display:flex;flex-direction:column;gap:0">
+                  <div class="cert-row">
+                    <div class="cert-status" id="cert-status-cert"></div>
+                    <span class="cert-label">Certificado (pass.pem)</span>
+                    <label class="cert-file-btn">Subir<input type="file" accept=".pem,.cer" style="display:none" onchange="uploadCert('cert',this)"></label>
+                  </div>
+                  <div class="cert-row">
+                    <div class="cert-status" id="cert-status-key"></div>
+                    <span class="cert-label">Llave privada (pass.key)</span>
+                    <label class="cert-file-btn">Subir<input type="file" accept=".key,.pem" style="display:none" onchange="uploadCert('key',this)"></label>
+                  </div>
+                  <div class="cert-row">
+                    <div class="cert-status" id="cert-status-wwdr"></div>
+                    <span class="cert-label">WWDR Apple (wwdr.pem)</span>
+                    <label class="cert-file-btn">Subir<input type="file" accept=".pem,.cer" style="display:none" onchange="uploadCert('wwdr',this)"></label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Identificadores -->
+              <div class="card">
+                <div class="card-header"><div class="card-title">Identificadores</div></div>
+                <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+                  <div class="field" style="margin:0">
+                    <label>Pass Type ID</label>
+                    <input class="inp" id="w-pass-type-id" placeholder="pass.com.d99tech.dclock" value="pass.com.d99tech.dclock">
+                  </div>
+                  <div class="field" style="margin:0">
+                    <label>Team ID</label>
+                    <input class="inp" id="w-team-id" placeholder="56SBW74WX9" value="56SBW74WX9">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Colores -->
+              <div class="card">
+                <div class="card-header"><div class="card-title">Diseño</div></div>
+                <div class="card-body" style="display:flex;flex-direction:column;gap:4px">
+                  <div class="color-row">
+                    <label>Fondo</label>
+                    <div class="color-picker-wrap">
+                      <input type="color" id="w-bg-color" value="#1a1a1a" oninput="updateWalletPreview()">
+                      <span class="color-hex" id="w-bg-hex">#1a1a1a</span>
+                    </div>
+                  </div>
+                  <div class="color-row">
+                    <label>Texto principal</label>
+                    <div class="color-picker-wrap">
+                      <input type="color" id="w-fg-color" value="#ffffff" oninput="updateWalletPreview()">
+                      <span class="color-hex" id="w-fg-hex">#ffffff</span>
+                    </div>
+                  </div>
+                  <div class="color-row">
+                    <label>Etiquetas</label>
+                    <div class="color-picker-wrap">
+                      <input type="color" id="w-label-color" value="#aaaaaa" oninput="updateWalletPreview()">
+                      <span class="color-hex" id="w-label-hex">#aaaaaa</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:10px">
+                <button class="btn btn-primary" style="flex:1" onclick="saveWalletConfig()">Guardar configuración</button>
+                <button class="btn btn-ghost" onclick="testWalletPass()">Descargar pass de prueba</button>
+              </div>
+              <div id="wallet-msg" style="display:none;font-size:13px;padding:9px 12px;border-radius:8px"></div>
+            </div>
+
+            <!-- Columna derecha: preview -->
+            <div class="wallet-preview-wrap">
+              <p style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Vista previa</p>
+              <div class="wallet-card" id="wallet-card-preview">
+                <div class="wallet-card-stripe"></div>
+                <div class="wallet-card-header">
+                  <div class="wallet-logo-box">
+                    <img id="wc-logo" class="wallet-logo-img" src="/assets/icon.png" onerror="this.style.display='none'">
+                    <span class="wallet-logo-name" id="wc-company">EMPRESA</span>
+                  </div>
+                  <div class="wallet-photo" id="wc-photo">👤</div>
+                </div>
+                <div class="wallet-primary-label">EMPLEADO</div>
+                <div class="wallet-primary-value" id="wc-name">Juan Pérez García</div>
+                <div class="wallet-fields-row">
+                  <div class="wallet-field">
+                    <span class="wallet-field-label">PUESTO</span>
+                    <span class="wallet-field-value" id="wc-title">Gerente</span>
+                  </div>
+                  <div class="wallet-field">
+                    <span class="wallet-field-label">ÁREA</span>
+                    <span class="wallet-field-value" id="wc-area">Ventas</span>
+                  </div>
+                </div>
+                <div class="wallet-aux-row">
+                  <div class="wallet-field">
+                    <span class="wallet-field-label">NO. EMPLEADO</span>
+                    <span class="wallet-field-value" id="wc-num">001</span>
+                  </div>
+                </div>
+              </div>
+              <p class="wallet-hint">La foto y nombre real del empleado<br>se usan al generar el pass</p>
+
+              <!-- Selector de empleado para prueba -->
+              <div style="width:320px;margin-top:8px">
+                <label style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;display:block;margin-bottom:6px">EMPLEADO PARA PRUEBA</label>
+                <select class="inp" id="w-test-emp" style="width:100%"></select>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         <!-- CONFIGURACIÓN -->
-        <div class="section" id="sec-configuracion">
+        <div class="section" id="sec-configuracion" style="overflow-y:auto">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;width:100%">
             <div class="card">
               <div class="card-header">
@@ -761,6 +955,18 @@ input[type=range]{width:100%;accent-color:var(--accent)}
                 <div style="font-size:12px;color:var(--muted);line-height:1.6">
                   Para acceso desde internet, configura el reenvío de puertos en tu router o usa un VPS con el puerto abierto en el firewall.
                 </div>
+              </div>
+            </div>
+            <div class="card" style="grid-column:1/-1">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Configuración de páginas</div>
+                  <div class="card-sub">Columnas del reporte — haz clic en las opcionales para activarlas</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Vista previa · Reporte de asistencia — arrastra las columnas opcionales para reordenarlas</div>
+                <div id="rpt-col-editor" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"></div>
               </div>
             </div>
           </div>
@@ -849,6 +1055,11 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       <div class="modal-section">Sistema</div>
       <div class="form-grid">
         <div class="field"><label>PIN app móvil</label><input type="text" id="emp-pin" class="inp" maxlength="6" placeholder="4–6 dígitos" style="font-family:'Courier New',monospace;letter-spacing:2px"></div>
+        <div class="field">
+          <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13.5px;font-weight:normal;text-transform:none;letter-spacing:0;padding-top:22px">
+            <input type="checkbox" id="emp-admin" style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer"> Administrador <span style="font-size:11px;color:var(--muted);margin-left:2px">(ve registros en app móvil)</span>
+          </label>
+        </div>
         <div class="field" id="emp-active-row" style="display:none">
           <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13.5px;font-weight:normal;text-transform:none;letter-spacing:0;padding-top:22px">
             <input type="checkbox" id="emp-active" checked style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer"> Empleado activo
@@ -862,6 +1073,35 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         <svg width="14" height="14" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         Guardar empleado
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REGISTRO FACIAL -->
+<div class="overlay" id="m-face">
+  <div class="modal" style="width:480px">
+    <div class="modal-head" style="padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <h3 style="font-size:18px;font-weight:800;letter-spacing:-.3px">Registro facial</h3>
+      <button class="modal-close" onclick="closeFaceModal()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" style="padding-top:16px;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <input type="hidden" id="face-emp-id">
+      <div id="face-status-bar" style="width:100%;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;background:var(--bg);color:var(--muted);text-align:center"></div>
+      <div style="position:relative;border-radius:12px;overflow:hidden;background:#111;width:420px;height:315px">
+        <video id="face-video" width="420" height="315" autoplay muted playsinline style="display:block;width:420px;height:315px;object-fit:cover"></video>
+        <canvas id="face-overlay" width="420" height="315" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
+      </div>
+      <canvas id="face-canvas" style="display:none"></canvas>
+      <div id="face-feedback" style="font-size:13px;color:var(--muted);text-align:center;min-height:20px"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary btn-sm" id="face-capture-btn" onclick="captureFace()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Capturar rostro
+        </button>
+        <button class="btn btn-danger btn-sm" id="face-delete-btn" style="display:none" onclick="deleteFaceDesc()">
+          Eliminar registro
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -1023,6 +1263,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/face-api.min.js"></script>
 <script>
 const BASE="";let TOKEN=localStorage.getItem("dct")||"";
 let employees=[],departments=[],areas=[],shifts=[],geofences=[],jobTitles=[];
@@ -1030,6 +1271,8 @@ let weekOffset=0,weekAssignments={},assignCtx=null;
 let empView='cards';
 let companyLogo=null;
 let geoMap=null,geoMarker=null,geoCircle=null;
+let geoListMap=null,_geoLayers=[];
+let geoView='map';
 
 async function api(m,p,b){
   const r=await fetch(BASE+p,{method:m,headers:{"Content-Type":"application/json","x-auth-token":TOKEN},body:b?JSON.stringify(b):undefined});
@@ -1072,6 +1315,7 @@ async function boot(){
   document.getElementById("today-label").textContent=new Date().toLocaleDateString("es-MX",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
   document.getElementById("rec-date").value=new Date().toISOString().slice(0,10);
   document.getElementById("cfg-port").textContent=location.port||"80";
+  loadReportCols();
   await loadAll();initSSE();
 }
 
@@ -1290,6 +1534,10 @@ function renderEmps(list){
         </div>`:''}
       </div>
       <div class="emp-card-foot">
+        <button class="btn btn-ghost btn-xs" onclick="openFaceModal(${e.id})" style="color:${e.has_face?'var(--green)':'var(--muted)'}">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          ${e.has_face?'Rostro ✓':'Rostro'}
+        </button>
         <button class="btn btn-ghost btn-xs" onclick="editEmp(${e.id})">Editar</button>
         <button class="btn btn-danger btn-xs" onclick="delEmp(${e.id},'${esc(e.name)}')">Eliminar</button>
       </div>
@@ -1336,6 +1584,10 @@ function renderEmps(list){
         </div>
       </td>
       <td><div class="actions">
+        <button class="btn btn-ghost btn-xs" onclick="openFaceModal(${e.id})" title="${e.has_face?'Rostro registrado':'Registrar rostro'}" style="color:${e.has_face?'var(--green)':'var(--muted)'}">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          ${e.has_face?'Rostro ✓':'Rostro'}
+        </button>
         <button class="btn btn-ghost btn-xs" onclick="editEmp(${e.id})">Editar</button>
         <button class="btn btn-danger btn-xs" onclick="delEmp(${e.id},'${esc(e.name)}')">Eliminar</button>
       </div></td>
@@ -1382,6 +1634,7 @@ async function openEmpModal(id){
   document.getElementById("m-emp-title").textContent="Nuevo empleado";
   document.getElementById("emp-active-row").style.display="none";
   ["num","name","lastname","email","phone","nss","curp","rfc","pin","address"].forEach(f=>document.getElementById("emp-"+f).value="");
+  document.getElementById("emp-admin").checked=false;
   document.getElementById("emp-gender").value="";
   document.getElementById("emp-birth").value="";
   clearEmpPhoto();
@@ -1408,6 +1661,7 @@ async function openEmpModal(id){
     document.getElementById("emp-jt").value=e.job_title_id||"";
     document.getElementById("emp-sched").value=e.schedule_id||"";
     document.getElementById("emp-active").checked=!!e.active;
+    document.getElementById("emp-admin").checked=!!e.is_admin;
     document.getElementById("emp-photo").value=e.photo||"";
     const prev=document.getElementById("emp-photo-preview");
     const overlay=`<div class="photo-ring-overlay"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>`;
@@ -1452,6 +1706,7 @@ async function saveEmp(){
     job_title_id:document.getElementById("emp-jt").value||null,
     schedule_id:document.getElementById("emp-sched").value||null,
     active:document.getElementById("emp-active").checked?1:0,
+    is_admin:document.getElementById("emp-admin").checked?1:0,
     photo:document.getElementById("emp-photo").value||null,
   };
   if(!body.employee_number||!body.name)return alert("Número y nombre son requeridos");
@@ -1751,7 +2006,14 @@ document.querySelectorAll(".day-chip").forEach(c=>c.onclick=()=>c.classList.togg
 // GEOFENCES
 async function loadGeos(){
   geofences=await api("GET","/api/geofences");
-  document.getElementById("geo-tbody").innerHTML=geofences.map(g=>`
+  renderGeoList();
+  // Map renders in goto() when section is visible
+}
+
+function renderGeoList(){
+  const tbody=document.getElementById("geo-tbody");
+  if(!tbody)return;
+  tbody.innerHTML=geofences.map(g=>`
     <tr>
       <td style="font-weight:600">${g.name}</td>
       <td style="font-size:13px;color:var(--muted)">${(+g.latitude).toFixed(5)}</td>
@@ -1759,11 +2021,60 @@ async function loadGeos(){
       <td>${g.radius_meters} m</td>
       <td><span class="badge badge-${g.active?'green':'red'}">${g.active?'Activa':'Inactiva'}</span></td>
       <td><div class="actions">
-        <button class="btn btn-ghost btn-xs" onclick="editGeo(${g.id})">Ver/Editar</button>
+        <button class="btn btn-ghost btn-xs" onclick="editGeo(${g.id})">Editar</button>
         <button class="btn btn-danger btn-xs" onclick="delGeo(${g.id})">Eliminar</button>
       </div></td>
     </tr>`).join("")||'<tr><td colspan="6"><div class="empty" style="padding:32px"><p>Sin geocercas configuradas</p></div></td></tr>';
 }
+
+function setGeoView(view){
+  geoView=view;
+  document.getElementById('geo-btn-map').classList.toggle('active',view==='map');
+  document.getElementById('geo-btn-list').classList.toggle('active',view==='list');
+  const mapEl=document.getElementById('geo-view-map');
+  const listEl=document.getElementById('geo-view-list');
+  mapEl.style.display=view==='map'?'flex':'none';
+  listEl.style.display=view==='list'?'flex':'none';
+  if(view==='map'){setTimeout(()=>{renderGeoListMap();if(geoListMap)geoListMap.invalidateSize();},100);}
+}
+
+function renderGeoListMap(){
+  if(!window.L)return;
+  const mapDiv=document.getElementById("geo-list-map");
+  if(!mapDiv)return;
+  if(!geoListMap){
+    geoListMap=L.map("geo-list-map",{zoomControl:true});
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+      attribution:"© <a href='https://openstreetmap.org'>OpenStreetMap</a>",maxZoom:19
+    }).addTo(geoListMap);
+  }
+  _geoLayers.forEach(l=>geoListMap.removeLayer(l));
+  _geoLayers=[];
+  if(!geofences.length){geoListMap.setView([23.6345,-102.5528],5);return;}
+  const bounds=[];
+  for(const g of geofences){
+    const latlng=[+g.latitude,+g.longitude];
+    bounds.push(latlng);
+    const color=g.active?"#2563EB":"#9ca3af";
+    const circle=L.circle(latlng,{radius:g.radius_meters,color,weight:2,fillColor:color,fillOpacity:.15}).addTo(geoListMap);
+    const popupHtml=`<div style="min-width:190px;font-family:sans-serif">
+      <div style="font-weight:700;font-size:14px;margin-bottom:6px">${g.name}</div>
+      <div style="font-size:12px;color:#6b7280;margin-bottom:4px">Radio: ${g.radius_meters} m</div>
+      <div style="font-size:12px;margin-bottom:12px"><span style="display:inline-block;padding:2px 10px;border-radius:20px;background:${g.active?"#dcfce7":"#fee2e2"};color:${g.active?"#15803d":"#dc2626"};font-weight:600">${g.active?"Activa":"Inactiva"}</span></div>
+      <div style="display:flex;gap:8px">
+        <button onclick="closeGeoPopup();openGeoModal(${g.id})" style="flex:1;padding:6px 8px;background:#2563EB;color:white;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">Editar</button>
+        <button onclick="closeGeoPopup();delGeo(${g.id})" style="flex:1;padding:6px 8px;background:#dc2626;color:white;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">Eliminar</button>
+      </div></div>`;
+    circle.bindPopup(popupHtml,{maxWidth:240});
+    const icon=L.divIcon({html:`<div style="background:${color};color:white;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.25)">${g.name}</div>`,className:"",iconAnchor:[0,-8]});
+    const marker=L.marker(latlng,{icon,interactive:true}).addTo(geoListMap);
+    marker.on("click",()=>circle.openPopup());
+    _geoLayers.push(circle,marker);
+  }
+  if(bounds.length===1){geoListMap.setView(bounds[0],15);}
+  else{geoListMap.fitBounds(bounds,{padding:[40,40]});}
+}
+function closeGeoPopup(){if(geoListMap)geoListMap.closePopup();}
 
 function openGeoModal(id){
   if(geoMarker&&geoMap){geoMap.removeLayer(geoMarker);geoMarker=null;}
@@ -2109,6 +2420,11 @@ async function deleteCheckin(id){
   await api("DELETE",`/api/checkins/${id}`);
   loadRecords();
 }
+function faceVerifiedBadge(v){
+  if(v===1)return`<span style="font-size:10px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:2px 7px;border-radius:4px;border:1px solid #86efac;flex-shrink:0">&#10003; Verificado</span>`;
+  if(v===0)return`<span style="font-size:10px;font-weight:700;color:#dc2626;background:#fef2f2;padding:2px 7px;border-radius:4px;border:1px solid #fca5a5;flex-shrink:0">&#10007; No verificado</span>`;
+  return'';
+}
 function checkinRowCompact(ci,label){
   if(!ci)return`<div class="rec-row"><span class="rec-row-label">${label}</span><span class="rec-row-no">Sin registro</span></div>`;
   const geoHtml=ci.geofence_name?`<span class="badge badge-green" style="font-size:10px;margin-left:6px">&#10003; ${ci.geofence_name}</span>`:'';
@@ -2117,6 +2433,7 @@ function checkinRowCompact(ci,label){
     <button onclick="deleteCheckin(${ci.id})" title="Eliminar" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:2px;line-height:1;font-size:14px;opacity:.5;transition:all .15s;flex-shrink:0" onmouseover="this.style.opacity='1';this.style.color='#ef4444'" onmouseout="this.style.opacity='.5';this.style.color='var(--muted)'">&#x2715;</button>
     <span class="rec-row-time">${fmtTime(ci.timestamp)}</span>
     ${geoHtml}
+    ${faceVerifiedBadge(ci.face_verified)}
   </div>`;
 }
 function openRecInfo(idx){
@@ -2262,23 +2579,115 @@ async function loadRecords(){
       </div>`;
     }).join('')}</div>`;
   }else if(recView==='list'){
-    body.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Empleado</th><th>Tipo</th><th>Fecha y hora</th><th>Geocerca</th><th style="text-align:center">Foto</th><th style="text-align:center">Ubicación</th><th></th></tr></thead>
+    body.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Empleado</th><th>Tipo</th><th>Fecha y hora</th><th>Geocerca</th><th style="text-align:center">Identidad</th><th style="text-align:center">Foto</th><th style="text-align:center">Ubicación</th><th></th></tr></thead>
     <tbody>${rows.map((r,i)=>`<tr>
       <td style="color:var(--muted)">${i+1}</td>
       <td><div style="display:flex;align-items:center;gap:8px">${avatarHtml(r.employee_photo,r.employee_name,28)}<div><strong>${r.employee_name}${r.employee_last_name?' '+r.employee_last_name:''}</strong> <span style="color:var(--muted);font-size:12px">${r.employee_number}</span></div></div></td>
       <td><span class="badge badge-${r.type==='entrada'?'green':'yellow'}">${r.type}</span></td>
       <td>${fmtDateTime(r.timestamp)}</td>
       <td>${r.geofence_name?`<span style="font-size:11px;font-weight:700;color:var(--green)">&#10003; ${r.geofence_name}</span>`:`<span style="font-size:11px;color:var(--muted)">&#10005; Sin geocerca</span>`}</td>
+      <td style="text-align:center">${faceVerifiedBadge(r.face_verified)||`<span style="color:var(--muted)">—</span>`}</td>
       <td style="text-align:center">${r.photo?`<img src="${r.photo}" style="width:40px;height:40px;border-radius:4px;object-fit:cover;cursor:zoom-in;border:1px solid var(--border)" onclick="openPhoto('${r.photo}')">`:`<span style="color:var(--muted)">—</span>`}</td>
       <td style="text-align:center">${r.latitude!=null?`<a href="https://maps.google.com/?q=${r.latitude},${r.longitude}" target="_blank" style="font-size:11px;color:var(--accent)">ver mapa</a>`:`<span style="color:var(--muted)">—</span>`}</td>
       <td style="text-align:center"><button onclick="deleteCheckin(${r.id})" title="Eliminar" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px 6px;border-radius:4px;font-size:15px;opacity:.5;transition:opacity .15s" onmouseover="this.style.opacity='1';this.style.color='#ef4444'" onmouseout="this.style.opacity='.5';this.style.color='var(--muted)'">&#x2715;</button></td>
-    </tr>`).join('')||`<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted)">Sin registros</td></tr>`}
+    </tr>`).join('')||`<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--muted)">Sin registros</td></tr>`}
     </tbody></table></div>`;
   }else{
     await renderRecMap(rows);
   }
 }
 
+
+// ── REPORT COLUMN CONFIG ─────────────────────────────
+const RPT_ALL_FIELDS=[
+  {field:'department',label:'Departamento'},{field:'area',label:'Área'},
+  {field:'job_title',label:'Puesto'},{field:'geocerca',label:'Geocerca frecuente'},
+  {field:'email',label:'Email'},{field:'phone',label:'Teléfono'},
+  {field:'rfc',label:'RFC'},{field:'curp',label:'CURP'},{field:'nss',label:'NSS'},
+  {field:'birth_date',label:'F. Nacimiento'},{field:'gender',label:'Género'},{field:'address',label:'Dirección'},
+];
+const DEFAULT_RPT_COLS=[
+  {field:'department',label:'Departamento'},{field:'area',label:'Área'},
+  {field:'job_title',label:'Puesto'},{field:'geocerca',label:'Geocerca frecuente'},
+];
+function getReportCols(){try{const s=localStorage.getItem('dclock_rpt_cols_v2');return s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_RPT_COLS));}catch{return JSON.parse(JSON.stringify(DEFAULT_RPT_COLS));}}
+function saveReportCols(cols){localStorage.setItem('dclock_rpt_cols_v2',JSON.stringify(cols));}
+function loadReportCols(){renderColEditor();}
+
+let _dragColIdx=null;
+function renderColEditor(){
+  const container=document.getElementById('rpt-col-editor');if(!container)return;
+  while(container.firstChild)container.removeChild(container.firstChild);
+  const cols=getReportCols();
+  for(const lbl of['#','Empleado']){
+    const el=document.createElement('span');el.className='rpt-col-chip fixed';el.textContent=lbl;container.appendChild(el);
+  }
+  cols.forEach((col,i)=>{
+    const chip=document.createElement('div');chip.className='rpt-col-chip opt';chip.draggable=true;chip.style.cursor='grab';
+    // Edit icon + label — click opens field picker
+    const editWrap=document.createElement('div');editWrap.style.cssText='position:relative;display:inline-flex;align-items:center;gap:4px';
+    const pencil=document.createElement('span');pencil.innerHTML='<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+    pencil.style.cssText='opacity:.6;display:inline-flex';
+    const nm=document.createElement('span');nm.textContent=col.label;
+    editWrap.appendChild(pencil);editWrap.appendChild(nm);
+    editWrap.title='Clic para cambiar campo';
+    editWrap.style.cursor='pointer';
+    editWrap.onclick=e=>{
+      e.stopPropagation();
+      document.querySelectorAll('.col-picker').forEach(p=>p.remove());
+      const usedFields=new Set(cols.map(c=>c.field));
+      const picker=document.createElement('div');picker.className='col-picker';
+      RPT_ALL_FIELDS.forEach(f=>{
+        const item=document.createElement('div');item.className='col-picker-item';
+        item.textContent=f.label;
+        if(f.field===col.field){item.style.cssText='font-weight:700;color:var(--accent);background:var(--accent-bg);border-radius:6px;padding:8px 12px';}
+        item.onclick=ev=>{ev.stopPropagation();editReportCol(i,f.field,f.label);picker.remove();};
+        picker.appendChild(item);
+      });
+      editWrap.appendChild(picker);
+      setTimeout(()=>{const close=ev=>{if(!picker.contains(ev.target)){picker.remove();document.removeEventListener('click',close);}};document.addEventListener('click',close);},10);
+    };
+    chip.appendChild(editWrap);
+    const rm=document.createElement('button');rm.textContent='×';rm.title='Quitar';
+    rm.style.cssText='background:none;border:none;cursor:pointer;font-size:14px;line-height:1;color:inherit;padding:0 0 0 4px;opacity:.6';
+    rm.onclick=e=>{e.stopPropagation();removeReportCol(i);};chip.appendChild(rm);
+    chip.addEventListener('dragstart',e=>{_dragColIdx=i;chip.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+    chip.addEventListener('dragend',()=>{chip.classList.remove('dragging');_dragColIdx=null;document.querySelectorAll('.rpt-col-chip.drag-over').forEach(el=>el.classList.remove('drag-over'));});
+    chip.addEventListener('dragover',e=>{e.preventDefault();chip.classList.add('drag-over');});
+    chip.addEventListener('dragleave',()=>chip.classList.remove('drag-over'));
+    chip.addEventListener('drop',e=>{
+      e.preventDefault();chip.classList.remove('drag-over');
+      if(_dragColIdx===null||_dragColIdx===i)return;
+      const nc=[...cols];const[mv]=nc.splice(_dragColIdx,1);nc.splice(i,0,mv);saveReportCols(nc);renderColEditor();
+    });
+    container.appendChild(chip);
+  });
+  const addWrap=document.createElement('div');addWrap.style.cssText='position:relative;display:inline-block';
+  const addBtn=document.createElement('button');addBtn.className='rpt-col-add-btn';addBtn.title='Agregar columna';
+  addBtn.innerHTML='<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>&nbsp;Agregar columna';
+  addBtn.onclick=e=>{
+    e.stopPropagation();
+    const existing=addWrap.querySelector('.col-picker');if(existing){existing.remove();return;}
+    const used=new Set(cols.map(c=>c.field));
+    const available=RPT_ALL_FIELDS.filter(f=>!used.has(f.field));
+    if(!available.length)return;
+    const picker=document.createElement('div');picker.className='col-picker';
+    available.forEach(f=>{
+      const item=document.createElement('div');item.className='col-picker-item';item.textContent=f.label;
+      item.onclick=ev=>{ev.stopPropagation();addReportCol(f.field,f.label);picker.remove();};
+      picker.appendChild(item);
+    });
+    addWrap.appendChild(picker);
+    setTimeout(()=>{const close=ev=>{if(!picker.contains(ev.target)){picker.remove();document.removeEventListener('click',close);}};document.addEventListener('click',close);},10);
+  };
+  addWrap.appendChild(addBtn);container.appendChild(addWrap);
+  const today=new Date();const DN=['D','L','M','X','J','V','S'];
+  for(let i=0;i<2;i++){const d=new Date(today);d.setDate(d.getDate()+i);const el=document.createElement('span');el.className='rpt-col-chip day';el.innerHTML=`${DN[d.getDay()]}<br>${d.getDate()}`;container.appendChild(el);}
+  const dots=document.createElement('span');dots.style.cssText='font-size:13px;color:var(--muted);font-weight:700;padding:0 2px';dots.textContent='···';container.appendChild(dots);
+}
+function addReportCol(field,label){const cols=getReportCols();if(cols.find(c=>c.field===field))return;cols.push({field,label});saveReportCols(cols);renderColEditor();}
+function removeReportCol(idx){const cols=getReportCols();cols.splice(idx,1);saveReportCols(cols);renderColEditor();}
+function editReportCol(idx,field,label){const cols=getReportCols();cols[idx]={field,label};saveReportCols(cols);renderColEditor();}
 
 // ── REPORTES ─────────────────────────────────────────
 let _reportData=null;
@@ -2373,7 +2782,7 @@ async function generateReport(){
       if(ss.type==='descanso'||ss.type==='free')return'descanso';
       return isWe?'weekend':'libre';
     });
-    return{id:emp.id,employee_number:emp.employee_number,name:`${emp.name}${emp.last_name?' '+emp.last_name:''}`,department:emp.department_name||'—',area:emp.area_name||'—',job_title:emp.job_title_name||'—',geocerca:topGeo,dayCells};
+    return{id:emp.id,employee_number:emp.employee_number,name:`${emp.name}${emp.last_name?' '+emp.last_name:''}`,department:emp.department_name||'—',area:emp.area_name||'—',job_title:emp.job_title_name||'—',geocerca:topGeo,email:emp.email||'—',phone:emp.phone||'—',rfc:emp.rfc||'—',curp:emp.curp||'—',nss:emp.nss||'—',birth_date:emp.birth_date||'—',gender:emp.gender||'—',address:emp.address||'—',dayCells};
   });
   _reportData={reportRows,days,from,to};
   renderReportTable(reportRows,days);
@@ -2392,25 +2801,23 @@ async function generateReport(){
 
 function renderReportTable(rows,days){
   if(!rows.length){document.getElementById('rpt-body').innerHTML='<div class="empty" style="margin:32px auto"><p>Sin empleados para mostrar con los filtros seleccionados</p></div>';return;}
+  const optCols=getReportCols();
   const DN=['D','L','M','X','J','V','S'];
   const dayHeaders=days.map(d=>{const dt=new Date(d+'T12:00:00');return`<th class="rpt-day-th">${DN[dt.getDay()]}<br>${dt.getDate()}</th>`;}).join('');
+  const optHeaders=optCols.map(c=>`<th>${c.label}</th>`).join('');
   const bodyRows=rows.map((row,i)=>{
     const cells=row.dayCells.map(s=>{const st=RPT_STATUS[s]||RPT_STATUS.libre;return`<td class="rpt-day-td"><div class="rpt-cell" style="background:${st.bg};color:${st.fg};margin:auto">${st.lbl}</div></td>`;}).join('');
+    const optCells=optCols.map(c=>`<td style="color:var(--text2)">${row[c.field]||'—'}</td>`).join('');
     return`<tr>
       <td class="rpt-td-s0" style="text-align:center;width:40px;color:var(--muted)">${i+1}</td>
       <td class="rpt-td-s1" style="min-width:170px"><div style="display:flex;align-items:center;gap:8px">${avatarHtml(null,row.name,28)}<div><div style="font-weight:700;font-size:13px">${row.name}</div><div style="font-size:11px;color:var(--muted)">${row.employee_number}</div></div></div></td>
-      <td style="color:var(--text2)">${row.department}</td>
-      <td style="color:var(--text2)">${row.area}</td>
-      <td style="color:var(--text2)">${row.job_title}</td>
-      <td style="font-weight:600;color:var(--accent)">${row.geocerca}</td>
-      ${cells}</tr>`;
+      ${optCells}${cells}</tr>`;
   }).join('');
   document.getElementById('rpt-body').innerHTML=`<div class="rpt-wrap"><table class="rpt-table">
     <thead><tr>
       <th class="rpt-th-s0" style="text-align:center;width:40px">#</th>
       <th class="rpt-th-s1" style="min-width:170px">Empleado</th>
-      <th>Departamento</th><th>Área</th><th>Puesto</th><th>Geocerca frecuente</th>
-      ${dayHeaders}
+      ${optHeaders}${dayHeaders}
     </tr></thead>
     <tbody>${bodyRows}</tbody>
   </table></div>`;
@@ -2422,14 +2829,133 @@ function downloadReportExcel(){
   const DN=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
   const hd='background:#1e3a8a;color:#fff;font-weight:700;padding:6px 10px;border:1px solid #1e3a8a;font-size:11px';
   const dayHds=days.map(d=>{const dt=new Date(d+'T12:00:00');return`<th style="${hd};text-align:center;min-width:30px">${DN[dt.getDay()].slice(0,1)}<br>${dt.getDate()}</th>`;}).join('');
+  const optCols=getReportCols();
+  const td='border:1px solid #e5e7eb;padding:5px';
   const bodyRows=reportRows.map((row,i)=>{
     const cells=row.dayCells.map(s=>{const st=RPT_STATUS[s]||RPT_STATUS.libre;return`<td style="background:${st.bg};color:${st.fg};text-align:center;font-weight:800;border:1px solid #e5e7eb;padding:4px;font-size:11px">${st.lbl}</td>`;}).join('');
-    return`<tr><td style="border:1px solid #e5e7eb;padding:5px;text-align:center;color:#6b7280">${i+1}</td><td style="border:1px solid #e5e7eb;padding:5px;font-weight:700">${row.name}</td><td style="border:1px solid #e5e7eb;padding:5px">${row.employee_number}</td><td style="border:1px solid #e5e7eb;padding:5px">${row.department}</td><td style="border:1px solid #e5e7eb;padding:5px">${row.area}</td><td style="border:1px solid #e5e7eb;padding:5px">${row.job_title}</td><td style="border:1px solid #e5e7eb;padding:5px;font-weight:600;color:#1d4ed8">${row.geocerca}</td>${cells}</tr>`;
+    const optCells=optCols.map(c=>`<td style="${td}">${row[c.field]||'—'}</td>`).join('');
+    return`<tr><td style="${td};text-align:center;color:#6b7280">${i+1}</td><td style="${td};font-weight:700">${row.name}</td><td style="${td}">${row.employee_number}</td>${optCells}${cells}</tr>`;
   }).join('');
-  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Reporte</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table><thead><tr><th style="${hd};text-align:center">#</th><th style="${hd}">Nombre</th><th style="${hd}">Nº Empleado</th><th style="${hd}">Departamento</th><th style="${hd}">Área</th><th style="${hd}">Puesto</th><th style="${hd}">Geocerca Frecuente</th>${dayHds}</tr></thead><tbody>${bodyRows}</tbody></table></body></html>`;
+  const optHds=optCols.map(c=>`<th style="${hd}">${c.label}</th>`).join('');
+  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Reporte</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table><thead><tr><th style="${hd};text-align:center">#</th><th style="${hd}">Nombre</th><th style="${hd}">Nº Empleado</th>${optHds}${dayHds}</tr></thead><tbody>${bodyRows}</tbody></table></body></html>`;
   const blob=new Blob(['﻿'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');a.href=url;a.download=`reporte-${from}-al-${to}.xls`;a.click();URL.revokeObjectURL(url);
+}
+
+// ── FACE REGISTRATION ────────────────────────────────
+let _faceStream=null, _faceModels=false, _faceDetLoop=null;
+
+async function loadFaceModels(){
+  if(_faceModels)return;
+  setFaceFeedback('Cargando modelos de reconocimiento facial...');
+  await Promise.all([
+    faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+    faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+    faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
+  ]);
+  _faceModels=true;
+}
+
+async function openFaceModal(empId){
+  document.getElementById('face-emp-id').value=empId;
+  const st=await api('GET',`/api/employees/${empId}/face-status`);
+  const bar=document.getElementById('face-status-bar');
+  if(st.has_face){
+    bar.style.cssText='background:#dcfce7;color:#16a34a;border:1px solid #86efac';
+    bar.textContent='Rostro registrado — el empleado será verificado al fichar';
+    document.getElementById('face-delete-btn').style.display='inline-flex';
+  } else {
+    bar.style.cssText='background:var(--bg);color:var(--muted);border:1px solid var(--border)';
+    bar.textContent='Sin registro facial — el empleado puede fichar sin verificación';
+    document.getElementById('face-delete-btn').style.display='none';
+  }
+  openModal('m-face');
+  setFaceFeedback('Iniciando cámara...');
+  try {
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:420,height:315}});
+    _faceStream=stream;
+    const v=document.getElementById('face-video');
+    v.srcObject=stream;
+    await new Promise(r=>{v.onloadedmetadata=r;});
+    await loadFaceModels();
+    setFaceFeedback('Posiciona tu rostro frente a la cámara y presiona Capturar');
+    startFaceDetectLoop();
+  } catch(e){
+    setFaceFeedback('No se pudo acceder a la cámara: '+e.message);
+  }
+}
+
+function setFaceFeedback(msg){const el=document.getElementById('face-feedback');if(el)el.textContent=msg;}
+
+function startFaceDetectLoop(){
+  if(_faceDetLoop)return;
+  const canvas=document.getElementById('face-overlay');
+  const ctx=canvas.getContext('2d');
+  _faceDetLoop=setInterval(async()=>{
+    const v=document.getElementById('face-video');
+    if(!v.videoWidth||!_faceModels)return;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const det=await faceapi.detectSingleFace(v,new faceapi.TinyFaceDetectorOptions({inputSize:224,scoreThreshold:0.4}));
+    if(det){
+      const box=det.box;
+      const scaleX=canvas.width/v.videoWidth;
+      const scaleY=canvas.height/v.videoHeight;
+      ctx.strokeStyle='#22c55e';ctx.lineWidth=2;
+      ctx.strokeRect(box.x*scaleX,box.y*scaleY,box.width*scaleX,box.height*scaleY);
+    }
+  },500);
+}
+
+function stopFaceDetectLoop(){if(_faceDetLoop){clearInterval(_faceDetLoop);_faceDetLoop=null;}}
+
+function closeFaceModal(){
+  stopFaceDetectLoop();
+  if(_faceStream){_faceStream.getTracks().forEach(t=>t.stop());_faceStream=null;}
+  const canvas=document.getElementById('face-overlay');
+  canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+  closeModal('m-face');
+}
+
+async function captureFace(){
+  const v=document.getElementById('face-video');
+  const c=document.getElementById('face-canvas');
+  c.width=v.videoWidth;c.height=v.videoHeight;
+  c.getContext('2d').drawImage(v,0,0);
+  const imgData=c.toDataURL('image/jpeg',0.85);
+  setFaceFeedback('Analizando rostro...');
+  document.getElementById('face-capture-btn').disabled=true;
+  try {
+    const img=new Image();img.src=imgData;
+    await new Promise(r=>{img.onload=r;});
+    const det=await faceapi.detectSingleFace(img,new faceapi.TinyFaceDetectorOptions({inputSize:224}))
+      .withFaceLandmarks().withFaceDescriptor();
+    if(!det){setFaceFeedback('No se detectó ningún rostro. Mejor iluminación y mira de frente.');document.getElementById('face-capture-btn').disabled=false;return;}
+    const descriptor=Array.from(det.descriptor);
+    const empId=document.getElementById('face-emp-id').value;
+    const r=await api('PUT',`/api/employees/${empId}/face-descriptor`,{descriptor});
+    if(r.ok){
+      const bar=document.getElementById('face-status-bar');
+      bar.style.cssText='background:#dcfce7;color:#16a34a;border:1px solid #86efac';
+      bar.textContent='Rostro registrado — el empleado será verificado al fichar';
+      document.getElementById('face-delete-btn').style.display='inline-flex';
+      setFaceFeedback('Registro guardado correctamente');
+      loadEmps(); // refrescar tabla para actualizar indicador
+    }
+  } catch(e){setFaceFeedback('Error: '+e.message);}
+  document.getElementById('face-capture-btn').disabled=false;
+}
+
+async function deleteFaceDesc(){
+  if(!confirm('Eliminar el registro facial de este empleado?'))return;
+  const empId=document.getElementById('face-emp-id').value;
+  await api('DELETE',`/api/employees/${empId}/face-descriptor`);
+  const bar=document.getElementById('face-status-bar');
+  bar.style.cssText='background:var(--bg);color:var(--muted);border:1px solid var(--border)';
+  bar.textContent='Sin registro facial — el empleado puede fichar sin verificación';
+  document.getElementById('face-delete-btn').style.display='none';
+  setFaceFeedback('Registro facial eliminado');
+  loadEmps();
 }
 
 // HELPERS
@@ -2437,16 +2963,114 @@ function fmtTime(ts){return new Date(ts).toLocaleTimeString("es-MX",{hour:"2-dig
 function fmtDateTime(ts){return new Date(ts).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"});}
 function esc(s){return(s||"").replace(/'/g,"\\'").replace(/"/g,"&quot;");}
 
+// ── WALLET / CREDENCIAL ──────────────────────────────
+function hexToRgb(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgb(${r},${g},${b})`;}
+function rgbToHex(rgb){const m=rgb.match(/\d+/g);if(!m||m.length<3)return '#1a1a1a';return '#'+m.slice(0,3).map(v=>parseInt(v).toString(16).padStart(2,'0')).join('');}
+
+function updateWalletPreview(){
+  const bg=document.getElementById('w-bg-color').value;
+  const fg=document.getElementById('w-fg-color').value;
+  const lb=document.getElementById('w-label-color').value;
+  document.getElementById('w-bg-hex').textContent=bg;
+  document.getElementById('w-fg-hex').textContent=fg;
+  document.getElementById('w-label-hex').textContent=lb;
+  const card=document.getElementById('wallet-card-preview');
+  card.style.background=bg;card.style.color=fg;
+  card.querySelectorAll('.wallet-field-label,.wallet-primary-label').forEach(el=>el.style.color=lb);
+  card.querySelectorAll('.wallet-aux-row').forEach(el=>el.style.borderColor=lb+'44');
+}
+
+async function loadWalletConfig(){
+  try{
+    const cfg=await api('GET','/api/wallet/config');
+    if(cfg.pass_type_id) document.getElementById('w-pass-type-id').value=cfg.pass_type_id;
+    if(cfg.team_id)      document.getElementById('w-team-id').value=cfg.team_id;
+    if(cfg.bg_color)    document.getElementById('w-bg-color').value=rgbToHex(cfg.bg_color);
+    if(cfg.fg_color)    document.getElementById('w-fg-color').value=rgbToHex(cfg.fg_color);
+    if(cfg.label_color) document.getElementById('w-label-color').value=rgbToHex(cfg.label_color);
+    document.getElementById('cert-status-cert').className='cert-status '+(cfg.has_cert?'ok':'no');
+    document.getElementById('cert-status-key').className='cert-status '+(cfg.has_key?'ok':'no');
+    document.getElementById('cert-status-wwdr').className='cert-status '+(cfg.has_wwdr?'ok':'no');
+    // Company info for preview
+    const info=await api('GET','/api/info');
+    document.getElementById('wc-company').textContent=(info.company_name||'EMPRESA').toUpperCase();
+    if(info.logo) document.getElementById('wc-logo').src=info.logo;
+    updateWalletPreview();
+    // Load employees for test selector
+    const emps=await api('GET','/api/employees');
+    const sel=document.getElementById('w-test-emp');
+    sel.innerHTML='<option value="">— Selecciona empleado —</option>'+emps.map(e=>`<option value="${e.id}">${e.name}${e.last_name?' '+e.last_name:''} (${e.employee_number})</option>`).join('');
+  }catch(e){console.error('walletConfig',e);}
+}
+
+function uploadCert(type, input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    const pem=e.target.result;
+    const body={};
+    if(type==='cert') body.signer_cert_pem=pem;
+    else if(type==='key') body.signer_key_pem=pem;
+    else if(type==='wwdr') body.wwdr_pem=pem;
+    await api('POST','/api/wallet/config',body);
+    const statusId='cert-status-'+type;
+    document.getElementById(statusId).className='cert-status ok';
+    showWalletMsg('Archivo subido correctamente','green');
+  };
+  reader.readAsText(file);
+}
+
+async function saveWalletConfig(){
+  const body={
+    pass_type_id: document.getElementById('w-pass-type-id').value.trim(),
+    team_id:      document.getElementById('w-team-id').value.trim(),
+    bg_color:     hexToRgb(document.getElementById('w-bg-color').value),
+    fg_color:     hexToRgb(document.getElementById('w-fg-color').value),
+    label_color:  hexToRgb(document.getElementById('w-label-color').value),
+  };
+  await api('POST','/api/wallet/config',body);
+  showWalletMsg('Configuración guardada','green');
+}
+
+async function testWalletPass(){
+  const empId=document.getElementById('w-test-emp').value;
+  if(!empId){showWalletMsg('Selecciona un empleado para la prueba','red');return;}
+  showWalletMsg('Generando pass...','blue');
+  try{
+    const token=localStorage.getItem('dclock_token');
+    const res=await fetch(`/api/employees/${empId}/pass.pkpass`,{headers:{'x-auth-token':token}});
+    if(!res.ok){const e=await res.json();showWalletMsg(e.error||'Error generando pass','red');return;}
+    const blob=await res.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=`dclock-test.pkpass`;a.click();
+    URL.revokeObjectURL(url);
+    showWalletMsg('Pass descargado — ábrelo para verificar en iPhone','green');
+  }catch(e){showWalletMsg(e.message,'red');}
+}
+
+function showWalletMsg(msg,type){
+  const el=document.getElementById('wallet-msg');
+  el.style.display='block';
+  el.textContent=msg;
+  const colors={green:'var(--green-bg)',red:'var(--red-bg)',blue:'var(--accent-bg)'};
+  const texts={green:'var(--green)',red:'var(--red)',blue:'var(--accent)'};
+  el.style.background=colors[type]||colors.blue;
+  el.style.color=texts[type]||texts.blue;
+  setTimeout(()=>{el.style.display='none';},4000);
+}
+
 function goto(name,el){
   document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
   el.classList.add("active");
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.getElementById("sec-"+name).classList.add("active");
-  const titles={dashboard:"Dashboard",registros:"Registros de asistencia",reportes:"Reportes de asistencia",empleados:"Empleados",departamentos:"Departamentos",areas:"Áreas",puestos:"Puestos",horarios:"Horarios",geocercas:"Geocercas",configuracion:"Configuración"};
+  const titles={dashboard:"Dashboard",registros:"Registros de asistencia",reportes:"Reportes de asistencia",empleados:"Empleados",departamentos:"Departamentos",areas:"Áreas",puestos:"Puestos",horarios:"Horarios",geocercas:"Geocercas",credencial:"Credencial digital",configuracion:"Configuración"};
   document.getElementById("page-title").textContent=titles[name]||name;
   if(name==="registros"){if(recMode==='day')loadRecords();else loadPeriodRecords();}
   if(name==="reportes")initReportFilters();
   if(name==="horarios")loadAssignments();
+  if(name==="geocercas"&&geoView==='map')setTimeout(()=>{renderGeoListMap();if(geoListMap)geoListMap.invalidateSize();},150);
+  if(name==="credencial")loadWalletConfig();
 }
 
 function openModal(id){document.getElementById(id).classList.add("open");}

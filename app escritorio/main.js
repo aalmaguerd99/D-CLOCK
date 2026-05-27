@@ -36,6 +36,34 @@ function httpsPost(url, data) {
   });
 }
 
+// ── Face recognition worker ───────────────────────────
+let faceWorkerWin     = null;
+const _faceRequests   = new Map();
+
+function createFaceWorker(port) {
+  faceWorkerWin = new BrowserWindow({
+    show: false, width: 400, height: 300,
+    webPreferences: {
+      preload: path.join(__dirname, "face-worker-preload.js"),
+      contextIsolation: true, nodeIntegration: false,
+    },
+  });
+  faceWorkerWin.loadURL(`http://localhost:${port}/face-worker.html`);
+}
+
+ipcMain.on("face-result", (_, { requestId, descriptor }) => {
+  const resolve = _faceRequests.get(requestId);
+  if (resolve) { _faceRequests.delete(requestId); resolve(descriptor); }
+});
+
+global.processFaceImage = (imageBase64) => new Promise((resolve) => {
+  if (!faceWorkerWin) return resolve(null);
+  const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  _faceRequests.set(id, resolve);
+  faceWorkerWin.webContents.send("process-face", { requestId: id, imageBase64 });
+  setTimeout(() => { if (_faceRequests.has(id)) { _faceRequests.delete(id); resolve(null); } }, 15000);
+});
+
 // ── Network state (populated after server starts) ────
 let cachedPublicIP  = null;
 let cachedUpnpOk    = false;
@@ -224,6 +252,7 @@ app.whenReady().then(async () => {
     try {
       server.configure(app.getPath("userData"));
       await server.start();
+      createFaceWorker(server.getPort());
       startNetworkServices(); // non-blocking
     } catch (e) { console.error("Server start failed:", e.message); }
   }
@@ -268,6 +297,7 @@ ipcMain.handle("activate", async (_, licenseKey) => {
     try {
       server.configure(app.getPath("userData"));
       await server.start();
+      createFaceWorker(server.getPort());
     } catch (e) { console.error("Server:", e.message); }
 
     return { ok: true, license: licenseData };

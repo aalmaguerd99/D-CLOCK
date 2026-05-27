@@ -2,7 +2,7 @@
   "expo": {
     "name": "D-CLOCK",
     "slug": "dclock-mobile",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "dclock",
@@ -59,8 +59,7 @@
         }
       ],
       "expo-secure-store",
-      "expo-font",
-      "expo-image"
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true

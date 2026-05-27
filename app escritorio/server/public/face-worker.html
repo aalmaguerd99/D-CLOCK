@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<script src="/face-api.min.js"></script>
+<script>
+let _ready = false;
+
+async function initModels() {
+  await Promise.all([
+    faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+    faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+    faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
+  ]);
+  _ready = true;
+}
+
+async function getDescriptor(imageBase64) {
+  if (!_ready) await initModels();
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = async () => {
+      try {
+        const det = await faceapi
+          .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
+          .withFaceLandmarks()
+          .withFaceDescriptor();
+        resolve(det ? Array.from(det.descriptor) : null);
+      } catch { resolve(null); }
+    };
+    img.onerror = () => resolve(null);
+    img.src = imageBase64;
+  });
+}
+
+window.__fw.onProcess(async ({ requestId, imageBase64 }) => {
+  const descriptor = await getDescriptor(imageBase64);
+  window.__fw.sendResult({ requestId, descriptor });
+});
+
+initModels().catch(console.error);
+</script>
+</body></html>

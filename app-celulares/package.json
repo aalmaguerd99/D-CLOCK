@@ -1,6 +1,6 @@
 {
   "name": "dclock-mobile",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
@@ -17,7 +17,6 @@
     "expo-constants": "~55.0.16",
     "expo-font": "~55.0.8",
     "expo-haptics": "~55.0.14",
-    "expo-image": "~55.0.10",
     "expo-image-picker": "~55.0.20",
     "expo-linking": "~55.0.15",
     "expo-location": "~55.1.10",

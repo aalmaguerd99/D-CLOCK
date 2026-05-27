@@ -136,6 +136,9 @@ function init(dataDir) {
     "ALTER TABLE employees ADD COLUMN address TEXT",
     "ALTER TABLE employees ADD COLUMN job_title_id INTEGER REFERENCES job_titles(id) ON DELETE SET NULL",
     "ALTER TABLE check_ins ADD COLUMN photo TEXT",
+    "ALTER TABLE employees ADD COLUMN face_descriptor TEXT DEFAULT NULL",
+    "ALTER TABLE employees ADD COLUMN is_admin INTEGER DEFAULT 0",
+    "ALTER TABLE check_ins ADD COLUMN face_verified INTEGER DEFAULT NULL",
   ];
   for (const sql of migrations) {
     try { db.exec(sql); } catch {}

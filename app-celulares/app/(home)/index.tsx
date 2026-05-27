@@ -53,15 +53,32 @@ export default function CheckinScreen() {
   async function handleCheckin() {
     if (!session) return;
 
+    // ── Verificar permiso de cámara ──────────────────
     const { status: camStatus } = await ImagePicker.requestCameraPermissionsAsync();
     if (camStatus !== "granted") {
-      Alert.alert("Cámara requerida", "Activa el permiso de cámara para registrar tu asistencia.");
+      Alert.alert(
+        "Cámara desactivada",
+        "D-CLOCK necesita acceso a la cámara para tomar la foto de verificación.\n\nVe a Configuración › Aplicaciones › D-CLOCK › Permisos y activa la Cámara.",
+        [{ text: "Entendido" }]
+      );
       return;
     }
 
+    // ── Verificar permiso de ubicación ───────────────
+    const { status: locStatus } = await Location.requestForegroundPermissionsAsync();
+    if (locStatus !== "granted") {
+      Alert.alert(
+        "Ubicación desactivada",
+        "D-CLOCK necesita tu ubicación para confirmar que estás en el área de trabajo.\n\nVe a Configuración › Aplicaciones › D-CLOCK › Permisos y activa la Ubicación.",
+        [{ text: "Entendido" }]
+      );
+      return;
+    }
+
+    // ── Tomar foto ───────────────────────────────────
     const result = await ImagePicker.launchCameraAsync({
       cameraType: ImagePicker.CameraType.front,
-      quality: 0.4,
+      quality: 0.5,
       base64: true,
       exif: false,
       allowsEditing: false,
@@ -73,15 +90,22 @@ export default function CheckinScreen() {
     let lat: number | null = null;
     let lng: number | null = null;
 
+    // ── Obtener ubicación ────────────────────────────
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === "granted") {
-        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-        lat = loc.coords.latitude;
-        lng = loc.coords.longitude;
-      }
-    } catch {}
+      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      lat = loc.coords.latitude;
+      lng = loc.coords.longitude;
+    } catch {
+      Alert.alert(
+        "Error de ubicación",
+        "No se pudo obtener tu ubicación GPS. Verifica que el GPS esté activado e inténtalo de nuevo.",
+        [{ text: "Entendido" }]
+      );
+      setLoading(false);
+      return;
+    }
 
+    // ── Registrar check-in ───────────────────────────
     try {
       const b64 = result.assets[0].base64;
       const photo = b64 ? `data:image/jpeg;base64,${b64}` : null;
@@ -89,10 +113,21 @@ export default function CheckinScreen() {
       await loadData();
       const geoMsg = res.geofence_name
         ? `Ubicación: ${res.geofence_name}`
-        : lat != null ? "Ubicación fuera de geocercas registradas" : "Sin GPS";
+        : "Ubicación fuera de geocercas registradas";
       Alert.alert(nextType === "in" ? "Entrada registrada" : "Salida registrada", geoMsg);
     } catch (e: any) {
-      Alert.alert("Error al registrar", e?.message ?? "Error desconocido");
+      const code = e?.message;
+      if (code === "location_required") {
+        Alert.alert("Ubicación requerida", "Activa la ubicación en Configuración para poder registrar tu asistencia.");
+      } else if (code === "no_face_detected") {
+        Alert.alert("Rostro no detectado", "No se detectó ningún rostro en la foto.\n\nAsegúrate de que tu cara esté visible y bien iluminada frente a la cámara.");
+      } else if (code === "face_mismatch") {
+        Alert.alert("Verificación fallida", "No se pudo verificar tu identidad.\n\nMira directo a la cámara con buena iluminación e inténtalo de nuevo.");
+      } else if (code === "photo_required") {
+        Alert.alert("Foto requerida", "Se requiere foto para verificar tu identidad.");
+      } else {
+        Alert.alert("Error al registrar", code ?? "Error desconocido");
+      }
     } finally {
       setLoading(false);
     }

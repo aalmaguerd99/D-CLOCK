@@ -1,13 +1,15 @@
 import {
   View, Text, StyleSheet, TouchableOpacity, Alert, Image,
-  ScrollView,
+  ScrollView, ActivityIndicator,
 } from "react-native";
 import { useState, useCallback } from "react";
 import { useRouter, useFocusEffect } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
 import {
   getSession, clearSession, getServerUrl, clearServerUrl,
-  getCompanyInfo, EmployeeSession,
+  getCompanyInfo, EmployeeSession, saveSession,
 } from "@/lib/storage";
+import { registerFace } from "@/lib/api";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -15,12 +17,15 @@ export default function ProfileScreen() {
   const [serverUrl, setServerUrl] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState("D-CLOCK");
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+  const [hasFace, setHasFace] = useState(false);
+  const [faceLoading, setFaceLoading] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       Promise.all([getSession(), getServerUrl(), getCompanyInfo()]).then(
         ([s, url, info]) => {
           setSession(s);
+          setHasFace(!!s?.has_face);
           setServerUrl(url);
           setCompanyName(info.company_name);
           setCompanyLogo(info.logo);
@@ -51,6 +56,45 @@ export default function ProfileScreen() {
         },
       },
     ]);
+  }
+
+  async function handleRegisterFace() {
+    if (!session) return;
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Cámara requerida", "Activa el permiso de cámara en Configuración.");
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      cameraType: ImagePicker.CameraType.front,
+      quality: 0.6,
+      base64: true,
+      exif: false,
+      allowsEditing: false,
+    });
+    if (result.canceled) return;
+    setFaceLoading(true);
+    try {
+      const b64 = result.assets[0].base64;
+      const photo = b64 ? `data:image/jpeg;base64,${b64}` : null;
+      if (!photo) throw new Error("No se pudo capturar la foto");
+      const res = await registerFace(session.id, photo);
+      if (res.ok) {
+        setHasFace(true);
+        const updated = { ...session, has_face: true };
+        await saveSession(updated);
+        setSession(updated);
+        Alert.alert("Rostro registrado", "Tu identidad ya puede verificarse al fichar.");
+      } else if (res.error === "no_face_detected") {
+        Alert.alert("Rostro no detectado", "No se detectó ningún rostro en la foto.\n\nIntenta con mejor iluminación, mirando directo a la cámara frontal.");
+      } else {
+        Alert.alert("Error", res.error ?? "Error desconocido");
+      }
+    } catch (e: any) {
+      Alert.alert("Error", e?.message ?? "No se pudo conectar al servidor");
+    } finally {
+      setFaceLoading(false);
+    }
   }
 
   const initials = [session?.name?.[0], session?.last_name?.[0]].filter(Boolean).join("").toUpperCase() || "?";
@@ -132,6 +176,37 @@ export default function ProfileScreen() {
         </Section>
       ) : null}
 
+      {/* Face registration */}
+      <Section label="VERIFICACIÓN FACIAL">
+        <View style={{ paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+            <View style={[faceStyles.indicator, hasFace ? faceStyles.indicatorOn : faceStyles.indicatorOff]} />
+            <Text style={faceStyles.statusText}>
+              {hasFace ? "Rostro registrado — verificación activa" : "Sin registro — la verificación está desactivada"}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={[faceStyles.faceBtn, hasFace && faceStyles.faceBtnRegistered]}
+            onPress={handleRegisterFace}
+            disabled={faceLoading}
+            activeOpacity={0.8}
+          >
+            {faceLoading ? (
+              <ActivityIndicator size="small" color={hasFace ? "#16a34a" : "#fff"} />
+            ) : (
+              <Text style={[faceStyles.faceBtnText, hasFace && faceStyles.faceBtnTextRegistered]}>
+                {hasFace ? "Actualizar registro facial" : "Registrar mi rostro"}
+              </Text>
+            )}
+          </TouchableOpacity>
+          {!hasFace && (
+            <Text style={faceStyles.hint}>
+              Toma una selfie con buena iluminación mirando directo a la cámara frontal.
+            </Text>
+          )}
+        </View>
+      </Section>
+
       {/* Actions */}
       <View style={styles.actions}>
         <TouchableOpacity style={styles.btn} onPress={handleChangeServer}>
@@ -207,6 +282,18 @@ const rowStyles = StyleSheet.create({
   upper: { textTransform: "uppercase", letterSpacing: 0.5 },
   small: { fontSize: 11 },
   wrapText: { maxWidth: "100%", textAlign: "left", fontSize: 12, color: "#444", fontWeight: "400" },
+});
+
+const faceStyles = StyleSheet.create({
+  indicator: { width: 8, height: 8, borderRadius: 4 },
+  indicatorOn: { backgroundColor: "#22c55e" },
+  indicatorOff: { backgroundColor: "#ccc" },
+  statusText: { fontSize: 12, color: "#555", fontWeight: "600", flex: 1 },
+  faceBtn: { backgroundColor: "#1a1a1a", borderRadius: 10, paddingVertical: 14, alignItems: "center" },
+  faceBtnRegistered: { backgroundColor: "#f0fdf4", borderWidth: 1.5, borderColor: "#86efac" },
+  faceBtnText: { fontSize: 13, fontWeight: "700", color: "#fff", letterSpacing: 0.5 },
+  faceBtnTextRegistered: { color: "#16a34a" },
+  hint: { fontSize: 11, color: "#aaa", textAlign: "center", lineHeight: 16 },
 });
 
 const styles = StyleSheet.create({
