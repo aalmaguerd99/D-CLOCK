@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
+import DownloadSection from "@/components/DownloadSection";
 import {
   IClock, IPin, IPhone, IBuildings, IBarChart, IShield,
   IBell, IHistory, IBolt, ILock, ICompass, IShieldOff,
@@ -26,14 +27,14 @@ const EMPLOYEES = [
 ];
 
 const FEATURES = [
-  { Icon: IClock,     title:"Entrada & Salida exacta",   desc:"Hora al segundo con fotografía del empleado. Registro inmutable con GPS y geocerca validada." },
-  { Icon: IPin,       title:"Geo-cercas inteligentes",    desc:"Define un radio alrededor de tu empresa. Solo registra si el empleado está dentro del área." },
-  { Icon: IPhone,     title:"App móvil Android & iOS",   desc:"El empleado ficha desde su celular con selfie y GPS. Conexión directa a tu servidor." },
-  { Icon: IBuildings, title:"Multi-sede",                 desc:"Administra múltiples sucursales desde un solo panel. Cada una con su geo-cerca y horario." },
-  { Icon: IBarChart,  title:"Reportes para nómina",       desc:"Exporta asistencias a Excel o PDF. Compatible con CONTPAq, NOI y formatos IMSS." },
-  { Icon: IServer,    title:"Servidor en tu empresa",     desc:"Tus datos nunca salen de tu red. Sin nube, sin terceros, sin riesgos de privacidad." },
-  { Icon: IBell,      title:"Alertas automáticas",        desc:"Notificaciones de llegada tarde, ausencias o salidas fuera de horario en tiempo real." },
-  { Icon: IHistory,   title:"Historial completo",         desc:"Consulta entradas y salidas de cualquier empleado por día, semana, quincena o mes." },
+  { Icon: IClock,     title:"Entrada & Salida exacta",      desc:"Hora al segundo con fotografía del empleado. Registro inmutable con GPS y geocerca validada." },
+  { Icon: IPin,       title:"Geo-cercas inteligentes",       desc:"Define un radio alrededor de tu empresa. Solo registra si el empleado está dentro del área." },
+  { Icon: IPhone,     title:"App móvil Android & iOS",      desc:"El empleado ficha desde su celular con selfie y GPS. Conexión directa a tu servidor." },
+  { Icon: IShield,    title:"Credencial Apple Wallet",       desc:"Genera credenciales digitales personalizadas para iPhone. Diseño libre con fondos, colores y foto." },
+  { Icon: IBuildings, title:"Multi-sede",                    desc:"Administra múltiples sucursales desde un solo panel. Cada una con su geo-cerca y horario." },
+  { Icon: IBarChart,  title:"Reportes para nómina",          desc:"Exporta asistencias a Excel o PDF. Compatible con CONTPAq, NOI y formatos IMSS." },
+  { Icon: IServer,    title:"Servidor en tu empresa",        desc:"Tus datos nunca salen de tu red. Sin nube, sin terceros, sin riesgos de privacidad." },
+  { Icon: IHistory,   title:"Historial completo",            desc:"Consulta entradas y salidas de cualquier empleado por día, semana, quincena o mes." },
 ];
 
 const INTEGRATIONS = [
@@ -457,22 +458,23 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-                <div className="mt-8 flex items-center gap-3">
+                <div className="mt-8 flex items-center gap-3 flex-wrap">
                   <div className="glass rounded-xl px-4 py-2.5 flex items-center gap-2.5">
-                    {/* Android robot */}
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="#3DDC84">
                       <path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85a.637.637 0 0 0-.83.22l-1.88 3.24a11.463 11.463 0 0 0-8.94 0L5.65 5.67a.643.643 0 0 0-.87-.2c-.28.18-.37.54-.22.83L6.4 9.48A10.78 10.78 0 0 0 1 18h22a10.78 10.78 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/>
                     </svg>
                     <span className="text-[12px] font-semibold text-[#0D0D0C]">Android</span>
                   </div>
                   <div className="glass rounded-xl px-4 py-2.5 flex items-center gap-2.5">
-                    {/* Apple logo */}
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="#0D0D0C">
                       <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
                     </svg>
                     <span className="text-[12px] font-semibold text-[#0D0D0C]">iPhone</span>
                   </div>
-                  <span className="text-[11px] text-[#AEAEA4]">Próximamente en tiendas</span>
+                  <div className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#15803D] bg-[#DCFCE7] border border-[#bbf7d0] px-2.5 py-1.5 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#15803D] inline-block"/>
+                    Disponible en App Store · v1.3.0
+                  </div>
                 </div>
               </div>
 
@@ -751,125 +753,7 @@ export default function Home() {
         </section>
 
         {/* ══ DOWNLOAD ══════════════════════════════════════ */}
-        <section id="download" className="py-28 px-6 relative overflow-hidden">
-          <div className="blob w-[600px] h-[600px] bg-blue-200 opacity-[.13] -top-40 -right-40"/>
-          <div className="blob w-[400px] h-[400px] bg-indigo-100 opacity-[.10] bottom-0 -left-32"/>
-          <div className="max-w-5xl mx-auto relative z-10">
-            <div className="text-center mb-14">
-              <div className="inline-flex items-center gap-2 text-[11px] font-bold text-[#2563EB] bg-[#DBEAFE] px-3 py-1.5 rounded-full mb-5">
-                <IDownload size={11} color="#2563EB"/>
-                Disponible ahora · v1.0.0 · Windows 64-bit
-              </div>
-              <h2 className="text-[2.5rem] font-extrabold tracking-[-0.03em] text-[#0D0D0C] leading-[1.08]">
-                Descarga D-CLOCK
-                <br/><span className="text-[#78786E]">e instala en 2 minutos.</span>
-              </h2>
-            </div>
-
-            <div className="glass rounded-3xl overflow-hidden shadow-[0_32px_100px_rgba(13,13,12,.09)]">
-              <div className="flex items-center justify-between gap-4 flex-wrap px-10 py-6 border-b border-[rgba(200,192,178,.18)]">
-                <div className="flex items-center gap-4">
-                  <Image src="/D-CLOCKlogo.png" alt="D-CLOCK" width={48} height={48} className="object-contain drop-shadow-md"/>
-                  <div>
-                    <p className="font-extrabold text-[1.1rem] tracking-tight text-[#0D0D0C] leading-none">D-CLOCK</p>
-                    <p className="text-[11.5px] text-[#78786E] mt-0.5">by D99-TECH</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {[
-                    { label:"v1.0.0",          bg:"#EFF6FF", c:"#2563EB" },
-                    { label:"Windows 10 / 11", bg:"#F3F4F6", c:"#374151" },
-                    { label:"64-bit",          bg:"#F3F4F6", c:"#374151" },
-                    { label:"~90 MB",          bg:"#F3F4F6", c:"#374151" },
-                  ].map(b => (
-                    <span key={b.label} className="text-[11.5px] font-semibold px-2.5 py-1 rounded-full" style={{background:b.bg,color:b.c}}>
-                      {b.label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-0 divide-y md:divide-y-0 md:divide-x divide-[rgba(200,192,178,.18)]">
-                <div className="p-10 flex flex-col gap-5">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-[#2563EB] flex items-center justify-center shrink-0 shadow-[0_8px_24px_rgba(37,99,235,.35)]">
-                      <IDownload size={20} color="white"/>
-                    </div>
-                    <div>
-                      <p className="font-extrabold text-[16px] text-[#0D0D0C]">Instalador <span className="text-[#2563EB]">· Recomendado</span></p>
-                      <p className="text-[13px] text-[#78786E] mt-0.5 leading-relaxed">
-                        Instala D-CLOCK con asistente paso a paso. Crea acceso directo en el escritorio y se ejecuta automáticamente al encender el equipo.
-                      </p>
-                    </div>
-                  </div>
-                  <ul className="space-y-2">
-                    {["Acceso directo en escritorio","Inicia con Windows (opcional)","Desinstalador incluido","Instalación sin conocimientos técnicos"].map(f => (
-                      <li key={f} className="flex items-center gap-2 text-[12.5px] text-[#38382F]">
-                        <div className="w-[14px] h-[14px] rounded-full bg-[#2563EB] flex items-center justify-center shrink-0">
-                          <ICheck size={9} color="white"/>
-                        </div>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.0.0/D-CLOCK-Setup-1.0.0.exe"
-                    className="btn-primary justify-center text-[14.5px]" download>
-                    <IDownload size={16} color="white"/>
-                    Descargar instalador
-                    <span className="ml-1 text-white/60 text-[12px]">.exe</span>
-                  </a>
-                </div>
-
-                <div className="p-10 flex flex-col gap-5">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-[#F3F4F6] flex items-center justify-center shrink-0">
-                      <IBolt size={20} color="#374151"/>
-                    </div>
-                    <div>
-                      <p className="font-extrabold text-[16px] text-[#0D0D0C]">Portable</p>
-                      <p className="text-[13px] text-[#78786E] mt-0.5 leading-relaxed">
-                        Sin instalación. Copia en USB o carpeta de red y ejecuta en cualquier equipo Windows.
-                      </p>
-                    </div>
-                  </div>
-                  <ul className="space-y-2">
-                    {["Sin instalación requerida","Funciona desde USB o red","Sin permisos de administrador","Mismo rendimiento que el instalador"].map(f => (
-                      <li key={f} className="flex items-center gap-2 text-[12.5px] text-[#38382F]">
-                        <div className="w-[14px] h-[14px] rounded-full bg-[#F0F0EC] flex items-center justify-center shrink-0">
-                          <ICheck size={9} color="#78786E"/>
-                        </div>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.0.0/D-CLOCK-Portable-1.0.0.exe"
-                    className="btn-ghost justify-center text-[14.5px]" download>
-                    <IDownload size={16} color="#38382F"/>
-                    Descargar portable
-                    <span className="ml-1 text-[#AEAEA4] text-[12px]">.exe</span>
-                  </a>
-                </div>
-              </div>
-
-              <div className="px-10 py-5 border-t border-[rgba(200,192,178,.15)] bg-white/20">
-                <div className="flex items-center justify-between gap-4 flex-wrap">
-                  <p className="text-[12px] text-[#AEAEA4]">
-                    Necesitas una licencia anual activa para usar el software.{" "}
-                    <a href="mailto:contacto@d99-tech.com" className="text-[#2563EB] hover:underline font-medium">
-                      Solicita la tuya →
-                    </a>
-                  </p>
-                  <div className="flex items-center gap-1.5 text-[11.5px] text-[#78786E]">
-                    <IGlobe size={13} color="#AEAEA4"/>
-                    <a href="https://github.com/aalmaguerd99/D-CLOCK/releases" target="_blank" rel="noopener noreferrer" className="hover:text-[#2563EB] transition-colors">
-                      Ver todas las versiones en GitHub
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <DownloadSection />
 
         {/* ══ FOOTER ════════════════════════════════════════ */}
         <footer className="border-t border-[rgba(200,192,178,.2)] py-10 px-6">
@@ -892,19 +776,18 @@ export default function Home() {
   );
 }
 
-function PhoneTabBar({ active }: { active: 0 | 1 | 2 }) {
+function PhoneTabBar({ active }: { active: 0 | 1 | 2 | 3 }) {
   const tabs = [
     { label: "Registro",
       icon: (on: boolean) => (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="9" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="2"/>
-          <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+          <path d="M12 1a5 5 0 1 0 0 10A5 5 0 0 0 12 1zM2 20c0-4.4 4.5-8 10-8s10 3.6 10 8" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="2" strokeLinecap="round"/>
         </svg>
       ),
     },
     { label: "Historial",
       icon: (on: boolean) => (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="9" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="2"/>
           <path d="M12 7v5l3.5 2" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="2" strokeLinecap="round"/>
         </svg>
@@ -912,19 +795,28 @@ function PhoneTabBar({ active }: { active: 0 | 1 | 2 }) {
     },
     { label: "Perfil",
       icon: (on: boolean) => (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="8" r="4" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="2"/>
           <path d="M4 20c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="2" strokeLinecap="round"/>
         </svg>
       ),
     },
+    { label: "Credencial",
+      icon: (on: boolean) => (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="5" width="20" height="14" rx="3" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="2"/>
+          <circle cx="8" cy="12" r="2.5" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="1.5"/>
+          <path d="M13 10h5M13 14h3" stroke={on?"#0D0D0C":"#ccc"} strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
   ];
   return (
-    <div className="bg-white border-t border-[#eee] flex py-2 px-3">
+    <div className="bg-[#FDFAF6] border-t border-[#eee] flex py-2 px-1">
       {tabs.map((t, i) => (
         <div key={t.label} className="flex-1 flex flex-col items-center gap-0.5">
           {t.icon(i === active)}
-          <span className={`text-[5.5px] font-bold ${i === active ? "text-[#0D0D0C]" : "text-[#bbb]"}`}>{t.label}</span>
+          <span className={`text-[4.5px] font-bold ${i === active ? "text-[#0D0D0C]" : "text-[#bbb]"}`}>{t.label}</span>
         </div>
       ))}
     </div>
