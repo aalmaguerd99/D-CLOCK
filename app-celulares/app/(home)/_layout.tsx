@@ -81,7 +81,8 @@ export default function HomeLayout() {
         name="records"
         options={{
           title: "Registros",
-          href: isAdmin ? undefined : null,
+          tabBarButton: isAdmin ? undefined : () => null,
+          tabBarItemStyle: isAdmin ? undefined : { width: 0, overflow: "hidden" },
           tabBarIcon: ({ focused, color }) => (
             <Ionicons name={focused ? "list-circle" : "list-circle-outline"} size={26} color={color} />
           ),
