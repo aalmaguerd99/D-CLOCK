@@ -716,6 +716,23 @@ async function getWalletCerts() {
   return certs;
 }
 
+// ── Public wallet display config (no auth — visual data only) ──
+app.get("/api/wallet/display", (req, res) => {
+  const db = DB.getDb();
+  const get = k => db.prepare("SELECT value FROM config WHERE key=?").get(k)?.value ?? null;
+  res.json({
+    bg_type:         get("wallet_bg_type")         || "preset",
+    bg_preset:       get("wallet_bg_preset")        || "midnight",
+    bg_image:        get("wallet_bg_image")         || null,
+    bg_color:        get("wallet_bg_color")         || "rgb(15,52,96)",
+    fg_color:        get("wallet_fg_color")         || "rgb(255,255,255)",
+    label_color:     get("wallet_label_color")      || "rgb(170,170,170)",
+    overlay_color:   get("wallet_overlay_color")    || "#000000",
+    overlay_opacity: get("wallet_overlay_opacity")  || "0",
+    fields_config:   get("wallet_fields_config")    || null,
+  });
+});
+
 // ── Generate Apple Wallet pass ─────────────────────────
 app.get("/api/employees/:id/pass.pkpass", async (req, res) => {
   try {
