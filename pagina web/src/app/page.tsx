@@ -473,7 +473,7 @@ export default function Home() {
                   </div>
                   <div className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#15803D] bg-[#DCFCE7] border border-[#bbf7d0] px-2.5 py-1.5 rounded-full">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#15803D] inline-block"/>
-                    Disponible en App Store · v1.3.0
+                    Disponible en App Store · v1.3.1
                   </div>
                 </div>
               </div>

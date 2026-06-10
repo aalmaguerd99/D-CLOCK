@@ -4,10 +4,27 @@ import Image from "next/image";
 
 const VERSIONS = [
   {
-    v: "1.3.0",
+    v: "1.3.1",
     label: "Última versión",
-    date: "Mayo 2026",
+    date: "Jun 2026",
     latest: true,
+    size: "~95 MB",
+    changes: [
+      "Módulo de Equipos — admin visualiza asistencia de su equipo en la app móvil",
+      "Descarga directa de APK Android desde el servidor",
+      "Diseñador de credencial Apple Wallet con fondos, colores y campos personalizados",
+      "Reconocimiento facial al registrar asistencia",
+      "Genera pases .pkpass para iPhone (Apple Wallet)",
+      "Múltiples correcciones y mejoras de rendimiento",
+    ],
+    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.1/D-CLOCK-Setup-1.3.1.exe",
+    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.1/D-CLOCK-Portable-1.3.1.exe",
+  },
+  {
+    v: "1.3.0",
+    label: "Versión anterior",
+    date: "Mayo 2026",
+    latest: false,
     size: "~95 MB",
     changes: [
       "Diseñador de credencial Apple Wallet con fondos, colores y campos personalizados",
@@ -19,22 +36,6 @@ const VERSIONS = [
     ],
     installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.0/D-CLOCK-Setup-1.3.0.exe",
     portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.0/D-CLOCK-Portable-1.3.0.exe",
-  },
-  {
-    v: "1.0.0",
-    label: "Versión anterior",
-    date: "Ene 2026",
-    latest: false,
-    size: "~90 MB",
-    changes: [
-      "Control de asistencia con geo-cercas",
-      "Selfie de verificación y GPS en cada registro",
-      "App móvil Android e iPhone",
-      "Reportes en Excel y PDF",
-      "Compatible con CONTPAq y NOI",
-    ],
-    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.0.0/D-CLOCK-Setup-1.0.0.exe",
-    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.0.0/D-CLOCK-Portable-1.0.0.exe",
   },
 ];
 
@@ -217,6 +218,33 @@ export default function DownloadSection() {
                 <span className="ml-1 text-[#AEAEA4] text-[12px]">.exe</span>
               </a>
             </div>
+          </div>
+
+          {/* Mobile downloads */}
+          <div className="px-10 py-6 border-t border-[rgba(200,192,178,.15)] bg-[rgba(13,13,12,.02)]">
+            <p className="text-[10.5px] font-bold text-[#AEAEA4] uppercase tracking-wider mb-4">App móvil D-CLOCK</p>
+            <div className="flex flex-wrap gap-3">
+              <a
+                href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.1/D-CLOCK-1.3.1.apk"
+                className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-[10px] bg-[#1a1a1a] text-white text-[13px] font-bold hover:opacity-85 transition-opacity"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.523 15.341c-.462 0-.836-.374-.836-.836s.374-.836.836-.836.836.374.836.836-.374.836-.836.836m-11.046 0c-.462 0-.836-.374-.836-.836s.374-.836.836-.836.836.374.836.836-.374.836-.836.836m11.405-6.268l1.67-2.893a.347.347 0 0 0-.127-.474.347.347 0 0 0-.474.127l-1.692 2.929A10.29 10.29 0 0 0 12 8.16c-1.52 0-2.96.33-4.259.902L6.049 6.133a.347.347 0 0 0-.474-.127.347.347 0 0 0-.127.474l1.67 2.893C4.562 10.812 3 13.218 3 16h18c0-2.782-1.562-5.188-4.118-6.927"/></svg>
+                Descargar APK Android
+                <span className="text-white/50 text-[11px]">.apk · v1.3.1</span>
+              </a>
+              <a
+                href="https://apps.apple.com/app/d-clock/id6769932290"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-[10px] bg-[#F3F4F6] text-[#0D0D0C] text-[13px] font-bold hover:bg-[#E5E7EB] transition-colors"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                App Store (iPhone)
+              </a>
+            </div>
+            <p className="text-[11.5px] text-[#AEAEA4] mt-3">
+              El APK de Android se instala directamente. En iPhone descarga desde la App Store oficial.
+            </p>
           </div>
 
           <div className="px-10 py-5 border-t border-[rgba(200,192,178,.15)] bg-white/20">
