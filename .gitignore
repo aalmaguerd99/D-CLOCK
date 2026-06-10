@@ -9,3 +9,5 @@ build/
 .next/
 out/
 .expo/
+.agents/
+skills-lock.json
