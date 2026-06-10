@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D-CLOCK — Descargar App</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F1EB;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px}
+    .card{background:#fff;border-radius:24px;padding:48px 40px;max-width:480px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.10);text-align:center}
+    .logo{width:72px;height:72px;border-radius:18px;margin:0 auto 20px;display:block}
+    .logo-placeholder{width:72px;height:72px;border-radius:18px;background:#1a1a1a;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;color:#F5F1EB;font-size:28px;font-weight:900;letter-spacing:1px}
+    h1{font-size:28px;font-weight:900;color:#1a1a1a;letter-spacing:-0.5px;margin-bottom:6px}
+    .sub{font-size:14px;color:#888;margin-bottom:36px;letter-spacing:.5px}
+    .btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:18px 24px;border-radius:14px;text-decoration:none;font-size:15px;font-weight:700;letter-spacing:.3px;transition:opacity .15s,transform .1s;margin-bottom:12px}
+    .btn:active{transform:scale(.98)}
+    .btn-android{background:#1a1a1a;color:#fff}
+    .btn-android:hover{opacity:.88}
+    .btn-ios{background:#000;color:#fff}
+    .btn-ios:hover{opacity:.88}
+    .btn-disabled{background:#e8e2d8;color:#aaa;cursor:not-allowed;pointer-events:none}
+    .btn svg{flex-shrink:0}
+    .divider{height:1px;background:#f0ece6;margin:28px 0}
+    .steps{text-align:left;margin-top:4px}
+    .steps h3{font-size:12px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
+    .step{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start}
+    .step-n{width:24px;height:24px;border-radius:50%;background:#1a1a1a;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+    .step p{font-size:13px;color:#555;line-height:1.5}
+    .step strong{color:#1a1a1a}
+    .version{font-size:11px;color:#bbb;margin-top:28px}
+    @media(max-width:480px){.card{padding:36px 24px}}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo-placeholder" id="logo-wrap">D</div>
+    <h1>D-CLOCK</h1>
+    <p class="sub">Sistema de Checador Empresarial</p>
+
+    <!-- Android -->
+    <a class="btn btn-android" href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.1/D-CLOCK-1.3.1.apk" id="apk-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.523 15.341c-.462 0-.836-.374-.836-.836s.374-.836.836-.836.836.374.836.836-.374.836-.836.836m-11.046 0c-.462 0-.836-.374-.836-.836s.374-.836.836-.836.836.374.836.836-.374.836-.836.836m11.405-6.268l1.67-2.893a.347.347 0 0 0-.127-.474.347.347 0 0 0-.474.127l-1.692 2.929A10.29 10.29 0 0 0 12 8.16c-1.52 0-2.96.33-4.259.902L6.049 6.133a.347.347 0 0 0-.474-.127.347.347 0 0 0-.127.474l1.67 2.893C4.562 10.812 3 13.218 3 16h18c0-2.782-1.562-5.188-4.118-6.927"/></svg>
+      Descargar para Android (.apk)
+    </a>
+
+    <!-- iOS -->
+    <a class="btn btn-ios" href="https://apps.apple.com/app/d-clock/id6769932290" target="_blank">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      Descargar en App Store (iOS)
+    </a>
+
+    <div class="divider"></div>
+
+    <!-- Instrucciones Android -->
+    <div class="steps" id="android-steps">
+      <h3>Instalación en Android</h3>
+      <div class="step">
+        <div class="step-n">1</div>
+        <p>Descarga el archivo <strong>.apk</strong> con el botón de arriba.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">2</div>
+        <p>Abre el archivo descargado. Si Android lo solicita, habilita <strong>"Instalar apps desconocidas"</strong> para tu navegador.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">3</div>
+        <p>Presiona <strong>Instalar</strong> y espera. Al abrir la app, ingresa la IP del servidor y tus credenciales.</p>
+      </div>
+    </div>
+
+    <p class="version" id="version-text">v1.3.1 · Android 6.0+ · iOS 16+</p>
+  </div>
+
+  <script>
+    // Load company logo if server is reachable
+    fetch('/api/info').then(r => r.json()).then(info => {
+      if (info.logo) {
+        const img = document.createElement('img');
+        img.src = info.logo;
+        img.className = 'logo';
+        img.alt = 'Logo';
+        document.getElementById('logo-wrap').replaceWith(img);
+      }
+      if (info.company_name) {
+        document.querySelector('h1').textContent = info.company_name;
+        document.title = info.company_name + ' — Descargar App';
+      }
+    }).catch(() => {});
+  </script>
+</body>
+</html>

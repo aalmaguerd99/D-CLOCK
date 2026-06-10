@@ -116,10 +116,26 @@ function init(dataDir) {
       on_time     INTEGER DEFAULT 1
     );
 
+    CREATE TABLE IF NOT EXISTS teams (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      name        TEXT NOT NULL,
+      description TEXT,
+      admin_id    INTEGER REFERENCES employees(id) ON DELETE SET NULL,
+      created_at  TEXT DEFAULT (datetime('now','localtime'))
+    );
+
+    CREATE TABLE IF NOT EXISTS team_members (
+      team_id     INTEGER NOT NULL REFERENCES teams(id)     ON DELETE CASCADE,
+      employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
+      PRIMARY KEY (team_id, employee_id)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_ci_emp    ON check_ins(employee_id);
     CREATE INDEX IF NOT EXISTS idx_ci_time   ON check_ins(timestamp);
     CREATE INDEX IF NOT EXISTS idx_sa_emp    ON schedule_assignments(employee_id);
     CREATE INDEX IF NOT EXISTS idx_sa_date   ON schedule_assignments(date);
+    CREATE INDEX IF NOT EXISTS idx_tm_team   ON team_members(team_id);
+    CREATE INDEX IF NOT EXISTS idx_tm_emp    ON team_members(employee_id);
   `);
 
   // Migrations for existing databases (ignore errors if column already exists)

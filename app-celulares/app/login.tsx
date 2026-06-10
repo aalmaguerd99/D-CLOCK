@@ -44,6 +44,9 @@ export default function LoginScreen() {
         birth_date: res.birth_date,
         gender: res.gender,
         address: res.address,
+        is_admin: res.is_admin,
+        is_team_admin: res.is_team_admin,
+        has_face: res.has_face,
       });
       router.replace("/(home)");
     } catch (e: any) {

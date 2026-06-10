@@ -9,9 +9,13 @@ const INACTIVE = "#b0a99f";
 
 export default function HomeLayout() {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isTeamAdmin, setIsTeamAdmin] = useState(false);
 
   useEffect(() => {
-    getSession().then(s => setIsAdmin(!!s?.is_admin));
+    getSession().then(s => {
+      setIsAdmin(!!s?.is_admin);
+      setIsTeamAdmin(!!s?.is_team_admin);
+    });
   }, []);
 
   return (
@@ -82,9 +86,20 @@ export default function HomeLayout() {
         options={{
           title: "Registros",
           tabBarButton: isAdmin ? undefined : () => null,
-          tabBarItemStyle: isAdmin ? undefined : { width: 0, overflow: "hidden" },
+          tabBarItemStyle: isAdmin ? undefined : { display: "none" },
           tabBarIcon: ({ focused, color }) => (
             <Ionicons name={focused ? "list-circle" : "list-circle-outline"} size={26} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="team"
+        options={{
+          title: "Equipo",
+          tabBarButton: (isAdmin || isTeamAdmin) ? undefined : () => null,
+          tabBarItemStyle: (isAdmin || isTeamAdmin) ? undefined : { display: "none" },
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons name={focused ? "people" : "people-outline"} size={26} color={color} />
           ),
         }}
       />

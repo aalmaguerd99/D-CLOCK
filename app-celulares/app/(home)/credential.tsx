@@ -1,16 +1,16 @@
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Image, ActivityIndicator, Platform, Linking, Alert, ImageBackground,
+  Image, ActivityIndicator, Platform, Linking, Alert,
   Dimensions,
 } from "react-native";
 import { useState, useCallback } from "react";
 import { useFocusEffect } from "expo-router";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { getSession, getServerUrl, getCompanyInfo, EmployeeSession } from "@/lib/storage";
 
 const SCREEN_W = Dimensions.get("window").width;
 const CARD_W   = SCREEN_W - 48;
 
-// Mirror of desktop BG_PRESETS solid base colors
 const PRESET_COLORS: Record<string, string> = {
   midnight: "#0f3460", navy: "#1b3a5c", petrol: "#0d2d2d",
   forest:   "#0d2b1a", burgundy: "#5a1a35", slate: "#2e3f55",
@@ -108,9 +108,9 @@ export default function CredentialScreen() {
     return <View style={ss.center}><ActivityIndicator size="large" color="#1a1a1a" /></View>;
   }
 
-  // ── Resolve colors from config ──
-  const fg  = wConfig ? rgbToHex(wConfig.fg_color)    : "#ffffff";
-  const lbl = wConfig ? rgbToHex(wConfig.label_color)  : "#888888";
+  // ── Resolve colors ──
+  const fg  = wConfig ? rgbToHex(wConfig.fg_color)   : "#ffffff";
+  const lbl = wConfig ? rgbToHex(wConfig.label_color) : "#aaaaaa";
   const bgType   = wConfig?.bg_type   || "preset";
   const bgPreset = wConfig?.bg_preset || "midnight";
   const bgImage  = wConfig?.bg_image  || null;
@@ -122,89 +122,72 @@ export default function CredentialScreen() {
   const rawBg    = bgType === "solid" ? solidBg : presetBg;
   const cardBg   = bgType === "image" ? rawBg : blendColor(rawBg, overlayColor, overlayOpacity);
 
-  // ── Parse fields config ──
+  // ── Fields config ──
   let fieldsConfig: FieldsConfig = {};
   try { if (wConfig?.fields_config) fieldsConfig = JSON.parse(wConfig.fields_config); } catch {}
-
-  const showPhoto = fieldsConfig.showPhoto !== false;
-  const zones = fieldsConfig.zones ?? {
-    primary:   [{ dataKey: "fullName",        label: "EMPLEADO" }],
-    secondary: [{ dataKey: "title",           label: "PUESTO"   }, { dataKey: "area_name", label: "ÁREA" }],
-    auxiliary: [{ dataKey: "employee_number", label: "NO. EMPLEADO" }],
+  const showPhoto       = fieldsConfig.showPhoto !== false;
+  const zones           = fieldsConfig.zones ?? {
+    secondary: [{ dataKey: "area_name", label: "ÁREA" }, { dataKey: "dept", label: "DEPTO." }],
   };
-  const primaryField    = zones.primary?.[0] ?? null;
-  const secondaryFields = (zones.secondary ?? []).filter(f => session && fieldValue(f.dataKey, session, companyName));
-  const auxiliaryFields = (zones.auxiliary ?? []).filter(f => session && fieldValue(f.dataKey, session, companyName));
+  const secondaryFields = zones.secondary ?? [];
 
-  // ── Card content ──
+  // ── Card content (shared between plain View and ImageBackground) ──
   const cardContent = (
     <>
-      {/* Overlay for image backgrounds */}
       {bgType === "image" && overlayOpacity > 0 && (
         <View style={[ss.overlay, { backgroundColor: overlayColor, opacity: overlayOpacity }]} />
       )}
-      <View style={ss.stripe} />
 
-      {/* Header: logo + company + photo */}
+      {/* Header: solo logo */}
       <View style={ss.cardHeader}>
-        <View style={ss.logoRow}>
-          <Image
-            source={companyLogo ? { uri: companyLogo } : require("@/assets/icon.png")}
-            style={ss.cardLogo}
-            resizeMode="cover"
-          />
-          <Text style={[ss.cardCompany, { color: fg + "bb" }]} numberOfLines={1}>
-            {companyName.toUpperCase()}
+        <Image
+          source={companyLogo ? { uri: companyLogo } : require("@/assets/icon.png")}
+          style={ss.cardLogo}
+          resizeMode="contain"
+        />
+      </View>
+
+      {/* Strip: nombre + apellido + puesto a la izquierda, foto a la derecha */}
+      <View style={ss.strip}>
+        <View style={ss.stripLeft}>
+          <Text style={[ss.stripFirstName, { color: fg }]} numberOfLines={1}>
+            {session?.name || "—"}
           </Text>
+          {session?.last_name ? (
+            <Text style={[ss.stripLastName, { color: fg + "DD" }]} numberOfLines={1}>
+              {session.last_name}
+            </Text>
+          ) : null}
+          <View style={[ss.stripSep, { backgroundColor: fg + "33" }]} />
+          {session?.job_title_name ? (
+            <Text style={[ss.stripJobTitle, { color: fg + "BB" }]} numberOfLines={2}>
+              {session.job_title_name}
+            </Text>
+          ) : null}
         </View>
         {showPhoto ? (
           session?.photo
-            ? <Image source={{ uri: session.photo }} style={ss.cardPhoto} />
-            : <View style={[ss.cardPhoto, ss.cardPhotoEmpty]}>
+            ? <Image source={{ uri: session.photo }} style={ss.stripPhoto} resizeMode="cover" />
+            : <View style={[ss.stripPhoto, ss.stripPhotoEmpty]}>
                 <Text style={{ fontSize: 24 }}>👤</Text>
               </View>
         ) : null}
       </View>
 
-      {/* Primary field */}
-      {primaryField && session && (
-        <View style={ss.primaryWrap}>
-          <Text style={[ss.lbl, { color: lbl }]}>{primaryField.label}</Text>
-          <Text style={[ss.primaryVal, { color: fg }]} numberOfLines={2}>
-            {fieldValue(primaryField.dataKey, session, companyName) || "—"}
-          </Text>
-        </View>
-      )}
-
-      {/* Secondary fields */}
+      {/* Campos debajo del strip: solo ÁREA y DEPTO. */}
       {secondaryFields.length > 0 && session && (
-        <View style={ss.fieldsRow}>
-          {secondaryFields.map((f, i) => (
-            <View key={i} style={ss.fieldCol}>
-              <Text style={[ss.lbl, { color: lbl }]}>{f.label}</Text>
-              <Text style={[ss.fieldVal, { color: fg }]} numberOfLines={2}>
-                {fieldValue(f.dataKey, session, companyName)}
-              </Text>
-            </View>
-          ))}
-        </View>
-      )}
-
-      {/* Divider + Auxiliary fields */}
-      {auxiliaryFields.length > 0 && session && (
-        <>
-          <View style={[ss.divider, { backgroundColor: lbl + "55" }]} />
+        <View style={[ss.fieldsArea, { borderTopColor: fg + "1A" }]}>
           <View style={ss.fieldsRow}>
-            {auxiliaryFields.map((f, i) => (
+            {secondaryFields.map((f, i) => (
               <View key={i} style={ss.fieldCol}>
                 <Text style={[ss.lbl, { color: lbl }]}>{f.label}</Text>
-                <Text style={[ss.fieldVal, { color: fg }]} numberOfLines={1}>
-                  {fieldValue(f.dataKey, session, companyName)}
+                <Text style={[ss.fieldVal, { color: fg }]} numberOfLines={2}>
+                  {fieldValue(f.dataKey, session, companyName) || "—"}
                 </Text>
               </View>
             ))}
           </View>
-        </>
+        </View>
       )}
     </>
   );
@@ -215,7 +198,7 @@ export default function CredentialScreen() {
       contentContainerStyle={ss.content}
       showsVerticalScrollIndicator={false}
     >
-      {/* Page header */}
+      {/* Encabezado de la página */}
       <View style={ss.pageHeader}>
         {companyLogo
           ? <Image source={{ uri: companyLogo }} style={ss.pageLogo} resizeMode="contain" />
@@ -226,22 +209,12 @@ export default function CredentialScreen() {
         </View>
       </View>
 
-      {/* Card */}
-      {bgType === "image" && bgImage ? (
-        <ImageBackground
-          source={{ uri: bgImage }}
-          style={[ss.card, { width: CARD_W, backgroundColor: "#1a1a1a" }]}
-          imageStyle={{ borderRadius: 20 }}
-        >
-          {cardContent}
-        </ImageBackground>
-      ) : (
-        <View style={[ss.card, { width: CARD_W, backgroundColor: cardBg }]}>
-          {cardContent}
-        </View>
-      )}
+      {/* Tarjeta — siempre color sólido, sin imagen de fondo */}
+      <View style={[ss.card, { width: CARD_W, backgroundColor: cardBg }]}>
+        {cardContent}
+      </View>
 
-      {/* Wallet buttons */}
+      {/* Botón Apple / Google Wallet */}
       {Platform.OS === "ios" ? (
         <TouchableOpacity
           style={[ss.appleBtn, loading && ss.disabled]}
@@ -253,7 +226,7 @@ export default function CredentialScreen() {
             <ActivityIndicator color="#fff" />
           ) : (
             <View style={ss.appleBtnInner}>
-              <Text style={ss.appleLogo}>{""}</Text>
+              <MaterialCommunityIcons name="apple" size={26} color="#fff" />
               <View>
                 <Text style={ss.appleSmall}>Agregar a</Text>
                 <Text style={ss.appleBig}>Apple Wallet</Text>
@@ -287,9 +260,9 @@ const ss = StyleSheet.create({
   pageTitle: { fontSize: 22, fontWeight: "900", color: "#1a1a1a", letterSpacing: -0.5 },
   pageSub:   { fontSize: 13, color: "#888", marginTop: 1 },
 
-  // ── Card ──
+  // ── Tarjeta ──
   card: {
-    borderRadius: 20, padding: 24, marginBottom: 28, overflow: "hidden",
+    borderRadius: 20, overflow: "hidden", marginBottom: 28,
     shadowColor: "#000", shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.45, shadowRadius: 28, elevation: 16,
   },
@@ -297,33 +270,45 @@ const ss = StyleSheet.create({
     position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
     borderRadius: 20,
   },
-  stripe: {
-    position: "absolute", top: 0, left: 0, right: 0, height: 5,
-    backgroundColor: "rgba(255,255,255,0.1)",
-  },
+
+  // Header: logo + nombre empresa
   cardHeader: {
-    flexDirection: "row", justifyContent: "space-between",
-    alignItems: "center", marginBottom: 24,
+    flexDirection: "row", alignItems: "center", gap: 8,
+    paddingHorizontal: 18, paddingTop: 18, paddingBottom: 12,
   },
-  logoRow:    { flexDirection: "row", alignItems: "center", gap: 9, flex: 1 },
-  cardLogo:   { width: 34, height: 34, borderRadius: 9, backgroundColor: "rgba(255,255,255,0.15)" },
-  cardCompany:{ fontSize: 10, fontWeight: "800", letterSpacing: 1.2, flex: 1 },
-  cardPhoto:  {
-    width: 58, height: 58, borderRadius: 12,
-    borderWidth: 2, borderColor: "rgba(255,255,255,0.25)",
+  cardLogo:    { width: 28, height: 28, borderRadius: 7, backgroundColor: "rgba(255,255,255,0.12)" },
+
+  // Strip: texto a la izquierda, foto a la derecha
+  strip: {
+    flexDirection: "row", alignItems: "flex-end",
+    paddingHorizontal: 18, paddingBottom: 18, gap: 14, minHeight: 110,
   },
-  cardPhotoEmpty: {
-    backgroundColor: "rgba(255,255,255,0.12)",
+  stripLeft:     { flex: 1, justifyContent: "flex-end" },
+  stripFirstName: {
+    fontSize: 30, fontWeight: "800", letterSpacing: -0.5, lineHeight: 34,
+  },
+  stripLastName: { fontSize: 19, fontWeight: "600", lineHeight: 23, marginTop: 1 },
+  stripSep:      { width: 28, height: 2, borderRadius: 1, marginTop: 9, marginBottom: 6 },
+  stripJobTitle: { fontSize: 13, fontWeight: "500", lineHeight: 17 },
+  stripPhoto: {
+    width: 80, height: 104, borderRadius: 12,
+    borderWidth: 1.5, borderColor: "rgba(255,255,255,0.22)",
+  },
+  stripPhotoEmpty: {
+    backgroundColor: "rgba(255,255,255,0.10)",
     alignItems: "center", justifyContent: "center",
   },
 
-  primaryWrap: { marginBottom: 18 },
-  lbl:         { fontSize: 8, fontWeight: "700", letterSpacing: 1.4, marginBottom: 4, textTransform: "uppercase" },
-  primaryVal:  { fontSize: 22, fontWeight: "800", letterSpacing: -0.4, lineHeight: 26 },
-  fieldsRow:   { flexDirection: "row", gap: 16, flexWrap: "wrap" },
-  fieldCol:    { flex: 1, minWidth: 80 },
-  fieldVal:    { fontSize: 13, fontWeight: "600" },
-  divider:     { height: 1, marginVertical: 16 },
+  // Campos debajo del strip
+  fieldsArea: {
+    borderTopWidth: 1,
+    paddingHorizontal: 18, paddingTop: 14, paddingBottom: 18,
+  },
+  fieldsRow: { flexDirection: "row", gap: 16, flexWrap: "wrap" },
+  fieldCol:  { flex: 1, minWidth: 80 },
+  lbl:       { fontSize: 8, fontWeight: "700", letterSpacing: 1.4, marginBottom: 4, textTransform: "uppercase" },
+  fieldVal:  { fontSize: 13, fontWeight: "600" },
+  divider:   { height: 1, marginVertical: 12 },
 
   // ── Apple Wallet button ──
   appleBtn: {
@@ -332,13 +317,13 @@ const ss = StyleSheet.create({
     shadowColor: "#000", shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.22, shadowRadius: 12, elevation: 6,
   },
-  disabled: { opacity: 0.5 },
-  appleBtnInner: { flexDirection: "row", alignItems: "center", gap: 10 },
-  appleLogo:  { fontSize: 28, color: "#fff" },
-  appleSmall: { fontSize: 11, color: "rgba(255,255,255,0.7)", fontWeight: "400" },
-  appleBig:   { fontSize: 18, color: "#fff", fontWeight: "700", letterSpacing: -0.3 },
+  disabled:       { opacity: 0.5 },
+  appleBtnInner:  { flexDirection: "row", alignItems: "center", gap: 10 },
+  appleLogo:      { fontSize: 28, color: "#fff" },
+  appleSmall:     { fontSize: 11, color: "rgba(255,255,255,0.7)", fontWeight: "400" },
+  appleBig:       { fontSize: 18, color: "#fff", fontWeight: "700", letterSpacing: -0.3 },
 
-  // ── Google Wallet / coming soon ──
+  // ── Google Wallet ──
   googleBtn: {
     width: CARD_W, borderRadius: 14, paddingVertical: 15, alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.05)", borderWidth: 1, borderColor: "rgba(0,0,0,0.1)",

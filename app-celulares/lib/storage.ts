@@ -39,6 +39,7 @@ export interface EmployeeSession {
   gender: string | null;
   address: string | null;
   is_admin: boolean;
+  is_team_admin: boolean;
   has_face: boolean;
 }
 
@@ -73,6 +74,7 @@ export async function getSession(): Promise<EmployeeSession | null> {
     gender: d.gender || null,
     address: d.address || null,
     is_admin: !!d.is_admin,
+    is_team_admin: !!d.is_team_admin,
     has_face: !!d.has_face,
   };
 }

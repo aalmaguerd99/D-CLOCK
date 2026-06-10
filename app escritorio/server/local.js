@@ -74,8 +74,9 @@ app.post("/api/mobile/auth", (req, res) => {
   const last  = DB.getDb().prepare(
     "SELECT type, timestamp FROM check_ins WHERE employee_id=? AND date(timestamp,'localtime')=? ORDER BY timestamp DESC LIMIT 1"
   ).get(emp.id, today);
+  const isTeamAdmin = !!(DB.getDb().prepare("SELECT 1 FROM teams WHERE admin_id=?").get(emp.id));
   const { face_descriptor, ...empData } = emp;
-  res.json({ ok: true, employee: { ...empData, has_face: !!face_descriptor }, last_checkin: last || null });
+  res.json({ ok: true, employee: { ...empData, has_face: !!face_descriptor, is_team_admin: isTeamAdmin }, last_checkin: last || null });
 });
 
 // ── Checkins de hoy para empleado (móvil) ────────────
@@ -613,6 +614,196 @@ app.get("/api/stats", auth, (req, res) => {
   res.json({ totalEmployees, presentToday, checkinsToday, insideNow, insideList, absentToday, date: today });
 });
 
+// ── Wallet background rendering ───────────────────────
+// CSS patterns mirrored from the frontend designer
+const BG_PRESETS_SERVER = {
+  carbon:  'repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0,rgba(255,255,255,.05) 1px,transparent 1px,transparent 10px),repeating-linear-gradient(-45deg,rgba(255,255,255,.05) 0,rgba(255,255,255,.05) 1px,transparent 1px,transparent 10px)',
+  cosmos:  'radial-gradient(circle,rgba(255,255,255,.18) 1px,transparent 1px) 0 0/20px 20px,radial-gradient(circle,rgba(255,255,255,.09) 1px,transparent 1px) 10px 10px/20px 20px',
+  ocean:   'repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0,rgba(255,255,255,.08) 1px,transparent 1px,transparent 20px)',
+  mesh:    'linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px) 0 0/26px 26px,linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px) 0 0/26px 26px',
+  aurora:  'repeating-linear-gradient(-55deg,rgba(255,255,255,.07) 0,rgba(255,255,255,.07) 1.5px,transparent 1.5px,transparent 18px)',
+  diamond: 'repeating-linear-gradient(45deg,rgba(255,255,255,.09) 0,rgba(255,255,255,.09) 1px,transparent 1px,transparent 16px),repeating-linear-gradient(135deg,rgba(255,255,255,.09) 0,rgba(255,255,255,.09) 1px,transparent 1px,transparent 16px)',
+  dots:    'radial-gradient(circle,rgba(255,255,255,.2) 1.5px,transparent 1.5px) 0 0/18px 18px',
+  copper:  'repeating-linear-gradient(-45deg,rgba(255,255,255,.08) 0,rgba(255,255,255,.08) 1px,transparent 1px,transparent 9px)',
+  glacier: 'radial-gradient(circle,rgba(255,255,255,.16) 1px,transparent 1px) 0 0/16px 16px,radial-gradient(circle,rgba(255,255,255,.08) 2px,transparent 2px) 8px 8px/32px 32px',
+  ember:   'radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.12) 0,transparent 60%)',
+  slate:   'repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0,rgba(255,255,255,.06) 1px,transparent 1px,transparent 22px),repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0,rgba(255,255,255,.06) 1px,transparent 1px,transparent 22px)',
+  waves:   'radial-gradient(farthest-side at 50% -30%,transparent 60%,rgba(255,255,255,.11) 61%,rgba(255,255,255,.11) 62%,transparent 63%) 0 0/26px 13px,radial-gradient(farthest-side at 50% -30%,transparent 60%,rgba(255,255,255,.11) 61%,rgba(255,255,255,.11) 62%,transparent 63%) 13px 6.5px/26px 13px',
+  ripple:  'radial-gradient(circle,transparent 18%,rgba(255,255,255,.1) 19%,rgba(255,255,255,.1) 20%,transparent 21%,transparent 37%,rgba(255,255,255,.06) 38%,rgba(255,255,255,.06) 39%,transparent 40%) 0 0/36px 36px',
+  hex:     'radial-gradient(circle,rgba(255,255,255,.13) 1.5px,transparent 1.5px) 0 0/18px 31px,radial-gradient(circle,rgba(255,255,255,.13) 1.5px,transparent 1.5px) 9px 15.5px/18px 31px',
+  zigzag:  'repeating-linear-gradient(135deg,rgba(255,255,255,.09) 0,rgba(255,255,255,.09) 1.5px,transparent 1.5px,transparent 12px),repeating-linear-gradient(225deg,rgba(255,255,255,.09) 0,rgba(255,255,255,.09) 1.5px,transparent 1.5px,transparent 12px) 0 6px',
+  stripe:  'repeating-linear-gradient(-22deg,rgba(255,255,255,.07) 0,rgba(255,255,255,.07) 4px,transparent 4px,transparent 22px)',
+  fish:    'radial-gradient(farthest-side at 0% 50%,transparent 70%,rgba(255,255,255,.1) 71%,rgba(255,255,255,.1) 72%,transparent 73%) 0 0/22px 22px,radial-gradient(farthest-side at 100% 50%,transparent 70%,rgba(255,255,255,.1) 71%,rgba(255,255,255,.1) 72%,transparent 73%) 11px 11px/22px 22px',
+  none:    '',
+};
+
+// Pure Node.js solid-color PNG generator (no deps, always works).
+// Used as the reliable baseline; pattern is layered on top by renderBgPng.
+function solidColorPng(cssColor, w = 360, h = 440) {
+  const zlib = require("zlib");
+  const m = cssColor.match(/rgb\((\d+)[,\s]+(\d+)[,\s]+(\d+)\)/);
+  let r = 26, g = 26, b = 26;
+  if (m) { r = +m[1]; g = +m[2]; b = +m[3]; }
+  else if (cssColor.startsWith("#")) {
+    const hx = cssColor.slice(1);
+    r = parseInt(hx.slice(0,2),16); g = parseInt(hx.slice(2,4),16); b = parseInt(hx.slice(4,6),16);
+  }
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(w,0); ihdr.writeUInt32BE(h,4); ihdr[8]=8; ihdr[9]=2;
+  const raw = Buffer.alloc((1 + w*3) * h);
+  for (let y=0; y<h; y++) {
+    const o = y*(1+w*3);
+    for (let x=0; x<w; x++) { raw[o+1+x*3]=r; raw[o+1+x*3+1]=g; raw[o+1+x*3+2]=b; }
+  }
+  const idat = zlib.deflateSync(raw, {level:1});
+  let crc = 0xFFFFFFFF;
+  function crc32(buf) {
+    crc = 0xFFFFFFFF;
+    for (let i=0; i<buf.length; i++) { crc^=buf[i]; for(let j=0;j<8;j++) crc=(crc&1)?0xEDB88320^(crc>>>1):(crc>>>1); }
+    return (crc^0xFFFFFFFF)>>>0;
+  }
+  function chunk(t, d) {
+    const c = Buffer.alloc(12+d.length);
+    c.writeUInt32BE(d.length,0); c.write(t,4,"ascii"); d.copy(c,8);
+    c.writeUInt32BE(crc32(c.slice(4,8+d.length)), 8+d.length); return c;
+  }
+  return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]), chunk("IHDR",ihdr), chunk("IDAT",idat), chunk("IEND",Buffer.alloc(0))]);
+}
+
+// Renders the CSS background pattern as PNG using Electron offscreen.
+// Uses the paint event (more reliable than did-finish-load) and a temp file (avoids data: URL limits).
+async function renderBgPng(bgCss, overlayColor, overlayOpacity) {
+  try {
+    const { BrowserWindow } = require("electron");
+    const os = require("os");
+    const W = 360, H = 440;
+    const op = Math.max(0, Math.min(1, (parseFloat(overlayOpacity)||0)/100)).toFixed(3);
+    const overlayDiv = parseFloat(op) > 0
+      ? `<div style="position:absolute;inset:0;background:${overlayColor};opacity:${op}"></div>` : "";
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>*{margin:0;padding:0}body{width:${W}px;height:${H}px;overflow:hidden;position:relative}</style></head><body><div style="position:absolute;inset:0;background:${bgCss.replace(/'/g,'"')}"></div>${overlayDiv}</body></html>`;
+    const tmpPath = path.join(os.tmpdir(), `dclock-bg-${Date.now()}.html`);
+    fs.writeFileSync(tmpPath, html, "utf8");
+
+    return await new Promise((resolve) => {
+      let done = false;
+      const cleanup = (result) => {
+        if (done) return; done = true;
+        try { win.destroy(); } catch {}
+        try { fs.unlinkSync(tmpPath); } catch {}
+        resolve(result);
+      };
+      const timeout = setTimeout(() => cleanup(null), 6000);
+      const win = new BrowserWindow({ width: W, height: H, show: false,
+        webPreferences: { offscreen: true, contextIsolation: true, sandbox: false } });
+      win.webContents.on("paint", (e, dirty, image) => {
+        clearTimeout(timeout);
+        cleanup(image.isEmpty() ? null : image.toPNG());
+      });
+      win.webContents.setFrameRate(30);
+      win.loadFile(tmpPath);
+    });
+  } catch (e) {
+    console.error("renderBgPng error:", e.message);
+    return null;
+  }
+}
+
+// Genera strip.png 750×288px por empleado para pases storeCard.
+// Strip = color de fondo + logo empresa translúcido de watermark + nombre en 2 líneas + foto cuadrada redondeada.
+function _parseRgb(rgbStr) {
+  const m = (rgbStr || "").match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/);
+  return m ? [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])] : [26, 26, 26];
+}
+
+function _solidColorStrip(bgColor) {
+  try {
+    const { nativeImage } = require("electron");
+    const W = 750, H = 288;
+    const [r, g, b] = _parseRgb(bgColor);
+    const pixels = Buffer.alloc(W * H * 4);
+    for (let i = 0; i < W * H; i++) {
+      pixels[i * 4] = r; pixels[i * 4 + 1] = g; pixels[i * 4 + 2] = b; pixels[i * 4 + 3] = 255;
+    }
+    const img = nativeImage.createFromBuffer(pixels, { width: W, height: H });
+    const buf = img.toPNG();
+    return buf.length > 0 ? buf : null;
+  } catch (e) {
+    console.error("_solidColorStrip error:", e.message);
+    return null;
+  }
+}
+
+async function renderStripPng({ bgColor, logoDataUri, photoDataUri, empName, empLastName, empTitle, fgColor }) {
+  try {
+    const { BrowserWindow } = require("electron");
+    const os = require("os");
+    const W = 750, H = 288;
+
+    const photoEl = photoDataUri ? `<div class="photo"><img src="${photoDataUri}"></div>` : '';
+    const fg      = fgColor || 'rgb(255,255,255)';
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:${W}px;height:${H}px;overflow:hidden}
+.card{width:${W}px;height:${H}px;background:${bgColor.replace(/'/g,'"')};position:relative;display:flex;align-items:center;padding:26px 30px;gap:20px;overflow:hidden}
+.info{position:relative;flex:1;min-width:0;color:${fg}}
+.firstname{font-size:34px;font-weight:800;letter-spacing:-.6px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lastname{font-size:27px;font-weight:600;letter-spacing:-.4px;line-height:1.2;opacity:.88;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sep{width:32px;height:2px;background:currentColor;opacity:.22;border-radius:2px;margin:8px 0 6px}
+.jobtitle{font-size:16px;font-weight:500;letter-spacing:-.2px;opacity:.82;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.photo{position:relative;width:192px;height:226px;border-radius:16px;overflow:hidden;flex-shrink:0;box-shadow:0 6px 24px rgba(0,0,0,.4);border:2px solid rgba(255,255,255,.22)}
+.line-top{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.55) 30%,rgba(255,255,255,.55) 70%,transparent 100%)}
+.line-bottom{position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.22) 30%,rgba(255,255,255,.22) 70%,transparent 100%)}
+.photo img{width:100%;height:100%;object-fit:cover}
+</style></head><body>
+<div class="card">
+  <div class="line-top"></div>
+  <div class="info">
+    <div class="firstname">${empName || ''}</div>
+    <div class="lastname">${empLastName || ''}</div>
+    <div class="sep"></div>
+    ${empTitle ? `<div class="jobtitle">${empTitle}</div>` : ''}
+  </div>
+  ${photoEl}
+  <div class="line-bottom"></div>
+</div>
+</body></html>`;
+
+    const tmpPath = path.join(os.tmpdir(), `dclock-strip-${Date.now()}.html`);
+    fs.writeFileSync(tmpPath, html, "utf8");
+
+    return await new Promise((resolve) => {
+      let done = false;
+      const cleanup = (result) => {
+        if (done) return; done = true;
+        try { win.destroy(); } catch {}
+        try { fs.unlinkSync(tmpPath); } catch {}
+        resolve(result);
+      };
+      const timeout = setTimeout(() => cleanup(null), 12000);
+      const win = new BrowserWindow({ width: W, height: H, show: false,
+        webPreferences: { offscreen: true, contextIsolation: true, sandbox: false } });
+      win.webContents.once("did-finish-load", () => {
+        setTimeout(() => {
+          win.webContents.capturePage().then(image => {
+            clearTimeout(timeout);
+            const buf = image.isEmpty() ? null : image.toPNG();
+            console.log(`[Strip] capturePage: ${buf ? buf.length + " bytes" : "VACÍO"}`);
+            cleanup(buf);
+          }).catch(e => {
+            console.error("[Strip] capturePage error:", e.message);
+            clearTimeout(timeout); cleanup(null);
+          });
+        }, 500);
+      });
+      win.loadFile(tmpPath);
+    });
+  } catch (e) {
+    console.error("renderStripPng error:", e.message);
+    return null;
+  }
+}
+
 // ── Wallet config ────────────────────────────────────
 app.get("/api/wallet/config", auth, (req, res) => {
   const db = DB.getDb();
@@ -733,6 +924,64 @@ app.get("/api/wallet/display", (req, res) => {
   });
 });
 
+// ── QR preview for wallet credential ──────────────────
+app.get("/api/wallet-qr/:empId", auth, async (req, res) => {
+  try {
+    const QRCode = require("qrcode");
+    const db2 = DB.getDb();
+    const emp = db2.prepare("SELECT employee_number, id FROM employees WHERE id = ?").get(req.params.empId);
+    if (!emp) return res.status(404).json({ error: "Not found" });
+    const companyLogo = db2.prepare("SELECT value FROM config WHERE key='company_logo'").get()?.value || null;
+    const data = emp.employee_number || String(emp.id);
+
+    // Genera matriz QR con nivel H para soportar logo al centro
+    const qr = QRCode.create(data, { errorCorrectionLevel: "H" });
+    const size = qr.modules.size;
+    const mods = qr.modules.data;
+    const cell = 10;
+    const svgPx = size * cell;
+    const pad = 12;
+    const total = svgPx + pad * 2;
+
+    // Dots redondos para cada módulo oscuro
+    let dots = "";
+    const rnd = Math.round(cell * 0.32); // radio de esquinas ~30% del cell
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if (mods[r * size + c]) {
+          const x = pad + c * cell + 1;
+          const y = pad + r * cell + 1;
+          const w = cell - 2;
+          dots += `<rect x="${x}" y="${y}" width="${w}" height="${w}" rx="${rnd}" fill="white"/>`;
+        }
+      }
+    }
+
+    // Logo de empresa al centro (22% del area QR, nivel H soporta hasta 30%)
+    let logoEl = "";
+    if (companyLogo) {
+      const ls = Math.round(svgPx * 0.22);
+      const lx = pad + Math.round((svgPx - ls) / 2);
+      const ly = pad + Math.round((svgPx - ls) / 2);
+      const bg = ls + 8;
+      const bgx = lx - 4, bgy = ly - 4;
+      logoEl = `<rect x="${bgx}" y="${bgy}" width="${bg}" height="${bg}" rx="6" fill="#1c1c1e"/>
+<image x="${lx}" y="${ly}" width="${ls}" height="${ls}" href="${companyLogo}" preserveAspectRatio="xMidYMid meet"/>`;
+    }
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${total} ${total}" width="${total}" height="${total}">
+<rect width="${total}" height="${total}" rx="14" fill="#1c1c1e"/>
+${dots}
+${logoEl}
+</svg>`;
+
+    const dataUrl = `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+    res.json({ dataUrl });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── Generate Apple Wallet pass ─────────────────────────
 app.get("/api/employees/:id/pass.pkpass", async (req, res) => {
   try {
@@ -773,18 +1022,19 @@ app.get("/api/employees/:id/pass.pkpass", async (req, res) => {
 
     const fullName = `${emp.name}${emp.last_name ? " " + emp.last_name : ""}`;
 
-    // Load dynamic field config (saved by the designer UI)
-    let fieldsConfig = null;
-    const rawFC = get("wallet_fields_config");
-    if (rawFC) { try { fieldsConfig = JSON.parse(rawFC); } catch {} }
-    if (!fieldsConfig || !fieldsConfig.zones) {
-      fieldsConfig = { showPhoto: true, zones: {
-        primary:   [{ dataKey: "fullName",        label: "EMPLEADO" }],
-        secondary: [{ dataKey: "title",            label: "PUESTO" }, { dataKey: "area_name", label: "ÁREA" }],
-        auxiliary: [{ dataKey: "employee_number",  label: "NO. EMPLEADO" }],
-        back:      [{ dataKey: "companyName",      label: "EMPRESA" }, { dataKey: "email", label: "EMAIL" }, { dataKey: "phone", label: "TELÉFONO" }],
-      }};
-    }
+    // Layout fijo del storeCard — sin primaryFields (se encima al strip en Apple Wallet).
+    // Todo el texto va debajo del strip: secondary + auxiliary.
+    const fieldsConfig = { zones: {
+      primary:   [],
+      secondary: [{ dataKey: "area_name",       label: "ÁREA" },
+                  { dataKey: "dept",            label: "DEPTO." }],
+      auxiliary: [{ dataKey: "employee_number", label: "NO. EMPLEADO" }],
+      back:      [{ dataKey: "fullName",         label: "EMPLEADO" },
+                  { dataKey: "companyName",      label: "EMPRESA" },
+                  { dataKey: "gender",           label: "GÉNERO" },
+                  { dataKey: "email",            label: "EMAIL" },
+                  { dataKey: "phone",            label: "TELÉFONO" }],
+    }};
 
     function resolveField(dataKey) {
       const birthStr = emp.birth_date ? new Date(emp.birth_date).toLocaleDateString("es-MX") : "";
@@ -808,8 +1058,9 @@ app.get("/api/employees/:id/pass.pkpass", async (req, res) => {
 
     const toPassFields = (zoneFields) =>
       (zoneFields || [])
-        .map(f => ({ key: f.dataKey, label: f.label, value: resolveField(f.dataKey) }))
-        .filter(f => f.value !== "");
+        .map(f => ({ key: f.dataKey, label: f.label, value: resolveField(f.dataKey) || "—" }));
+
+    const barcodeMsg = emp.employee_number || String(emp.id);
 
     const passJson = {
       formatVersion: 1,
@@ -821,8 +1072,9 @@ app.get("/api/employees/:id/pass.pkpass", async (req, res) => {
       backgroundColor: bgColor,
       foregroundColor: fgColor,
       labelColor: lblColor,
-      generic: {
-        primaryFields:   toPassFields(fieldsConfig.zones.primary),
+      suppressStripShine: true,
+      barcodes: [{ message: barcodeMsg, format: "PKBarcodeFormatQR", messageEncoding: "iso-8859-1" }],
+      storeCard: {
         secondaryFields: toPassFields(fieldsConfig.zones.secondary),
         auxiliaryFields: toPassFields(fieldsConfig.zones.auxiliary),
         backFields:      toPassFields(fieldsConfig.zones.back),
@@ -835,26 +1087,66 @@ app.get("/api/employees/:id/pass.pkpass", async (req, res) => {
       return Buffer.from(b64, "base64");
     }
 
+    // Apple Wallet requires images to be actual PNG — JPEG bytes named .png are silently ignored.
+    // Use Electron's nativeImage to decode any format (JPEG/PNG/WebP) and re-encode as PNG.
+    function toPngBuffer(buffer) {
+      try {
+        const { nativeImage } = require("electron");
+        const ni = nativeImage.createFromBuffer(buffer);
+        if (ni.isEmpty()) return buffer;
+        return ni.toPNG();
+      } catch {
+        return buffer;
+      }
+    }
+
     const iconPath = path.join(__dirname, "..", "assets", "icon.png");
     const iconBuf  = fs.existsSync(iconPath) ? fs.readFileSync(iconPath) : null;
 
     const files = { "pass.json": Buffer.from(JSON.stringify(passJson)) };
     if (iconBuf) { files["icon.png"] = iconBuf; files["icon@2x.png"] = iconBuf; }
 
-    if (emp.photo && fieldsConfig.showPhoto !== false) {
-      const pb = b64ToBuffer(emp.photo);
-      if (pb) { files["thumbnail.png"] = pb; files["thumbnail@2x.png"] = pb; }
-    }
+    // Logo para el pase (logo bar top-left)
     if (companyLogo) {
       const lb = b64ToBuffer(companyLogo);
-      if (lb) { files["logo.png"] = lb; files["logo@2x.png"] = lb; }
+      if (lb) { const png = toPngBuffer(lb); files["logo.png"] = png; files["logo@2x.png"] = png; }
     }
-    // Include custom background image if user uploaded one
-    const bgType  = get("wallet_bg_type")  || "preset";
-    const bgImage = get("wallet_bg_image") || null;
+
+    // Strip.png — imagen diseñada por empleado (fondo+patrón+foto+info)
+    const bgType         = get("wallet_bg_type")         || "preset";
+    const bgPreset       = get("wallet_bg_preset")       || "none";
+    const bgImage        = get("wallet_bg_image")        || null;
+    const overlayColor   = get("wallet_overlay_color")   || "#000000";
+    const overlayOpacity = get("wallet_overlay_opacity") || "0";
+
+    const pattern = BG_PRESETS_SERVER[bgPreset] || "";
+    let bgCss;
     if (bgType === "image" && bgImage) {
-      const bb = b64ToBuffer(bgImage);
-      if (bb) { files["background.png"] = bb; files["background@2x.png"] = bb; }
+      bgCss = bgColor; // fondo sólido si el usuario eligió imagen (la imagen no aplica en strip)
+    } else {
+      bgCss = pattern ? `${pattern},${bgColor}` : bgColor;
+    }
+
+    const photoDataUri = emp.photo || null;
+
+    const stripBuf = await renderStripPng({
+      bgColor,
+      logoDataUri:  companyLogo || null,
+      photoDataUri,
+      empName:      emp.name      || '',
+      empLastName:  emp.last_name || '',
+      empTitle:     emp.title     || '',
+      fgColor,
+    });
+
+    if (stripBuf) {
+      console.log(`[Pass] Strip HTML OK: ${stripBuf.length} bytes`);
+      files["strip.png"]    = stripBuf;
+      files["strip@2x.png"] = stripBuf;
+    } else {
+      console.warn("[Pass] Strip HTML falló — usando fallback color sólido");
+      const fb = _solidColorStrip(bgColor);
+      if (fb) { files["strip.png"] = fb; files["strip@2x.png"] = fb; }
     }
 
     const pass   = new PKPass(files, { wwdr: wwdrPem, signerCert: certPem, signerKey: keyPem });
@@ -869,6 +1161,189 @@ app.get("/api/employees/:id/pass.pkpass", async (req, res) => {
     console.error("Pass generation error:", e.message);
     res.status(500).json({ error: e.message });
   }
+});
+
+// ── Equipos ───────────────────────────────────────────
+
+const TEAM_SELECT = `
+  SELECT t.id, t.name, t.description, t.created_at,
+         t.admin_id,
+         e.name AS admin_name, e.last_name AS admin_last_name,
+         COUNT(DISTINCT tm.employee_id) AS member_count
+  FROM teams t
+  LEFT JOIN employees e ON e.id = t.admin_id
+  LEFT JOIN team_members tm ON tm.team_id = t.id
+  GROUP BY t.id ORDER BY t.name
+`;
+
+function teamTodayStats(db2, teamId) {
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
+  // "presente" = último check-in del día es tipo "entrada"
+  const present = db2.prepare(`
+    SELECT COUNT(*) AS cnt FROM (
+      SELECT ci.employee_id, ci.type
+      FROM check_ins ci
+      JOIN team_members tm ON tm.employee_id = ci.employee_id
+      WHERE tm.team_id = ? AND date(ci.timestamp,'localtime') = ?
+      GROUP BY ci.employee_id
+      HAVING ci.type = (SELECT type FROM check_ins WHERE employee_id = ci.employee_id
+                        AND date(timestamp,'localtime') = ? ORDER BY timestamp DESC LIMIT 1)
+      AND ci.type = 'entrada'
+    )
+  `).get(teamId, today, today);
+  return present?.cnt || 0;
+}
+
+// GET /api/teams — lista todos los equipos con stats
+app.get("/api/teams", auth, (req, res) => {
+  const db2 = DB.getDb();
+  const teams = db2.prepare(TEAM_SELECT).all();
+  const result = teams.map(t => ({ ...t, present_today: teamTodayStats(db2, t.id) }));
+  res.json(result);
+});
+
+// POST /api/teams — crear equipo
+app.post("/api/teams", auth, (req, res) => {
+  const { name, description, admin_id } = req.body;
+  if (!name?.trim()) return res.status(400).json({ error: "El nombre es requerido" });
+  const db2 = DB.getDb();
+  try {
+    const info = db2.prepare(
+      "INSERT INTO teams (name, description, admin_id) VALUES (?,?,?)"
+    ).run(name.trim(), description?.trim() || null, admin_id || null);
+    const team = db2.prepare(TEAM_SELECT + " HAVING t.id = ?").get(info.lastInsertRowid) ||
+                 db2.prepare("SELECT * FROM teams WHERE id=?").get(info.lastInsertRowid);
+    res.json(team);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// GET /api/teams/:id — detalle del equipo con miembros y status de hoy
+app.get("/api/teams/:id", auth, (req, res) => {
+  const db2 = DB.getDb();
+  const team = db2.prepare(`
+    SELECT t.id, t.name, t.description, t.created_at, t.admin_id,
+           e.name AS admin_name, e.last_name AS admin_last_name
+    FROM teams t LEFT JOIN employees e ON e.id = t.admin_id
+    WHERE t.id = ?
+  `).get(req.params.id);
+  if (!team) return res.status(404).json({ error: "Equipo no encontrado" });
+
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
+  const members = db2.prepare(`
+    SELECT e.id, e.employee_number, e.name, e.last_name, e.photo,
+           d.name AS department, a.name AS area, j.name AS job_title,
+           (SELECT type FROM check_ins
+            WHERE employee_id = e.id AND date(timestamp,'localtime') = ?
+            ORDER BY timestamp DESC LIMIT 1) AS last_type,
+           (SELECT timestamp FROM check_ins
+            WHERE employee_id = e.id AND date(timestamp,'localtime') = ?
+            ORDER BY timestamp DESC LIMIT 1) AS last_time
+    FROM team_members tm
+    JOIN employees e ON e.id = tm.employee_id
+    LEFT JOIN departments d ON d.id = e.department_id
+    LEFT JOIN areas       a ON a.id = e.area_id
+    LEFT JOIN job_titles  j ON j.id = e.job_title_id
+    WHERE tm.team_id = ?
+    ORDER BY e.name, e.last_name
+  `).all(today, today, req.params.id);
+
+  res.json({ ...team, members });
+});
+
+// PUT /api/teams/:id — actualizar equipo
+app.put("/api/teams/:id", auth, (req, res) => {
+  const { name, description, admin_id } = req.body;
+  if (!name?.trim()) return res.status(400).json({ error: "El nombre es requerido" });
+  const db2 = DB.getDb();
+  db2.prepare("UPDATE teams SET name=?, description=?, admin_id=? WHERE id=?")
+     .run(name.trim(), description?.trim() || null, admin_id || null, req.params.id);
+  res.json({ ok: true });
+});
+
+// DELETE /api/teams/:id — eliminar equipo
+app.delete("/api/teams/:id", auth, (req, res) => {
+  DB.getDb().prepare("DELETE FROM teams WHERE id=?").run(req.params.id);
+  res.json({ ok: true });
+});
+
+// POST /api/teams/:id/members — agregar miembro
+app.post("/api/teams/:id/members", auth, (req, res) => {
+  const { employee_id } = req.body;
+  if (!employee_id) return res.status(400).json({ error: "employee_id requerido" });
+  try {
+    DB.getDb().prepare("INSERT OR IGNORE INTO team_members (team_id, employee_id) VALUES (?,?)")
+      .run(req.params.id, employee_id);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// DELETE /api/teams/:id/members/:empId — quitar miembro
+app.delete("/api/teams/:id/members/:empId", auth, (req, res) => {
+  DB.getDb().prepare("DELETE FROM team_members WHERE team_id=? AND employee_id=?")
+    .run(req.params.id, req.params.empId);
+  res.json({ ok: true });
+});
+
+// GET /api/mobile/my-team — equipo(s) donde el empleado es admin (para app móvil)
+app.get("/api/mobile/my-team", (req, res) => {
+  const { employee_id } = req.query;
+  if (!employee_id) return res.status(400).json({ error: "employee_id requerido" });
+  const db2 = DB.getDb();
+
+  // Busca el equipo donde este empleado es admin
+  const team = db2.prepare("SELECT id, name, description FROM teams WHERE admin_id=? LIMIT 1").get(employee_id);
+  if (!team) return res.json(null);
+
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
+  const members = db2.prepare(`
+    SELECT e.id, e.employee_number, e.name, e.last_name, e.photo,
+           j.name AS job_title,
+           (SELECT type FROM check_ins
+            WHERE employee_id = e.id AND date(timestamp,'localtime') = ?
+            ORDER BY timestamp DESC LIMIT 1) AS last_type,
+           (SELECT timestamp FROM check_ins
+            WHERE employee_id = e.id AND date(timestamp,'localtime') = ?
+            ORDER BY timestamp DESC LIMIT 1) AS last_time
+    FROM team_members tm
+    JOIN employees e ON e.id = tm.employee_id
+    LEFT JOIN job_titles j ON j.id = e.job_title_id
+    WHERE tm.team_id = ?
+    ORDER BY e.name, e.last_name
+  `).all(today, today, team.id);
+
+  res.json({ ...team, members, date: today });
+});
+
+// GET /api/mobile/my-team/history — historial del equipo por fecha
+app.get("/api/mobile/my-team/history", (req, res) => {
+  const { employee_id, date } = req.query;
+  if (!employee_id || !date) return res.status(400).json({ error: "Parámetros requeridos" });
+  const db2 = DB.getDb();
+
+  const team = db2.prepare("SELECT id, name FROM teams WHERE admin_id=? LIMIT 1").get(employee_id);
+  if (!team) return res.json(null);
+
+  const members = db2.prepare(`
+    SELECT e.id, e.employee_number, e.name, e.last_name, e.photo,
+           j.name AS job_title,
+           (SELECT type FROM check_ins
+            WHERE employee_id = e.id AND date(timestamp,'localtime') = ?
+            ORDER BY timestamp DESC LIMIT 1) AS last_type,
+           (SELECT timestamp FROM check_ins
+            WHERE employee_id = e.id AND date(timestamp,'localtime') = ?
+            ORDER BY timestamp DESC LIMIT 1) AS last_time
+    FROM team_members tm
+    JOIN employees e ON e.id = tm.employee_id
+    LEFT JOIN job_titles j ON j.id = e.job_title_id
+    WHERE tm.team_id = ?
+    ORDER BY e.name, e.last_name
+  `).all(date, date, team.id);
+
+  res.json({ ...team, members, date });
 });
 
 // ── Server lifecycle ──────────────────────────────────

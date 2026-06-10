@@ -136,15 +136,25 @@ html,body{height:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
 .ml-auto{margin-left:auto}
 
 /* WALLET CREDENTIAL DESIGNER */
-.wallet-designer{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start}
-.wallet-preview-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;position:sticky;top:0}
+.wallet-designer{display:grid;grid-template-columns:1fr 360px;gap:28px;align-items:start}
+.wallet-preview-wrap{display:flex;flex-direction:column;align-items:stretch;gap:12px;position:sticky;top:0}
+/* Preview panel (dark backdrop) */
+.wallet-preview-panel{background:linear-gradient(160deg,#0f0f0f 0%,#181818 50%,#111 100%);border-radius:20px;padding:28px 20px 22px;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),0 8px 40px rgba(0,0,0,.35)}
+.wallet-preview-panel::before{content:'';position:absolute;width:280px;height:180px;background:radial-gradient(circle,rgba(255,255,255,.05) 0,transparent 70%);top:-50px;left:50%;transform:translateX(-50%);pointer-events:none}
+.wallet-preview-label{font-size:10px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.28);text-transform:uppercase;margin-bottom:14px;align-self:flex-start}
+.wallet-preview-hint{font-size:11px;color:rgba(255,255,255,.22);text-align:center;margin-top:14px;line-height:1.5}
+/* Card structure */
 .wallet-card{width:320px;border-radius:18px;padding:22px 22px 28px;box-shadow:0 12px 48px rgba(0,0,0,.35),0 2px 8px rgba(0,0,0,.2);position:relative;overflow:hidden;transition:background .3s}
-.wallet-card-stripe{position:absolute;top:0;left:0;right:0;height:5px;background:rgba(255,255,255,.12);border-radius:18px 18px 0 0}
-.wallet-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.wallet-bg-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;display:none;border-radius:inherit}
+.wallet-overlay{position:absolute;inset:0;border-radius:18px;pointer-events:none;transition:opacity .25s,background .25s;z-index:1}
+.wallet-card-body{position:relative;z-index:2}
+.wallet-card-stripe{position:absolute;top:0;left:0;right:0;height:5px;background:rgba(255,255,255,.12);border-radius:18px 18px 0 0;z-index:3}
+.wallet-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.wallet-header-divider{height:2px;border-radius:2px;margin:0 0 14px;transition:background .3s}
 .wallet-logo-box{display:flex;align-items:center;gap:8px}
 .wallet-logo-img{width:32px;height:32px;border-radius:8px;object-fit:cover;background:rgba(255,255,255,.15)}
 .wallet-logo-name{font-size:11px;font-weight:800;letter-spacing:1.2px;opacity:.8}
-.wallet-photo{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden}
+.wallet-photo{width:52px;height:64px;border-radius:10px;object-fit:cover;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden}
 .wallet-primary-label{font-size:9px;font-weight:700;letter-spacing:1.4px;opacity:.65;margin-bottom:3px}
 .wallet-primary-value{font-size:17px;font-weight:800;letter-spacing:-.2px;line-height:1.2;margin-bottom:14px}
 .wallet-fields-row{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap}
@@ -195,21 +205,30 @@ html,body{height:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
 .bg-tabs{display:flex;gap:3px;background:var(--bg);border-radius:10px;padding:3px;margin-bottom:12px}
 .bg-tab{flex:1;padding:6px 4px;font-size:11px;font-weight:700;border:none;background:none;border-radius:7px;cursor:pointer;color:var(--muted);transition:all .15s;white-space:nowrap}
 .bg-tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.12)}
-.preset-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.preset-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
 .preset-item{display:flex;flex-direction:column;gap:4px;cursor:pointer}
-.preset-swatch{height:46px;border-radius:9px;border:2.5px solid transparent;transition:all .15s;position:relative;overflow:hidden}
-.preset-swatch:hover{transform:scale(1.05);border-color:rgba(255,255,255,.3)}
+.preset-swatch{height:54px;border-radius:9px;border:2.5px solid transparent;transition:all .15s;position:relative;overflow:hidden}
+.preset-swatch:hover{transform:scale(1.04);border-color:rgba(128,128,128,.5)}
 .preset-swatch.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-.preset-swatch.active::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:800;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+.preset-swatch.active::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,.8)}
 .preset-name{font-size:9px;font-weight:700;letter-spacing:.3px;color:var(--muted);text-align:center;text-transform:uppercase}
 .bg-upload-area{border:1.5px dashed var(--border2);border-radius:10px;padding:18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:border .15s}
 .bg-upload-area:hover{border-color:var(--accent)}
 .bg-upload-preview{width:100%;height:80px;border-radius:8px;object-fit:cover;display:none;margin-bottom:4px}
-.wallet-overlay{position:absolute;inset:0;border-radius:18px;pointer-events:none;transition:opacity .25s,background .25s}
 .overlay-slider{display:flex;align-items:center;gap:8px;margin-top:6px}
 .overlay-slider input[type=range]{flex:1;accent-color:var(--accent);height:4px;cursor:pointer}
 .overlay-slider span{font-size:12px;font-family:monospace;color:var(--muted);width:32px;text-align:right;flex-shrink:0}
 .section-micro{font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;margin-top:14px}
+/* IMPROVED COLOR PICKERS */
+.cpick-preview{border-radius:11px;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.18),inset 0 0 0 1.5px rgba(255,255,255,.08),inset 0 0 0 1.5px rgba(0,0,0,.12);transition:box-shadow .15s,transform .15s}
+.cpick-preview:hover{box-shadow:0 4px 16px rgba(0,0,0,.28),inset 0 0 0 1.5px rgba(255,255,255,.1);transform:scale(1.02)}
+.cpick-preview input[type=color]{position:absolute;inset:-8px;opacity:0;width:calc(100%+16px);height:calc(100%+16px);cursor:pointer;border:none;padding:0}
+.cpick-hex{font-size:12.5px;font-family:monospace;padding:8px 11px;border:1.5px solid var(--border2);border-radius:9px;background:var(--bg);color:var(--text);outline:none;width:100%;transition:border .15s,box-shadow .15s;letter-spacing:.3px;box-sizing:border-box}
+.cpick-hex:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.cpick-swatches{display:flex;gap:5px;flex-wrap:wrap}
+.cpick-swatch{width:20px;height:20px;border-radius:50%;cursor:pointer;transition:transform .15s,box-shadow .15s;border:2px solid rgba(255,255,255,.12);flex-shrink:0}
+.cpick-swatch:hover{transform:scale(1.3);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.cpick-swatch.active{border-color:var(--accent)!important;box-shadow:0 0 0 2px rgba(37,99,235,.35)}
 
 /* RECORD CARDS */
 .rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px;padding:20px}
@@ -403,7 +422,26 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .photo-ring:hover .photo-ring-overlay{background:rgba(0,0,0,.28)}
 .photo-ring-overlay svg{opacity:0;transition:opacity .15s;color:#fff}
 .photo-ring:hover .photo-ring-overlay svg{opacity:1}
-</style>
+
+    /* ── Equipos ──────────────────────────────────────── */
+    .teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;align-content:start}
+    .team-card{background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:18px;cursor:pointer;transition:box-shadow .15s,border-color .15s}
+    .team-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08);border-color:var(--accent)}
+    .team-card-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    .team-icon{width:38px;height:38px;border-radius:10px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0}
+    .team-name{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.2px}
+    .team-admin{font-size:12px;color:var(--muted);margin-top:1px}
+    .team-desc{font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.4}
+    .team-stats{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600}
+    .team-bar-bg{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+    .team-bar-fill{height:100%;border-radius:3px;transition:width .3s}
+    .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.4px}
+    .badge-green{background:#dcfce7;color:#16a34a}
+    .badge-yellow{background:#fef9c3;color:#92400e}
+    .badge-gray{background:var(--border);color:var(--muted)}
+    .add-member-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;cursor:pointer;transition:background .12s}
+    .add-member-row:hover{background:var(--accent-bg)}
+  </style>
 </head>
 <body>
 
@@ -488,6 +526,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         <div class="nav-item" onclick="goto('empleados',this)">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.85"/></svg>
           Empleados
+        </div>
+        <div class="nav-item" onclick="goto('equipos',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Equipos
         </div>
         <div class="nav-item" onclick="goto('departamentos',this)">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -713,6 +755,62 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           </div>
         </div>
 
+        <!-- EQUIPOS -->
+        <div class="section" id="sec-equipos">
+          <!-- Vista grid -->
+          <div id="teams-grid-view">
+            <div class="toolbar" style="margin-bottom:14px">
+              <input class="search-inp" type="text" id="team-search" placeholder="Buscar equipo o responsable..." oninput="renderTeams()" style="flex:1;max-width:280px">
+              <div style="flex:1"></div>
+              <button class="btn btn-primary btn-sm" onclick="openTeamModal()">
+                <svg width="14" height="14" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Nuevo equipo
+              </button>
+            </div>
+            <div id="teams-grid" class="teams-grid"></div>
+          </div>
+          <!-- Vista detalle -->
+          <div id="team-detail-view" style="display:none">
+            <div class="toolbar" style="margin-bottom:16px">
+              <button class="btn btn-ghost btn-sm" onclick="backToTeams()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                Volver a equipos
+              </button>
+              <div style="flex:1"></div>
+              <button class="btn btn-ghost btn-sm" onclick="openAddMemberModal()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Agregar miembro
+              </button>
+              <button class="btn btn-ghost btn-sm" onclick="openTeamModal(allTeams.find(t=>t.id===currentTeamId))">Editar equipo</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteTeam(currentTeamId)">Eliminar</button>
+            </div>
+            <div style="margin-bottom:20px">
+              <h2 id="td-name" style="font-size:22px;font-weight:800;letter-spacing:-.4px;margin-bottom:3px"></h2>
+              <p id="td-admin" style="font-size:13px;color:var(--muted)"></p>
+            </div>
+            <div style="display:flex;gap:12px;margin-bottom:20px">
+              <div class="card" style="flex:1;padding:16px;text-align:center">
+                <div id="td-stat-total" style="font-size:28px;font-weight:800;color:var(--text)">0</div>
+                <div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.5px;margin-top:2px">MIEMBROS</div>
+              </div>
+              <div class="card" style="flex:1;padding:16px;text-align:center">
+                <div id="td-stat-present" style="font-size:28px;font-weight:800;color:#22c55e">0</div>
+                <div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.5px;margin-top:2px">PRESENTES HOY</div>
+              </div>
+              <div class="card" style="flex:1;padding:16px;text-align:center">
+                <div id="td-stat-absent" style="font-size:28px;font-weight:800;color:#ef4444">0</div>
+                <div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.5px;margin-top:2px">AUSENTES HOY</div>
+              </div>
+            </div>
+            <div class="card" style="overflow:hidden">
+              <div class="tbl-wrap">
+                <table><thead><tr><th>Empleado</th><th>Estado hoy</th><th>Última fichada</th><th></th></tr></thead>
+                <tbody id="td-members-tbody"></tbody></table>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- DEPARTAMENTOS -->
         <div class="section" id="sec-departamentos">
           <div class="toolbar">
@@ -834,47 +932,120 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
         <!-- CREDENCIAL -->
         <div class="section" id="sec-credencial" style="overflow-y:auto">
-          <div class="wallet-designer">
 
-            <!-- Columna izquierda: configuración -->
-            <div style="display:flex;flex-direction:column;gap:16px">
-
-              <!-- Estado certificados (compacto) -->
-              <div id="wallet-certs-status" style="display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;background:#f0fdf4;border:1px solid #16a34a44">
-                <div id="wallet-certs-dot" style="width:7px;height:7px;border-radius:50%;background:#16a34a;flex-shrink:0"></div>
-                <span id="wallet-certs-label" style="font-size:12px;font-weight:600;color:#16a34a">Certificados activos</span>
-                <span style="font-size:11px;color:var(--muted);margin-left:auto">D99-TECH · Railway</span>
+          <!-- Section header -->
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:14px">
+              <div style="width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,#1a1a1a 0%,#374151 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(0,0,0,.22)">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h2m5 0h3"/></svg>
               </div>
+              <div>
+                <h2 style="font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.3px;margin:0 0 3px">Credencial Digital</h2>
+                <p style="font-size:13px;color:var(--muted);margin:0">Diseña la credencial Apple Wallet que tus empleados llevarán en el iPhone</p>
+              </div>
+            </div>
+            <div id="wallet-certs-status" style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;background:#f0fdf4;border:1px solid rgba(22,163,74,.25);flex-shrink:0">
+              <div id="wallet-certs-dot" style="width:7px;height:7px;border-radius:50%;background:#16a34a;flex-shrink:0"></div>
+              <span id="wallet-certs-label" style="font-size:12px;font-weight:700;color:#16a34a">Certificados activos</span>
+            </div>
+          </div>
 
-              <!-- Fondo y apariencia -->
-              <div class="card">
-                <div class="card-header"><div class="card-title">Fondo y apariencia</div></div>
+          <!-- === VISTA PREVIA SIMPLIFICADA (editor removido, formato fijo) === -->
+          <div style="max-width:440px;margin:0 auto;display:flex;flex-direction:column;gap:20px">
+
+            <!-- Selector de empleado -->
+            <div>
+              <label style="font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:6px">Previsualizar con empleado</label>
+              <select class="inp" id="w-test-emp" style="width:100%" onchange="_refreshNewPreview()"></select>
+            </div>
+
+            <!-- Panel de vista previa -->
+            <div class="wallet-preview-panel">
+              <span class="wallet-preview-label">Vista previa — Apple Wallet</span>
+
+              <!-- Mock storeCard -->
+              <div class="wallet-card" id="wallet-card-preview" style="padding:0;overflow:hidden;width:300px">
+
+                <!-- Logo bar nativo -->
+                <div style="display:flex;align-items:center;gap:8px;padding:10px 14px 8px">
+                  <img id="wc-logo" style="height:22px;object-fit:contain;display:none" src="" alt="">
+                </div>
+
+                <!-- Strip: fondo + watermark logo + nombre + foto -->
+                <div id="wc-strip" style="position:relative;height:130px;background:#1a1a1a;overflow:hidden;display:flex;align-items:center;padding:14px;gap:14px;border-top:1px solid rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.18)">
+                  <div style="position:relative;flex:1;min-width:0;color:#fff">
+                    <div id="wc-strip-fn" style="font-size:15px;font-weight:800;letter-spacing:-.3px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Juan</div>
+                    <div id="wc-strip-ln" style="font-size:12px;font-weight:600;opacity:.85;line-height:1.2;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Pérez García</div>
+                    <div style="width:16px;height:1.5px;background:currentColor;opacity:.2;border-radius:1px;margin-top:6px;margin-bottom:5px"></div>
+                    <div id="wc-strip-title" style="font-size:10px;font-weight:500;opacity:.82;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+                  </div>
+                  <div id="wc-strip-photo" style="width:76px;height:90px;border-radius:8px;overflow:hidden;flex-shrink:0;border:1.5px solid rgba(255,255,255,.2);background:#333;display:flex;align-items:center;justify-content:center;font-size:20px">👤</div>
+                </div>
+
+                <!-- Campos nativos (puesto, área, no. empleado) -->
+                <div style="padding:10px 14px 6px;background:#111">
+                  <div class="wallet-fields-row" id="wc-secondary" style="margin-bottom:6px"></div>
+                  <div class="wallet-aux-row" id="wc-auxiliary" style="display:none;border-top-color:rgba(255,255,255,.1);margin-top:6px;padding-top:8px"></div>
+                </div>
+
+                <!-- QR -->
+                <div style="padding:10px 14px 14px;background:#111;display:flex;justify-content:center">
+                  <div style="display:inline-flex;flex-direction:column;align-items:center;gap:5px">
+                    <img id="wc-qr-img" width="100" height="100" style="display:block;opacity:0;border-radius:10px" src="" alt="QR">
+                    <span style="font-size:8px;letter-spacing:.8px;color:rgba(255,255,255,.3);font-weight:600">SCAN</span>
+                  </div>
+                </div>
+              </div>
+              <p class="wallet-preview-hint">Selecciona un empleado para ver su credencial real</p>
+            </div>
+
+            <!-- Estado certificados -->
+            <div id="wallet-certs-status" style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;background:#f0fdf4;border:1px solid rgba(22,163,74,.25);align-self:center">
+              <div id="wallet-certs-dot" style="width:7px;height:7px;border-radius:50%;background:#16a34a;flex-shrink:0"></div>
+              <span id="wallet-certs-label" style="font-size:12px;font-weight:700;color:#16a34a">Certificados activos</span>
+            </div>
+
+            <!-- Descargar pass -->
+            <button class="btn btn-ghost" onclick="testWalletPass()" style="font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Descargar credencial Apple Wallet
+            </button>
+
+          </div>
+
+          <!-- EDITOR REMOVIDO — campos ocultos requeridos por JS legacy -->
+          <div style="display:none">
+            <div class="card"><div class="card-header"><div class="card-title">hidden</div></div>
                 <div class="card-body">
 
-                  <p class="section-micro" style="margin-top:0">FONDO</p>
-                  <div class="bg-tabs">
-                    <button class="bg-tab active" id="bgtab-preset" onclick="setBgTab('preset')">Plantillas</button>
-                    <button class="bg-tab" id="bgtab-solid" onclick="setBgTab('solid')">Color sólido</button>
-                    <button class="bg-tab" id="bgtab-image" onclick="setBgTab('image')">Imagen</button>
+                  <!-- Color base (siempre visible) -->
+                  <p class="section-micro" style="margin-top:0">COLOR DE FONDO</p>
+                  <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:16px">
+                    <div class="cpick-preview" id="cpick-bg-prev" style="background:#1a1a1a;width:52px;height:52px;flex-shrink:0">
+                      <input type="color" id="w-bg-color" value="#1a1a1a" oninput="onBgColorChange()">
+                    </div>
+                    <div style="flex:1;display:flex;flex-direction:column;gap:7px">
+                      <input class="cpick-hex" id="w-bg-hex" type="text" value="#1a1a1a" maxlength="7" placeholder="#1a1a1a" oninput="onBgHexInput()">
+                      <div class="cpick-swatches" id="bg-quick-swatches"></div>
+                    </div>
                   </div>
 
-                  <!-- Preset grid -->
+                  <!-- Textura -->
+                  <p class="section-micro">TEXTURA</p>
+                  <div class="bg-tabs">
+                    <button class="bg-tab active" id="bgtab-preset" onclick="setBgTab('preset')">Texturas</button>
+                    <button class="bg-tab" id="bgtab-solid" onclick="setBgTab('solid')">Sin textura</button>
+                    <button class="bg-tab" id="bgtab-image" onclick="setBgTab('image')">Imagen de fondo</button>
+                  </div>
+
                   <div id="bg-preset-wrap">
                     <div class="preset-grid" id="bg-preset-grid"></div>
                   </div>
 
-                  <!-- Solid color -->
                   <div id="bg-solid-wrap" style="display:none">
-                    <div class="color-row" style="margin-bottom:0">
-                      <label>Color de fondo</label>
-                      <div class="color-picker-wrap">
-                        <input type="color" id="w-bg-color" value="#1a1a1a" oninput="onSolidBgChange()">
-                        <span class="color-hex" id="w-bg-hex">#1a1a1a</span>
-                      </div>
-                    </div>
+                    <p style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0 4px">Sin textura — se usa solo el color base</p>
                   </div>
 
-                  <!-- Image upload -->
                   <div id="bg-image-wrap" style="display:none">
                     <div class="bg-upload-area" onclick="document.getElementById('bg-img-inp').click()">
                       <img id="bg-img-preview" class="bg-upload-preview" src="" alt="">
@@ -887,35 +1058,39 @@ input[type=range]{width:100%;accent-color:var(--accent)}
                   </div>
 
                   <!-- Overlay -->
-                  <p class="section-micro">CAPA DE COLOR (OVERLAY)</p>
-                  <div class="color-row" style="margin-bottom:6px">
-                    <label>Color de capa</label>
-                    <div class="color-picker-wrap">
-                      <input type="color" id="w-overlay-color" value="#000000" oninput="updateWalletPreview()">
-                      <span class="color-hex" id="w-overlay-hex">#000000</span>
+                  <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+                    <p class="section-micro" style="margin-top:0">OSCURECER / ACLARAR</p>
+                    <div style="display:flex;gap:10px;align-items:flex-start">
+                      <div class="cpick-preview" id="cpick-ov-prev" style="background:#000000;width:52px;height:52px;flex-shrink:0">
+                        <input type="color" id="w-overlay-color" value="#000000" oninput="onOverlayColorChange()">
+                      </div>
+                      <div style="flex:1;display:flex;flex-direction:column;gap:7px">
+                        <input class="cpick-hex" id="w-overlay-hex" type="text" value="#000000" maxlength="7" oninput="onOverlayHexInput()">
+                        <div class="overlay-slider" style="margin-top:0">
+                          <input type="range" id="w-overlay-opacity" min="0" max="90" value="0" oninput="updateWalletPreview()">
+                          <span id="w-overlay-pct">0%</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div class="overlay-slider">
-                    <label style="font-size:12px;font-weight:600;color:var(--text2);width:130px;flex-shrink:0">Opacidad</label>
-                    <input type="range" id="w-overlay-opacity" min="0" max="90" value="0" oninput="updateWalletPreview()">
-                    <span id="w-overlay-pct">0%</span>
                   </div>
 
                   <!-- Text colors -->
-                  <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+                  <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
                     <p class="section-micro" style="margin-top:0">COLORES DE TEXTO</p>
-                    <div class="color-row">
-                      <label>Texto principal</label>
-                      <div class="color-picker-wrap">
-                        <input type="color" id="w-fg-color" value="#ffffff" oninput="updateWalletPreview()">
-                        <span class="color-hex" id="w-fg-hex">#ffffff</span>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                      <div>
+                        <div style="font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-bottom:7px">Texto</div>
+                        <div class="cpick-preview" id="cpick-fg-prev" style="background:#ffffff;margin-bottom:7px;height:44px">
+                          <input type="color" id="w-fg-color" value="#ffffff" oninput="onFgColorChange()">
+                        </div>
+                        <input class="cpick-hex" id="w-fg-hex" type="text" value="#ffffff" maxlength="7" oninput="onFgHexInput()">
                       </div>
-                    </div>
-                    <div class="color-row" style="margin-bottom:0">
-                      <label>Etiquetas</label>
-                      <div class="color-picker-wrap">
-                        <input type="color" id="w-label-color" value="#aaaaaa" oninput="updateWalletPreview()">
-                        <span class="color-hex" id="w-label-hex">#aaaaaa</span>
+                      <div>
+                        <div style="font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-bottom:7px">Etiquetas</div>
+                        <div class="cpick-preview" id="cpick-lb-prev" style="background:#aaaaaa;margin-bottom:7px;height:44px">
+                          <input type="color" id="w-label-color" value="#aaaaaa" oninput="onLabelColorChange()">
+                        </div>
+                        <input class="cpick-hex" id="w-label-hex" type="text" value="#aaaaaa" maxlength="7" oninput="onLabelHexInput()">
                       </div>
                     </div>
                   </div>
@@ -924,60 +1099,27 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
               <!-- Campos designer -->
               <div class="card">
-                <div class="card-header">
+                <div class="card-header" style="align-items:flex-start">
                   <div>
                     <div class="card-title">Campos de la credencial</div>
                     <div class="card-sub">Arrastra campos a cada zona · Clic en etiqueta para editar · × para quitar</div>
                   </div>
-                </div>
-                <div class="card-body">
-                  <div class="wallet-toggle-row">
-                    <label>Mostrar foto del empleado</label>
-                    <label class="toggle-sw" style="flex-shrink:0">
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;margin-left:12px">
+                    <label class="toggle-sw">
                       <input type="checkbox" id="w-show-photo" checked onchange="updateWalletPreview()">
                       <span class="toggle-slider"></span>
                     </label>
+                    <span style="font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase">Foto</span>
                   </div>
+                </div>
+                <div class="card-body">
                   <p style="font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Campos disponibles — arrastra a la zona deseada</p>
                   <div class="field-palette" id="wf-palette"></div>
                   <div id="wf-zones"></div>
                 </div>
               </div>
 
-              <div style="display:flex;gap:10px">
-                <button class="btn btn-primary" style="flex:1" onclick="saveWalletConfig()">Guardar diseño</button>
-                <button class="btn btn-ghost" onclick="testWalletPass()">Descargar pass de prueba</button>
-              </div>
               <div id="wallet-msg" style="display:none;font-size:13px;padding:9px 12px;border-radius:8px"></div>
-            </div>
-
-            <!-- Columna derecha: preview -->
-            <div class="wallet-preview-wrap">
-              <p style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Vista previa</p>
-              <div class="wallet-card" id="wallet-card-preview">
-                <div class="wallet-overlay" id="wc-overlay"></div>
-                <div class="wallet-card-stripe"></div>
-                <div class="wallet-card-header">
-                  <div class="wallet-logo-box">
-                    <img id="wc-logo" class="wallet-logo-img" src="/assets/icon.png" onerror="this.style.display='none'">
-                    <span class="wallet-logo-name" id="wc-company">EMPRESA</span>
-                  </div>
-                  <div class="wallet-photo" id="wc-photo">👤</div>
-                </div>
-                <div id="wc-primary-wrap">
-                  <div class="wallet-primary-label" id="wc-primary-label">EMPLEADO</div>
-                  <div class="wallet-primary-value" id="wc-primary-value">Juan Pérez García</div>
-                </div>
-                <div class="wallet-fields-row" id="wc-secondary"></div>
-                <div class="wallet-aux-row" id="wc-auxiliary" style="display:none"></div>
-              </div>
-              <p class="wallet-hint">La foto y datos reales del empleado<br>se usan al generar el pass</p>
-
-              <!-- Selector de empleado para prueba -->
-              <div style="width:320px;margin-top:4px">
-                <label style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;display:block;margin-bottom:6px">EMPLEADO PARA PRUEBA</label>
-                <select class="inp" id="w-test-emp" style="width:100%"></select>
-              </div>
             </div>
 
           </div>
@@ -1049,6 +1191,31 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
 <!-- ASSIGN POPUP -->
 <div class="assign-popup" id="assign-popup"></div>
+
+<!-- MODAL EQUIPO -->
+<div class="overlay" id="m-team">
+  <div class="modal" style="width:480px">
+    <div class="modal-head"><h3 id="m-team-title">Nuevo equipo</h3><button class="modal-close" onclick="closeModal('m-team')"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="m-team-id">
+      <div class="form-row"><label class="lbl">Nombre del equipo *</label><input class="inp" id="m-team-name" placeholder="Ej: Equipo Obra Norte"></div>
+      <div class="form-row" style="margin-top:12px"><label class="lbl">Descripción</label><input class="inp" id="m-team-desc" placeholder="Opcional"></div>
+      <div class="form-row" style="margin-top:12px"><label class="lbl">Responsable del equipo</label><select class="inp" id="m-team-admin"></select></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost btn-sm" onclick="closeModal('m-team')">Cancelar</button><button class="btn btn-primary btn-sm" onclick="saveTeam()">Guardar</button></div>
+  </div>
+</div>
+
+<!-- MODAL AGREGAR MIEMBRO -->
+<div class="overlay" id="m-add-member">
+  <div class="modal" style="width:440px">
+    <div class="modal-head"><h3>Agregar miembro</h3><button class="modal-close" onclick="closeModal('m-add-member')"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body" style="padding-top:12px">
+      <input class="inp" id="add-member-search" placeholder="Buscar empleado..." oninput="filterAddMemberList(this.value)" style="margin-bottom:12px">
+      <div id="add-member-list" style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:4px"></div>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL EMPLEADO -->
 <div class="overlay" id="m-emp">
@@ -3038,31 +3205,73 @@ function hexToRgb(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(
 function rgbToHex(rgb){const m=rgb.match(/\d+/g);if(!m||m.length<3)return '#1a1a1a';return '#'+m.slice(0,3).map(v=>parseInt(v).toString(16).padStart(2,'0')).join('');}
 
 const BG_PRESETS=[
-  {id:'midnight', label:'Medianoche', solid:'#0a0a1e', css:'linear-gradient(135deg,#0a0a1e 0%,#16213e 50%,#0f3460 100%)'},
-  {id:'navy',     label:'Navy',       solid:'#0d1b2a', css:'linear-gradient(160deg,#0d1b2a 0%,#1b3a5c 100%)'},
-  {id:'petrol',   label:'Petróleo',   solid:'#0d2d2d', css:'radial-gradient(ellipse at 35% 25%,#0d7377 0%,#0d2d2d 65%)'},
-  {id:'forest',   label:'Bosque',     solid:'#0d2b1a', css:'linear-gradient(135deg,#0d2b1a 0%,#1a5c32 100%)'},
-  {id:'burgundy', label:'Burdeos',    solid:'#2d0d1a', css:'linear-gradient(135deg,#2d0d1a 0%,#5a1a35 100%)'},
-  {id:'slate',    label:'Pizarra',    solid:'#1e2a3a', css:'linear-gradient(135deg,#1e2a3a 0%,#2e3f55 100%)'},
-  {id:'gold',     label:'Dorado',     solid:'#2d1f00', css:'linear-gradient(135deg,#1a1000 0%,#3d2800 50%,#5c3d00 100%)'},
-  {id:'purple',   label:'Púrpura',    solid:'#1a0533', css:'radial-gradient(ellipse at top,#3d1a7a 0%,#1a0533 70%)'},
-  {id:'carbon',   label:'Carbón',     solid:'#1a1a1a', css:'linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 50%,#1a1a1a 100%)'},
-  {id:'copper',   label:'Cobre',      solid:'#1a0a00', css:'linear-gradient(135deg,#1a0a00 0%,#3d1a00 50%,#5c2800 100%)'},
-  {id:'pearl',    label:'Perla',      solid:'#f5f1eb', css:'linear-gradient(135deg,#f5f1eb 0%,#e8e2d8 100%)'},
-  {id:'glacier',  label:'Glaciar',    solid:'#c8e6f0', css:'linear-gradient(135deg,#d4eef7 0%,#a8d8ea 100%)'},
+  {id:'carbon',  label:'Carbón',
+   pattern:'repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0,rgba(255,255,255,.05) 1px,transparent 1px,transparent 10px),repeating-linear-gradient(-45deg,rgba(255,255,255,.05) 0,rgba(255,255,255,.05) 1px,transparent 1px,transparent 10px)'},
+  {id:'cosmos',  label:'Cosmos',
+   pattern:'radial-gradient(circle,rgba(255,255,255,.18) 1px,transparent 1px) 0 0/20px 20px,radial-gradient(circle,rgba(255,255,255,.09) 1px,transparent 1px) 10px 10px/20px 20px'},
+  {id:'ocean',   label:'Océano',
+   pattern:'repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0,rgba(255,255,255,.08) 1px,transparent 1px,transparent 20px)'},
+  {id:'mesh',    label:'Malla',
+   pattern:'linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px) 0 0/26px 26px,linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px) 0 0/26px 26px'},
+  {id:'aurora',  label:'Aurora',
+   pattern:'repeating-linear-gradient(-55deg,rgba(255,255,255,.07) 0,rgba(255,255,255,.07) 1.5px,transparent 1.5px,transparent 18px)'},
+  {id:'diamond', label:'Diamante',
+   pattern:'repeating-linear-gradient(45deg,rgba(255,255,255,.09) 0,rgba(255,255,255,.09) 1px,transparent 1px,transparent 16px),repeating-linear-gradient(135deg,rgba(255,255,255,.09) 0,rgba(255,255,255,.09) 1px,transparent 1px,transparent 16px)'},
+  {id:'dots',    label:'Puntos',
+   pattern:'radial-gradient(circle,rgba(255,255,255,.2) 1.5px,transparent 1.5px) 0 0/18px 18px'},
+  {id:'copper',  label:'Diagonal',
+   pattern:'repeating-linear-gradient(-45deg,rgba(255,255,255,.08) 0,rgba(255,255,255,.08) 1px,transparent 1px,transparent 9px)'},
+  {id:'glacier', label:'Nieve',
+   pattern:'radial-gradient(circle,rgba(255,255,255,.16) 1px,transparent 1px) 0 0/16px 16px,radial-gradient(circle,rgba(255,255,255,.08) 2px,transparent 2px) 8px 8px/32px 32px'},
+  {id:'ember',   label:'Radial',
+   pattern:'radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.12) 0,transparent 60%)'},
+  {id:'slate',   label:'Cuadrícula',
+   pattern:'repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0,rgba(255,255,255,.06) 1px,transparent 1px,transparent 22px),repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0,rgba(255,255,255,.06) 1px,transparent 1px,transparent 22px)'},
+  {id:'waves',   label:'Ondas',
+   pattern:'radial-gradient(farthest-side at 50% -30%,transparent 60%,rgba(255,255,255,.11) 61%,rgba(255,255,255,.11) 62%,transparent 63%) 0 0/26px 13px,radial-gradient(farthest-side at 50% -30%,transparent 60%,rgba(255,255,255,.11) 61%,rgba(255,255,255,.11) 62%,transparent 63%) 13px 6.5px/26px 13px'},
+  {id:'ripple',  label:'Círculos',
+   pattern:'radial-gradient(circle,transparent 18%,rgba(255,255,255,.1) 19%,rgba(255,255,255,.1) 20%,transparent 21%,transparent 37%,rgba(255,255,255,.06) 38%,rgba(255,255,255,.06) 39%,transparent 40%) 0 0/36px 36px'},
+  {id:'hex',     label:'Hexágono',
+   pattern:'radial-gradient(circle,rgba(255,255,255,.13) 1.5px,transparent 1.5px) 0 0/18px 31px,radial-gradient(circle,rgba(255,255,255,.13) 1.5px,transparent 1.5px) 9px 15.5px/18px 31px'},
+  {id:'zigzag',  label:'Zigzag',
+   pattern:'repeating-linear-gradient(135deg,rgba(255,255,255,.09) 0,rgba(255,255,255,.09) 1.5px,transparent 1.5px,transparent 12px),repeating-linear-gradient(225deg,rgba(255,255,255,.09) 0,rgba(255,255,255,.09) 1.5px,transparent 1.5px,transparent 12px) 0 6px'},
+  {id:'stripe',  label:'Franjas',
+   pattern:'repeating-linear-gradient(-22deg,rgba(255,255,255,.07) 0,rgba(255,255,255,.07) 4px,transparent 4px,transparent 22px)'},
+  {id:'fish',    label:'Escamas',
+   pattern:'radial-gradient(farthest-side at 0% 50%,transparent 70%,rgba(255,255,255,.1) 71%,rgba(255,255,255,.1) 72%,transparent 73%) 0 0/22px 22px,radial-gradient(farthest-side at 100% 50%,transparent 70%,rgba(255,255,255,.1) 71%,rgba(255,255,255,.1) 72%,transparent 73%) 11px 11px/22px 22px'},
+  {id:'none',    label:'Ninguna',
+   pattern:''},
 ];
 let currentBgType='preset';
-let currentBgPreset='midnight';
+let currentBgPreset='carbon';
 let currentBgImage=null;
+
+function hexLuminance(hex){
+  if(!hex||hex.length<7)return 0;
+  const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;
+  const toL=c=>c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4);
+  return 0.2126*toL(r)+0.7152*toL(g)+0.0722*toL(b);
+}
+function adaptPattern(pattern,lum){
+  if(!pattern)return '';
+  if(lum>0.35)
+    return pattern.replace(/rgba\(255,255,255,([0-9.]+)\)/g,(_,a)=>`rgba(0,0,0,${Math.min(0.5,parseFloat(a)*3).toFixed(2)})`);
+  return pattern;
+}
 
 function renderPresetGrid(){
   const grid=document.getElementById('bg-preset-grid');
   if(!grid)return;
-  grid.innerHTML=BG_PRESETS.map(p=>`
-    <div class="preset-item" onclick="selectPreset('${p.id}')">
-      <div class="preset-swatch${currentBgPreset===p.id?' active':''}" style="background:${p.css}" data-pid="${p.id}"></div>
+  const base=document.getElementById('w-bg-color')?.value||'#1a1a1a';
+  const lum=hexLuminance(base);
+  grid.innerHTML=BG_PRESETS.map(p=>{
+    const pat=adaptPattern(p.pattern,lum);
+    const bg=pat?(pat+','+base):base;
+    return `<div class="preset-item" onclick="selectPreset('${p.id}')">
+      <div class="preset-swatch${currentBgPreset===p.id?' active':''}" style="background:${bg}" data-pid="${p.id}"></div>
       <span class="preset-name">${p.label}</span>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function selectPreset(id){
@@ -3070,9 +3279,6 @@ function selectPreset(id){
   const preset=BG_PRESETS.find(p=>p.id===id);
   if(!preset)return;
   document.querySelectorAll('.preset-swatch').forEach(el=>el.classList.toggle('active',el.dataset.pid===id));
-  // Sync bg-color input with preset solid color (used for pass backgroundColor)
-  const bgInp=document.getElementById('w-bg-color');
-  if(bgInp){bgInp.value=preset.solid;document.getElementById('w-bg-hex').textContent=preset.solid;}
   updateWalletPreview();
 }
 
@@ -3086,9 +3292,71 @@ function setBgTab(type){
   updateWalletPreview();
 }
 
-function onSolidBgChange(){
+const BG_QUICK_COLORS=['#1a1a1a','#0f172a','#1e1b4b','#1c1917','#052e16','#0c1a2e','#2d1b69','#450a0a'];
+function initBgQuickSwatches(){
+  const wrap=document.getElementById('bg-quick-swatches');
+  if(!wrap)return;
+  wrap.innerHTML=BG_QUICK_COLORS.map(c=>`<div class="cpick-swatch" style="background:${c}" title="${c}" onclick="applyBgQuick('${c}')"></div>`).join('');
+}
+function applyBgQuick(c){
+  const inp=document.getElementById('w-bg-color');if(inp)inp.value=c;
+  const hex=document.getElementById('w-bg-hex');if(hex)hex.value=c;
+  const prev=document.getElementById('cpick-bg-prev');if(prev)prev.style.background=c;
+  renderPresetGrid();
+  updateWalletPreview();
+}
+function onBgColorChange(){
   const v=document.getElementById('w-bg-color')?.value||'#1a1a1a';
-  document.getElementById('w-bg-hex').textContent=v;
+  const hex=document.getElementById('w-bg-hex');if(hex)hex.value=v;
+  const prev=document.getElementById('cpick-bg-prev');if(prev)prev.style.background=v;
+  renderPresetGrid();
+  updateWalletPreview();
+}
+function onBgHexInput(){
+  const v=document.getElementById('w-bg-hex')?.value||'';
+  if(!/^#[0-9a-fA-F]{6}$/.test(v))return;
+  const inp=document.getElementById('w-bg-color');if(inp)inp.value=v;
+  const prev=document.getElementById('cpick-bg-prev');if(prev)prev.style.background=v;
+  renderPresetGrid();
+  updateWalletPreview();
+}
+function onFgColorChange(){
+  const v=document.getElementById('w-fg-color')?.value||'#ffffff';
+  const hex=document.getElementById('w-fg-hex');if(hex)hex.value=v;
+  const prev=document.getElementById('cpick-fg-prev');if(prev)prev.style.background=v;
+  updateWalletPreview();
+}
+function onFgHexInput(){
+  const v=document.getElementById('w-fg-hex')?.value||'';
+  if(!/^#[0-9a-fA-F]{6}$/.test(v))return;
+  const inp=document.getElementById('w-fg-color');if(inp)inp.value=v;
+  const prev=document.getElementById('cpick-fg-prev');if(prev)prev.style.background=v;
+  updateWalletPreview();
+}
+function onLabelColorChange(){
+  const v=document.getElementById('w-label-color')?.value||'#aaaaaa';
+  const hex=document.getElementById('w-label-hex');if(hex)hex.value=v;
+  const prev=document.getElementById('cpick-lb-prev');if(prev)prev.style.background=v;
+  updateWalletPreview();
+}
+function onLabelHexInput(){
+  const v=document.getElementById('w-label-hex')?.value||'';
+  if(!/^#[0-9a-fA-F]{6}$/.test(v))return;
+  const inp=document.getElementById('w-label-color');if(inp)inp.value=v;
+  const prev=document.getElementById('cpick-lb-prev');if(prev)prev.style.background=v;
+  updateWalletPreview();
+}
+function onOverlayColorChange(){
+  const v=document.getElementById('w-overlay-color')?.value||'#000000';
+  const hex=document.getElementById('w-overlay-hex');if(hex)hex.value=v;
+  const prev=document.getElementById('cpick-ov-prev');if(prev)prev.style.background=v;
+  updateWalletPreview();
+}
+function onOverlayHexInput(){
+  const v=document.getElementById('w-overlay-hex')?.value||'';
+  if(!/^#[0-9a-fA-F]{6}$/.test(v))return;
+  const inp=document.getElementById('w-overlay-color');if(inp)inp.value=v;
+  const prev=document.getElementById('cpick-ov-prev');if(prev)prev.style.background=v;
   updateWalletPreview();
 }
 
@@ -3237,21 +3505,31 @@ function wfRemove(zn,idx){wfState.zones[zn].splice(idx,1);wfRender();}
 function updateWalletPreview(){
   const fg=document.getElementById('w-fg-color')?.value||'#ffffff';
   const lb=document.getElementById('w-label-color')?.value||'#aaaaaa';
-  const fgEl=document.getElementById('w-fg-hex');if(fgEl)fgEl.textContent=fg;
-  const lbEl=document.getElementById('w-label-hex');if(lbEl)lbEl.textContent=lb;
+  const fgEl=document.getElementById('w-fg-hex');if(fgEl)fgEl.value=fg;
+  const lbEl=document.getElementById('w-label-hex');if(lbEl)lbEl.value=lb;
   const card=document.getElementById('wallet-card-preview');
   if(!card)return;
   // Apply background
+  const _bgImg=document.getElementById('wc-bg-img');
+  const _baseColor=document.getElementById('w-bg-color')?.value||'#1a1a1a';
+  const _lum=hexLuminance(_baseColor);
+  const _isLight=_lum>0.35;
+  const _divColor=_isLight?'rgba(0,0,0,.22)':'rgba(255,255,255,.28)';
+  const _auxBorder=_isLight?'rgba(0,0,0,.13)':'rgba(255,255,255,.13)';
+  const _hdiv=document.getElementById('wc-header-div');if(_hdiv)_hdiv.style.background=_divColor;
   if(currentBgType==='preset'){
+    if(_bgImg){_bgImg.style.display='none';}
     const preset=BG_PRESETS.find(p=>p.id===currentBgPreset)||BG_PRESETS[0];
-    card.style.background=preset.css;
+    const pat=adaptPattern(preset.pattern,_lum);
+    card.style.background=pat?(pat+','+_baseColor):_baseColor;
   } else if(currentBgType==='solid'){
-    const bg=document.getElementById('w-bg-color')?.value||'#1a1a1a';
-    const bgEl=document.getElementById('w-bg-hex');if(bgEl)bgEl.textContent=bg;
-    card.style.background=bg;
+    if(_bgImg){_bgImg.style.display='none';}
+    card.style.background=_baseColor;
   } else if(currentBgType==='image'&&currentBgImage){
-    card.style.background=`url(${currentBgImage}) center/cover no-repeat`;
+    if(_bgImg){_bgImg.src=currentBgImage;_bgImg.style.display='block';}
+    card.style.background='#111';
   } else {
+    if(_bgImg){_bgImg.style.display='none';}
     card.style.background='#1a1a1a';
   }
   card.style.color=fg;
@@ -3259,7 +3537,7 @@ function updateWalletPreview(){
   const oc=document.getElementById('w-overlay-color')?.value||'#000000';
   const op=parseInt(document.getElementById('w-overlay-opacity')?.value||0);
   const pctEl=document.getElementById('w-overlay-pct');if(pctEl)pctEl.textContent=op+'%';
-  const ovEl=document.getElementById('w-overlay-hex');if(ovEl)ovEl.textContent=oc;
+  const ovEl=document.getElementById('w-overlay-hex');if(ovEl)ovEl.value=oc;
   const overlayEl=document.getElementById('wc-overlay');
   if(overlayEl){overlayEl.style.background=oc;overlayEl.style.opacity=(op/100).toFixed(2);}
   // Photo visibility
@@ -3296,21 +3574,81 @@ function updateWalletPreview(){
       auxEl.innerHTML=af.map(f=>{const fd=WALLET_FIELDS.find(d=>d.dataKey===f.dataKey);
         return `<div class="wallet-field"><span class="wallet-field-label" style="color:${lb}">${f.label}</span><span class="wallet-field-value">${fd?.sample||'—'}</span></div>`;
       }).join('');
-      auxEl.style.display='flex';auxEl.style.borderColor=lb+'44';
+      auxEl.style.display='flex';auxEl.style.borderColor=_auxBorder;
     } else {auxEl.innerHTML='';auxEl.style.display='none';}
   }
+  // Override with real employee data if one is selected
+  const _empId=document.getElementById('w-test-emp')?.value;
+  if(_empId&&(window._walletEmps||[]).length){
+    const _emp=(window._walletEmps).find(e=>String(e.id)===String(_empId));
+    if(_emp)_applyEmpToPreview(_emp,lb);
+  }
+}
+
+function _applyEmpToPreview(emp,lb){
+  lb=lb||document.getElementById('w-label-color')?.value||'#aaaaaa';
+  // Photo
+  const showPhoto=document.getElementById('w-show-photo')?.checked!==false;
+  const photoEl=document.getElementById('wc-photo');
+  if(photoEl&&showPhoto){
+    if(emp.photo){
+      photoEl.innerHTML=`<img src="${emp.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
+    } else {
+      const ini=((emp.name||'?')[0]+(emp.last_name||'?')[0]).toUpperCase();
+      photoEl.innerHTML=`<span style="font-size:14px;font-weight:800;color:rgba(255,255,255,.85)">${ini}</span>`;
+    }
+    photoEl.style.display='flex';
+  }
+  // Primary
+  const prVal=document.getElementById('wc-primary-value');
+  if(prVal){const pri=wfState.zones.primary[0];if(pri)prVal.textContent=_empField(emp,pri.dataKey);}
+  // Secondary
+  const secEl=document.getElementById('wc-secondary');
+  if(secEl&&wfState.zones.secondary.length){
+    secEl.innerHTML=wfState.zones.secondary.map(f=>`<div class="wallet-field"><span class="wallet-field-label" style="color:${lb}">${f.label}</span><span class="wallet-field-value">${_empField(emp,f.dataKey)}</span></div>`).join('');
+    secEl.style.display='flex';
+  }
+  // Auxiliary
+  const auxEl=document.getElementById('wc-auxiliary');
+  if(auxEl&&wfState.zones.auxiliary.length){
+    auxEl.innerHTML=wfState.zones.auxiliary.map(f=>`<div class="wallet-field"><span class="wallet-field-label" style="color:${lb}">${f.label}</span><span class="wallet-field-value">${_empField(emp,f.dataKey)}</span></div>`).join('');
+    auxEl.style.display='flex';auxEl.style.borderColor=lb+'44';
+  }
+}
+function _empField(emp,key){
+  if(key==='fullName')return[emp.name,emp.last_name].filter(Boolean).join(' ')||'—';
+  if(key==='title')return emp.title||emp.position||'—';
+  if(key==='area_name')return emp.area_name||emp.area||'—';
+  if(key==='dept')return emp.dept||emp.department||'—';
+  if(key==='companyName')return emp.company_name||'—';
+  return emp[key]||'—';
 }
 
 async function loadWalletConfig(){
   try{
     const cfg=await api('GET','/api/wallet/config');
     // Text colors
-    if(cfg.fg_color)    document.getElementById('w-fg-color').value=rgbToHex(cfg.fg_color);
-    if(cfg.label_color) document.getElementById('w-label-color').value=rgbToHex(cfg.label_color);
-    if(cfg.bg_color)    {const v=rgbToHex(cfg.bg_color);const el=document.getElementById('w-bg-color');if(el)el.value=v;}
+    if(cfg.fg_color){
+      const v=rgbToHex(cfg.fg_color);
+      const el=document.getElementById('w-fg-color');if(el)el.value=v;
+      const hex=document.getElementById('w-fg-hex');if(hex)hex.value=v;
+      const prev=document.getElementById('cpick-fg-prev');if(prev)prev.style.background=v;
+    }
+    if(cfg.label_color){
+      const v=rgbToHex(cfg.label_color);
+      const el=document.getElementById('w-label-color');if(el)el.value=v;
+      const hex=document.getElementById('w-label-hex');if(hex)hex.value=v;
+      const prev=document.getElementById('cpick-lb-prev');if(prev)prev.style.background=v;
+    }
+    if(cfg.bg_color){
+      const v=rgbToHex(cfg.bg_color);
+      const el=document.getElementById('w-bg-color');if(el)el.value=v;
+      const hex=document.getElementById('w-bg-hex');if(hex)hex.value=v;
+      const prev=document.getElementById('cpick-bg-prev');if(prev)prev.style.background=v;
+    }
     // Background type
     currentBgType=cfg.bg_type||'preset';
-    currentBgPreset=cfg.bg_preset||'midnight';
+    currentBgPreset=cfg.bg_preset||'carbon';
     setBgTab(currentBgType);
     renderPresetGrid();
     // Background image
@@ -3326,7 +3664,11 @@ async function loadWalletConfig(){
       if(clr)clr.style.display='';
     }
     // Overlay
-    if(cfg.overlay_color){const el=document.getElementById('w-overlay-color');if(el)el.value=cfg.overlay_color;}
+    if(cfg.overlay_color){
+      const el=document.getElementById('w-overlay-color');if(el)el.value=cfg.overlay_color;
+      const hex=document.getElementById('w-overlay-hex');if(hex)hex.value=cfg.overlay_color;
+      const prev=document.getElementById('cpick-ov-prev');if(prev)prev.style.background=cfg.overlay_color;
+    }
     if(cfg.overlay_opacity){const el=document.getElementById('w-overlay-opacity');if(el)el.value=cfg.overlay_opacity;}
     // Fields config
     if(cfg.fields_config){
@@ -3350,24 +3692,71 @@ async function loadWalletConfig(){
     }
     // Company info for preview
     const info=await api('GET','/api/info');
-    document.getElementById('wc-company').textContent=(info.company_name||'EMPRESA').toUpperCase();
-    if(info.logo)document.getElementById('wc-logo').src=info.logo;
+    const co=document.getElementById('wc-company');if(co)co.textContent=(info.company_name||'EMPRESA').toUpperCase();
+    const logoEl=document.getElementById('wc-logo');
+    if(info.logo){
+      if(logoEl){logoEl.src=info.logo;logoEl.style.display='';}
+    }
+    // Strip background color
+    if(cfg.bg_color){
+      const strip=document.getElementById('wc-strip');
+      if(strip)strip.style.background=cfg.bg_color;
+    }
     // Employees for test selector
     const emps=await api('GET','/api/employees');
+    window._walletEmps=emps;
     const sel=document.getElementById('w-test-emp');
-    sel.innerHTML='<option value="">— Selecciona empleado —</option>'+emps.map(e=>`<option value="${e.id}">${e.name}${e.last_name?' '+e.last_name:''} (${e.employee_number})</option>`).join('');
+    if(sel)sel.innerHTML='<option value="">— Selecciona empleado para previsualizar —</option>'+emps.map(e=>`<option value="${e.id}">${e.name}${e.last_name?' '+e.last_name:''} (${e.employee_number})</option>`).join('');
+    initBgQuickSwatches();
     wfRender();
   }catch(e){console.error('walletConfig',e);}
+}
+
+function _refreshNewPreview(){
+  const empId=document.getElementById('w-test-emp')?.value;
+  if(!empId){return;}
+  const emp=(window._walletEmps||[]).find(e=>String(e.id)===String(empId));
+  if(!emp)return;
+  // Name + puesto en strip
+  const fn=document.getElementById('wc-strip-fn');if(fn)fn.textContent=emp.name||'';
+  const ln=document.getElementById('wc-strip-ln');if(ln)ln.textContent=emp.last_name||'';
+  const tt=document.getElementById('wc-strip-title');if(tt)tt.textContent=emp.title||'';
+  // Photo
+  const ph=document.getElementById('wc-strip-photo');
+  if(ph){
+    if(emp.photo)ph.innerHTML=`<img src="${emp.photo}" style="width:100%;height:100%;object-fit:cover">`;
+    else ph.textContent='👤';
+  }
+  // Fields — secondary: ÁREA + DEPTO.; auxiliary: NO. EMPLEADO (PUESTO ya está en el strip)
+  const zones={
+    secondary:[{dataKey:'area_name',label:'ÁREA'},{dataKey:'dept',label:'DEPTO.'}],
+    auxiliary:[{dataKey:'employee_number',label:'NO. EMPLEADO'}]
+  };
+  const empMap={fullName:(emp.name||'')+(emp.last_name?' '+emp.last_name:''),employee_number:emp.employee_number||'',title:emp.title||'',area_name:emp.area_name||'',dept:emp.dept||'',email:emp.email||'',phone:emp.phone||''};
+  const secEl=document.getElementById('wc-secondary');
+  if(secEl&&zones.secondary?.length){
+    secEl.innerHTML=zones.secondary.map(f=>`<div class="wallet-field" style="flex:1"><span class="wallet-field-label" style="color:rgba(255,255,255,.5);font-size:9px">${f.label}</span><span class="wallet-field-value" style="color:#fff">${empMap[f.dataKey]||'—'}</span></div>`).join('');
+    secEl.style.display='flex';
+  }
+  const auxEl=document.getElementById('wc-auxiliary');
+  if(auxEl&&zones.auxiliary?.length){
+    auxEl.innerHTML=zones.auxiliary.map(f=>`<div class="wallet-field"><span class="wallet-field-label" style="color:rgba(255,255,255,.5);font-size:9px">${f.label}</span><span class="wallet-field-value" style="color:#fff">${empMap[f.dataKey]||'—'}</span></div>`).join('');
+    auxEl.style.display='flex';
+  }
+  // QR real del empleado
+  const qrImg=document.getElementById('wc-qr-img');
+  if(qrImg&&emp.id){
+    const token=localStorage.getItem('dclock_token');
+    fetch(`/api/wallet-qr/${emp.id}`,{headers:{'x-auth-token':token}})
+      .then(r=>r.json()).then(d=>{if(d.dataUrl){qrImg.src=d.dataUrl;qrImg.style.opacity='1';}}).catch(()=>{});
+  }
 }
 
 async function saveWalletConfig(){
   const showPhoto=document.getElementById('w-show-photo')?.checked!==false;
   // Determine solid bg color to use in the pass
   let solidBg='rgb(26,26,26)';
-  if(currentBgType==='preset'){
-    const preset=BG_PRESETS.find(p=>p.id===currentBgPreset);
-    if(preset)solidBg=hexToRgb(preset.solid);
-  } else if(currentBgType==='solid'){
+  if(currentBgType==='preset'||currentBgType==='solid'){
     solidBg=hexToRgb(document.getElementById('w-bg-color')?.value||'#1a1a1a');
   }
   const body={
@@ -3415,14 +3804,208 @@ function goto(name,el){
   el.classList.add("active");
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.getElementById("sec-"+name).classList.add("active");
-  const titles={dashboard:"Dashboard",registros:"Registros de asistencia",reportes:"Reportes de asistencia",empleados:"Empleados",departamentos:"Departamentos",areas:"Áreas",puestos:"Puestos",horarios:"Horarios",geocercas:"Geocercas",credencial:"Credencial digital",configuracion:"Configuración"};
+  const titles={dashboard:"Dashboard",registros:"Registros de asistencia",reportes:"Reportes de asistencia",empleados:"Empleados",equipos:"Equipos",departamentos:"Departamentos",areas:"Áreas",puestos:"Puestos",horarios:"Horarios",geocercas:"Geocercas",credencial:"Credencial digital",configuracion:"Configuración"};
   document.getElementById("page-title").textContent=titles[name]||name;
   if(name==="registros"){if(recMode==='day')loadRecords();else loadPeriodRecords();}
   if(name==="reportes")initReportFilters();
   if(name==="horarios")loadAssignments();
   if(name==="geocercas"&&geoView==='map')setTimeout(()=>{renderGeoListMap();if(geoListMap)geoListMap.invalidateSize();},150);
   if(name==="credencial")loadWalletConfig();
+  if(name==="equipos")loadTeams();
 }
+
+
+  // ── Equipos ──────────────────────────────────────────
+  let allTeams = [];
+  let currentTeamId = null;
+
+  async function loadTeams() {
+    const token = localStorage.getItem('dclock_token');
+    try {
+      const r = await fetch('/api/teams', { headers: { 'x-auth-token': token } });
+      allTeams = await r.json();
+      renderTeams();
+    } catch(e) { console.error('loadTeams error', e); }
+  }
+
+  function renderTeams() {
+    const q = (document.getElementById('team-search')?.value || '').toLowerCase();
+    const filtered = allTeams.filter(t =>
+      t.name.toLowerCase().includes(q) ||
+      (t.admin_name || '').toLowerCase().includes(q) ||
+      (t.admin_last_name || '').toLowerCase().includes(q)
+    );
+    const grid = document.getElementById('teams-grid');
+    if (!grid) return;
+    if (!filtered.length) {
+      grid.innerHTML = '<div class="empty" style="flex-direction:column;padding:60px 0"><svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><p>Sin equipos registrados</p></div>';
+      return;
+    }
+    grid.innerHTML = filtered.map(t => {
+      const admin = t.admin_name ? (t.admin_name + (t.admin_last_name ? ' ' + t.admin_last_name : '')) : 'Sin responsable';
+      const pct   = t.member_count > 0 ? Math.round((t.present_today / t.member_count) * 100) : 0;
+      const color = pct >= 80 ? '#22c55e' : pct >= 50 ? '#f59e0b' : pct > 0 ? '#ef4444' : 'var(--border)';
+      return `<div class="team-card" onclick="openTeamDetail(${t.id})">
+        <div class="team-card-header">
+          <div class="team-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div style="flex:1"><div class="team-name">${t.name}</div><div class="team-admin">${admin}</div></div>
+        </div>
+        ${t.description ? `<div class="team-desc">${t.description}</div>` : ''}
+        <div class="team-stats">
+          <span>${t.member_count} miembro${t.member_count !== 1 ? 's' : ''}</span>
+          <span style="color:${color};font-weight:700">${t.present_today}/${t.member_count} presentes hoy</span>
+        </div>
+        <div class="team-bar-bg"><div class="team-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      </div>`;
+    }).join('');
+  }
+
+  async function openTeamDetail(id) {
+    currentTeamId = id;
+    const token = localStorage.getItem('dclock_token');
+    const r = await fetch('/api/teams/' + id, { headers: { 'x-auth-token': token } });
+    const team = await r.json();
+    renderTeamDetail(team);
+    document.getElementById('teams-grid-view').style.display = 'none';
+    document.getElementById('team-detail-view').style.display = '';
+  }
+
+  function renderTeamDetail(team) {
+    const admin   = team.admin_name ? (team.admin_name + (team.admin_last_name ? ' ' + team.admin_last_name : '')) : '—';
+    const total   = team.members.length;
+    const present = team.members.filter(m => m.last_type === 'entrada').length;
+    const absent  = total - present;
+    document.getElementById('td-name').textContent          = team.name;
+    document.getElementById('td-admin').textContent         = 'Responsable: ' + admin;
+    document.getElementById('td-stat-total').textContent    = total;
+    document.getElementById('td-stat-present').textContent  = present;
+    document.getElementById('td-stat-absent').textContent   = absent;
+
+    const tbody = document.getElementById('td-members-tbody');
+    if (!team.members.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:32px">Sin miembros en este equipo</td></tr>';
+      return;
+    }
+    tbody.innerHTML = team.members.map(m => {
+      const name   = m.name + (m.last_name ? ' ' + m.last_name : '');
+      const badge  = m.last_type === 'entrada'
+        ? '<span class="badge badge-green">Presente</span>'
+        : m.last_type === 'salida'
+          ? '<span class="badge badge-yellow">Salió</span>'
+          : '<span class="badge badge-gray">Sin registro</span>';
+      const time   = m.last_time
+        ? new Date(m.last_time).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:true})
+        : '—';
+      const avatar = m.photo
+        ? `<img src="${m.photo}" style="width:32px;height:32px;border-radius:8px;object-fit:cover">`
+        : `<div style="width:32px;height:32px;border-radius:8px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--accent)">${(m.name[0]||'').toUpperCase()}</div>`;
+      const safeName = name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      return `<tr>
+        <td><div style="display:flex;align-items:center;gap:10px">${avatar}
+          <div><div style="font-weight:600">${name}</div><div style="font-size:11px;color:var(--muted)">${m.job_title||''}</div></div>
+        </div></td>
+        <td>${badge}</td>
+        <td style="font-variant-numeric:tabular-nums">${time}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="removeMember(${currentTeamId},${m.id},'${safeName}')">Quitar</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function backToTeams() {
+    document.getElementById('team-detail-view').style.display = 'none';
+    document.getElementById('teams-grid-view').style.display  = '';
+    currentTeamId = null;
+  }
+
+  async function openTeamModal(team) {
+    team = team || null;
+    document.getElementById('m-team-title').textContent = team ? 'Editar equipo' : 'Nuevo equipo';
+    document.getElementById('m-team-id').value   = team ? team.id   : '';
+    document.getElementById('m-team-name').value = team ? team.name : '';
+    document.getElementById('m-team-desc').value = team ? (team.description || '') : '';
+    const token = localStorage.getItem('dclock_token');
+    const r = await fetch('/api/employees', { headers: { 'x-auth-token': token } });
+    const emps = await r.json();
+    const sel = document.getElementById('m-team-admin');
+    sel.innerHTML = '<option value="">Sin responsable</option>' +
+      emps.filter(e => e.active).map(e =>
+        `<option value="${e.id}">${e.name}${e.last_name ? ' ' + e.last_name : ''} (#${e.employee_number})</option>`
+      ).join('');
+    if (team && team.admin_id) sel.value = team.admin_id;
+    openModal('m-team');
+  }
+
+  async function saveTeam() {
+    const id       = document.getElementById('m-team-id').value;
+    const name     = document.getElementById('m-team-name').value.trim();
+    const desc     = document.getElementById('m-team-desc').value.trim();
+    const admin_id = document.getElementById('m-team-admin').value || null;
+    if (!name) { alert('El nombre del equipo es requerido'); return; }
+    const token = localStorage.getItem('dclock_token');
+    await fetch(id ? '/api/teams/' + id : '/api/teams', {
+      method: id ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+      body: JSON.stringify({ name, description: desc || null, admin_id })
+    });
+    closeModal('m-team');
+    await loadTeams();
+    if (id && currentTeamId == id) openTeamDetail(id);
+  }
+
+  async function deleteTeam(id) {
+    if (!confirm('¿Eliminar este equipo? Los empleados no serán afectados.')) return;
+    const token = localStorage.getItem('dclock_token');
+    await fetch('/api/teams/' + id, { method: 'DELETE', headers: { 'x-auth-token': token } });
+    backToTeams();
+    await loadTeams();
+  }
+
+  let _addMemberTeamId = null;
+  let _allEmpsForTeam  = [];
+
+  async function openAddMemberModal() {
+    _addMemberTeamId = currentTeamId;
+    const token = localStorage.getItem('dclock_token');
+    const r = await fetch('/api/employees', { headers: { 'x-auth-token': token } });
+    _allEmpsForTeam = (await r.json()).filter(e => e.active);
+    document.getElementById('add-member-search').value = '';
+    filterAddMemberList('');
+    openModal('m-add-member');
+  }
+
+  function filterAddMemberList(q) {
+    const list = document.getElementById('add-member-list');
+    const filtered = _allEmpsForTeam.filter(e =>
+      (e.name + ' ' + (e.last_name || '') + ' ' + e.employee_number).toLowerCase().includes(q.toLowerCase())
+    );
+    list.innerHTML = filtered.slice(0, 40).map(e => {
+      const name   = e.name + (e.last_name ? ' ' + e.last_name : '');
+      const avatar = e.photo
+        ? `<img src="${e.photo}" style="width:36px;height:36px;border-radius:9px;object-fit:cover">`
+        : `<div style="width:36px;height:36px;border-radius:9px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--accent)">${(e.name[0]||'').toUpperCase()}</div>`;
+      return `<div class="add-member-row" onclick="addMember(${e.id})">${avatar}
+        <div><div style="font-weight:600">${name}</div><div style="font-size:11px;color:var(--muted)">#${e.employee_number}${e.job_title_name ? ' · ' + e.job_title_name : ''}</div></div>
+      </div>`;
+    }).join('') || '<p style="color:var(--muted);padding:16px;text-align:center">Sin resultados</p>';
+  }
+
+  async function addMember(empId) {
+    const token = localStorage.getItem('dclock_token');
+    await fetch('/api/teams/' + _addMemberTeamId + '/members', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+      body: JSON.stringify({ employee_id: empId })
+    });
+    closeModal('m-add-member');
+    openTeamDetail(_addMemberTeamId);
+  }
+
+  async function removeMember(teamId, empId, name) {
+    if (!confirm('¿Quitar a ' + name + ' del equipo?')) return;
+    const token = localStorage.getItem('dclock_token');
+    await fetch('/api/teams/' + teamId + '/members/' + empId, { method: 'DELETE', headers: { 'x-auth-token': token } });
+    openTeamDetail(teamId);
+  }
 
 function openModal(id){document.getElementById(id).classList.add("open");}
 function closeModal(id){document.getElementById(id).classList.remove("open");}

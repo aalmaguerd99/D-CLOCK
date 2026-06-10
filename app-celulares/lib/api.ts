@@ -54,8 +54,27 @@ export interface AuthEmployee {
   gender: string | null;
   address: string | null;
   is_admin: boolean;
+  is_team_admin: boolean;
   has_face: boolean;
   last_checkin: { type: "in" | "out"; timestamp: string } | null;
+}
+
+export interface TeamMember {
+  id: number;
+  name: string;
+  last_name: string | null;
+  employee_number: string;
+  photo: string | null;
+  job_title: string | null;
+  last_type: "entrada" | "salida" | null;
+  last_time: string | null;
+}
+
+export interface MyTeam {
+  id: number;
+  name: string;
+  description: string | null;
+  members: TeamMember[];
 }
 
 export interface AdminCheckin {
@@ -119,6 +138,9 @@ export async function authEmployee(
       birth_date: string | null;
       gender: string | null;
       address: string | null;
+      is_admin: boolean;
+      is_team_admin: boolean;
+      has_face: boolean;
     };
     last_checkin: { type: "in" | "out"; timestamp: string } | null;
   }>("/api/mobile/auth", { employee_number, pin });
@@ -144,6 +166,7 @@ export async function authEmployee(
     address: e.address,
     last_checkin: res.last_checkin,
     is_admin: !!e.is_admin,
+    is_team_admin: !!e.is_team_admin,
     has_face: !!e.has_face,
   };
 }
@@ -181,6 +204,22 @@ export async function fetchAdminCheckins(
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
+}
+
+export async function fetchMyTeam(employeeId: number, date?: string): Promise<MyTeam | null> {
+  try {
+    const url = await base();
+    const params = new URLSearchParams({ employee_id: String(employeeId) });
+    if (date) params.append("date", date);
+    const endpoint = date ? "/api/mobile/my-team/history" : "/api/mobile/my-team";
+    const res = await fetch(`${url}${endpoint}?${params}`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
 }
 
 export async function testConnection(): Promise<boolean> {
