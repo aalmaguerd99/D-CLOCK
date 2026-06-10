@@ -31,6 +31,7 @@
         "backgroundColor": "#F5F1EB"
       },
       "package": "com.d99tech.dclock",
+      "usesCleartextTraffic": true,
       "permissions": [
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
