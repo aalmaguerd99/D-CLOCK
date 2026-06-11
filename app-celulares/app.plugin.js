@@ -10,6 +10,10 @@ module.exports = function withMonitoringTool(config) {
 
     const app = manifest.application[0];
 
+    // Allow plain HTTP traffic (servers run on local network without HTTPS)
+    if (!app['$']) app['$'] = {};
+    app['$']['android:usesCleartextTraffic'] = 'true';
+
     if (!app['meta-data']) {
       app['meta-data'] = [];
     }
