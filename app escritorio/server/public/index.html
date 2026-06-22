@@ -3958,10 +3958,9 @@ function goto(name,el){
     const desc     = document.getElementById('m-team-desc').value.trim();
     const admin_id = document.getElementById('m-team-admin').value || null;
     if (!name) { alert('El nombre del equipo es requerido'); return; }
-    const token = localStorage.getItem('dclock_token');
-    await fetch(id ? '/api/teams/' + id : '/api/teams', {
+    await fetch(id ? BASE + '/api/teams/' + id : BASE + '/api/teams', {
       method: id ? 'PUT' : 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+      headers: { 'Content-Type': 'application/json', 'x-auth-token': TOKEN },
       body: JSON.stringify({ name, description: desc || null, admin_id })
     });
     closeModal('m-team');
@@ -3971,8 +3970,7 @@ function goto(name,el){
 
   async function deleteTeam(id) {
     if (!confirm('¿Eliminar este equipo? Los empleados no serán afectados.')) return;
-    const token = localStorage.getItem('dclock_token');
-    await fetch('/api/teams/' + id, { method: 'DELETE', headers: { 'x-auth-token': token } });
+    await fetch(BASE + '/api/teams/' + id, { method: 'DELETE', headers: { 'x-auth-token': TOKEN } });
     backToTeams();
     await loadTeams();
   }
@@ -4007,10 +4005,9 @@ function goto(name,el){
   }
 
   async function addMember(empId) {
-    const token = localStorage.getItem('dclock_token');
-    await fetch('/api/teams/' + _addMemberTeamId + '/members', {
+    await fetch(BASE + '/api/teams/' + _addMemberTeamId + '/members', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+      headers: { 'Content-Type': 'application/json', 'x-auth-token': TOKEN },
       body: JSON.stringify({ employee_id: empId })
     });
     closeModal('m-add-member');
@@ -4019,8 +4016,7 @@ function goto(name,el){
 
   async function removeMember(teamId, empId, name) {
     if (!confirm('¿Quitar a ' + name + ' del equipo?')) return;
-    const token = localStorage.getItem('dclock_token');
-    await fetch('/api/teams/' + teamId + '/members/' + empId, { method: 'DELETE', headers: { 'x-auth-token': token } });
+    await fetch(BASE + '/api/teams/' + teamId + '/members/' + empId, { method: 'DELETE', headers: { 'x-auth-token': TOKEN } });
     openTeamDetail(teamId);
   }
 
