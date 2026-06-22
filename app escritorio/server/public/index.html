@@ -357,6 +357,17 @@ select.inp{appearance:none;cursor:pointer}
 .shift-vacation{background:#d1fae5;color:#065f46}
 .shift-sick{background:#fee2e2;color:#991b1b}
 
+/* DASHBOARD v2 */
+@keyframes dbPulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes dbDash{to{stroke-dashoffset:-22}}
+#sec-dashboard{min-width:1080px}
+.db-kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:16px}
+.db-kpi{background:rgba(255,255,255,.86);border:1px solid rgba(0,0,0,.07);border-radius:16px;padding:15px 17px;box-shadow:0 1px 3px rgba(0,0,0,.05),0 6px 22px rgba(0,0,0,.04);display:flex;flex-direction:column;gap:9px;transition:box-shadow .2s,transform .2s}
+.db-kpi:hover{box-shadow:0 8px 30px rgba(0,0,0,.10);transform:translateY(-2px)}
+.db-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;align-items:start}
+.db-card{background:rgba(255,255,255,.86);border:1px solid rgba(0,0,0,.07);border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.05),0 6px 24px rgba(0,0,0,.045);display:flex;flex-direction:column;overflow:hidden}
+.db-card-hdr{padding:15px 20px;border-bottom:1px solid rgba(0,0,0,.06);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+
 /* ASSIGN POPUP */
 .assign-popup{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-md);padding:6px;z-index:300;min-width:210px;display:none}
 .assign-popup.open{display:block}
@@ -585,51 +596,160 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
       <div class="content" id="content">
 
-        <!-- DASHBOARD -->
+        <!-- DASHBOARD v2 -->
         <div class="section active" id="sec-dashboard">
-          <div class="stats-row" id="stats-row">
-            <div class="stat">
-              <div class="stat-label">Empleados activos</div>
-              <div class="stat-value blue" id="st-total">—</div>
-            </div>
-            <div class="stat">
-              <div class="stat-label">Presentes hoy</div>
-              <div class="stat-value green" id="st-present">—</div>
-            </div>
-            <div class="stat">
-              <div class="stat-label">Ausentes hoy</div>
-              <div class="stat-value red" id="st-absent">—</div>
-            </div>
-            <div class="stat">
-              <div class="stat-label">En oficina ahora</div>
-              <div class="stat-value purple" id="st-inside">—</div>
-            </div>
+
+          <!-- KPI Row -->
+          <div class="db-kpi-row" id="db-kpi-row">
+            <!-- JS populated -->
           </div>
-          <div class="dash-grid">
-            <div class="card dash-chart-card" style="display:flex;flex-direction:column">
-              <div class="card-header"><div class="card-title">Asistencia — últimos 7 días</div></div>
-              <div class="card-body" style="padding:16px 20px 20px;display:flex;align-items:flex-end;gap:6px;height:120px" id="week-chart"></div>
-            </div>
-            <div class="card" style="display:flex;flex-direction:column;max-height:280px">
-              <div class="card-header"><div class="card-title" style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:var(--purple);display:inline-block"></span>En oficina ahora</div></div>
-              <div class="card-body" style="flex:1;overflow-y:auto"><div id="en-oficina-list"></div></div>
-            </div>
-            <div class="card" style="display:flex;flex-direction:column;max-height:280px">
-              <div class="card-header">
+
+          <!-- Main Grid -->
+          <div class="db-grid">
+
+            <!-- ROW 1: Hourly chart (8) + Mexico map (4) -->
+            <div class="db-card" style="grid-column:span 8;min-height:340px">
+              <div class="db-card-hdr">
                 <div>
-                  <div class="card-title" style="display:flex;align-items:center;gap:8px">
-                    <span class="pulse" style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block"></span>
-                    Actividad reciente
-                  </div>
-                  <div class="card-sub" id="today-label"></div>
+                  <div style="font-size:15px;font-weight:700;letter-spacing:-.2px">Registros en tiempo real</div>
+                  <div style="font-size:12px;color:#8a8a8a;margin-top:2px" id="dash-today-label">Entradas y salidas por hora · hoy</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:4px 11px;border-radius:20px">
+                  <span style="width:7px;height:7px;border-radius:50%;background:#16a34a;display:inline-block;animation:dbPulse 1.6s infinite"></span>En vivo
                 </div>
               </div>
-              <div class="card-body" style="flex:1;overflow-y:auto">
-                <div class="feed" id="live-feed"><div class="empty"><svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>Sin checadas hoy</p></div></div>
+              <div style="padding:14px 20px 16px;flex:1;display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;align-items:center;gap:14px;padding:11px 14px;border-radius:13px;background:linear-gradient(100deg,#EFF6FF 0%,rgba(245,243,255,.55) 100%);border:1px solid rgba(37,99,235,.13)">
+                  <div style="width:48px;height:48px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;background:#EFF6FF;color:#2563EB;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:hidden" id="dash-spot-av">—</div>
+                  <div style="min-width:0;flex:1">
+                    <div style="font-size:9.5px;font-weight:800;color:#8a8a8a;text-transform:uppercase;letter-spacing:1px">Último registro</div>
+                    <div style="font-size:16px;font-weight:800;letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px" id="dash-spot-name">—</div>
+                    <div style="font-size:11.5px;color:#8a8a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="dash-spot-sub">—</div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
+                    <span id="dash-spot-badge" style="display:inline-flex;align-items:center;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:800;background:#dbeafe;color:#1d4ed8">—</span>
+                    <span style="font-size:20px;font-weight:800;letter-spacing:-.4px;font-variant-numeric:tabular-nums;line-height:1.05" id="dash-spot-time">--:--</span>
+                  </div>
+                  <div style="width:1px;height:46px;background:rgba(37,99,235,.16);flex-shrink:0"></div>
+                  <div style="display:flex;gap:18px;flex-shrink:0;padding-right:2px">
+                    <div style="text-align:center">
+                      <div style="font-size:22px;font-weight:800;color:#2563EB;line-height:1;font-variant-numeric:tabular-nums" id="dash-tot-in">0</div>
+                      <div style="font-size:10px;font-weight:700;color:#8a8a8a;text-transform:uppercase;letter-spacing:.4px;margin-top:3px">Entradas</div>
+                    </div>
+                    <div style="text-align:center">
+                      <div style="font-size:22px;font-weight:800;color:#7c3aed;line-height:1;font-variant-numeric:tabular-nums" id="dash-tot-out">0</div>
+                      <div style="font-size:10px;font-weight:700;color:#8a8a8a;text-transform:uppercase;letter-spacing:.4px;margin-top:3px">Salidas</div>
+                    </div>
+                  </div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;min-height:150px">
+                  <div style="flex:1;display:flex;gap:3px;align-items:stretch" id="dash-hourly-bars"></div>
+                  <div style="display:flex;gap:18px;margin-top:10px;padding-top:11px;border-top:1px solid rgba(0,0,0,.05)">
+                    <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#4a4a4a;font-weight:600"><span style="width:11px;height:8px;border-radius:2px;background:#2563EB;display:inline-block"></span>Entradas (arriba)</span>
+                    <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#4a4a4a;font-weight:600"><span style="width:11px;height:8px;border-radius:2px;background:#7c3aed;display:inline-block"></span>Salidas (abajo)</span>
+                    <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#2563EB;font-weight:700;margin-left:auto"><span style="width:7px;height:7px;border-radius:50%;background:#2563EB;display:inline-block;animation:dbPulse 1.6s infinite"></span>hora actual</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+
+            <!-- Mexico map · span 4 -->
+            <div class="db-card" style="grid-column:span 4;min-height:340px">
+              <div class="db-card-hdr">
+                <div>
+                  <div style="font-size:15px;font-weight:700;letter-spacing:-.2px">Cobertura nacional</div>
+                  <div style="font-size:12px;color:#8a8a8a;margin-top:2px">Presencia por región · México</div>
+                </div>
+                <svg width="20" height="20" fill="none" stroke="#2563EB" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </div>
+              <div style="flex:1;position:relative;overflow:hidden;padding:8px 12px 14px" id="dash-map-cont">
+                <div style="color:#b0b0b0;font-size:12px;text-align:center;padding-top:60px">Cargando mapa…</div>
+              </div>
+            </div>
+
+            <!-- ROW 2: Heatmap (7) + Top Geocercas (5) -->
+            <div class="db-card" style="grid-column:span 7;min-height:260px">
+              <div class="db-card-hdr">
+                <div>
+                  <div style="font-size:15px;font-weight:700;letter-spacing:-.2px">Horas pico de checada</div>
+                  <div style="font-size:12px;color:#8a8a8a;margin-top:2px">Concentración por día y hora</div>
+                </div>
+                <div style="display:flex;gap:2px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.06);padding:3px;border-radius:9px">
+                  <button id="db-heat-e" onclick="dashHeat('E')" style="padding:4px 11px;border-radius:7px;font-size:11.5px;font-weight:700;border:none;cursor:pointer;background:#EFF6FF;color:#2563EB;transition:all .15s">Entradas</button>
+                  <button id="db-heat-s" onclick="dashHeat('S')" style="padding:4px 11px;border-radius:7px;font-size:11.5px;font-weight:600;border:none;cursor:pointer;background:transparent;color:#8a8a8a;transition:all .15s">Salidas</button>
+                </div>
+              </div>
+              <div style="padding:16px 20px;flex:1;display:flex;flex-direction:column;gap:11px">
+                <div style="display:flex;gap:8px;flex:1;min-height:110px">
+                  <div style="display:grid;grid-template-rows:repeat(7,1fr);gap:3px;width:30px">
+                    <span style="display:flex;align-items:center;justify-content:flex-end;font-size:10px;font-weight:700;color:#8a8a8a">Lun</span>
+                    <span style="display:flex;align-items:center;justify-content:flex-end;font-size:10px;font-weight:700;color:#8a8a8a">Mar</span>
+                    <span style="display:flex;align-items:center;justify-content:flex-end;font-size:10px;font-weight:700;color:#8a8a8a">Mié</span>
+                    <span style="display:flex;align-items:center;justify-content:flex-end;font-size:10px;font-weight:700;color:#8a8a8a">Jue</span>
+                    <span style="display:flex;align-items:center;justify-content:flex-end;font-size:10px;font-weight:700;color:#8a8a8a">Vie</span>
+                    <span style="display:flex;align-items:center;justify-content:flex-end;font-size:10px;font-weight:700;color:#8a8a8a">Sáb</span>
+                    <span style="display:flex;align-items:center;justify-content:flex-end;font-size:10px;font-weight:700;color:#8a8a8a">Dom</span>
+                  </div>
+                  <div style="flex:1;display:grid;grid-template-columns:repeat(16,1fr);grid-template-rows:repeat(7,1fr);gap:3px" id="dash-heatmap"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding-left:38px;font-size:10px;color:#a8a8a0;font-weight:600">
+                  <span>6:00</span><span>9:00</span><span>12:00</span><span>15:00</span><span>18:00</span><span>21:00</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:7px;font-size:10.5px;color:#8a8a8a;padding-left:38px">
+                  <span>Menos</span>
+                  <span style="width:15px;height:11px;border-radius:2px;background:rgba(37,99,235,.10)"></span>
+                  <span style="width:15px;height:11px;border-radius:2px;background:rgba(37,99,235,.30)"></span>
+                  <span style="width:15px;height:11px;border-radius:2px;background:rgba(37,99,235,.55)"></span>
+                  <span style="width:15px;height:11px;border-radius:2px;background:rgba(37,99,235,.82)"></span>
+                  <span>Más</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Top Geocercas · span 5 -->
+            <div class="db-card" style="grid-column:span 5;min-height:260px;max-height:360px">
+              <div class="db-card-hdr">
+                <div>
+                  <div style="font-size:15px;font-weight:700;letter-spacing:-.2px">Top Geocercas</div>
+                  <div style="font-size:12px;color:#8a8a8a;margin-top:2px">Actividad por zona · hoy</div>
+                </div>
+                <svg width="18" height="18" fill="none" stroke="#2563EB" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              </div>
+              <div style="flex:1;overflow-y:auto;padding:4px 18px 10px" id="dash-geo-table"></div>
+            </div>
+
+            <!-- ROW 3: Live feed (7) + En oficina (5) -->
+            <div class="db-card" style="grid-column:span 7;min-height:300px;max-height:430px">
+              <div class="db-card-hdr">
+                <div style="display:flex;align-items:center;gap:9px">
+                  <span style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;animation:dbPulse 2s infinite"></span>
+                  <div>
+                    <div style="font-size:15px;font-weight:700;letter-spacing:-.2px">Quién se está registrando</div>
+                    <div style="font-size:12px;color:#8a8a8a;margin-top:2px">Flujo de checadas · hoy</div>
+                  </div>
+                </div>
+                <span style="font-size:11px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:3px 10px;border-radius:20px">En vivo</span>
+              </div>
+              <div style="flex:1;overflow-y:auto;padding:8px 14px" id="live-feed"></div>
+            </div>
+
+            <!-- En oficina · span 5 -->
+            <div class="db-card" style="grid-column:span 5;min-height:300px;max-height:430px">
+              <div class="db-card-hdr">
+                <div style="display:flex;align-items:center;gap:9px">
+                  <span style="width:8px;height:8px;border-radius:50%;background:#7c3aed;display:inline-block"></span>
+                  <div>
+                    <div style="font-size:15px;font-weight:700;letter-spacing:-.2px">En oficina ahora</div>
+                    <div style="font-size:12px;color:#8a8a8a;margin-top:2px">Dentro de geocerca</div>
+                  </div>
+                </div>
+                <span id="dash-inside-badge" style="font-size:11px;font-weight:700;color:#7c3aed;background:#f5f3ff;padding:3px 10px;border-radius:20px">—</span>
+              </div>
+              <div style="flex:1;overflow-y:auto;padding:8px 14px" id="dash-enoficina-list"></div>
+            </div>
+
+          </div><!-- /db-grid -->
+        </div><!-- /sec-dashboard -->
 
         <!-- REGISTROS -->
         <div class="section" id="sec-registros">
@@ -1549,7 +1669,9 @@ async function doLogout(){
 async function boot(){
   document.getElementById("login-screen").style.display="none";
   document.getElementById("app").style.display="block";
-  document.getElementById("today-label").textContent=new Date().toLocaleDateString("es-MX",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  const _todayStr=new Date().toLocaleDateString("es-MX",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  const _todayLblEl=document.getElementById("dash-today-label");
+  if(_todayLblEl)_todayLblEl.textContent="Entradas y salidas por hora · "+_todayStr.split(",")[0];
   document.getElementById("rec-date").value=new Date().toISOString().slice(0,10);
   document.getElementById("cfg-port").textContent=location.port||"80";
   loadReportCols();
@@ -1557,7 +1679,9 @@ async function boot(){
 }
 
 async function loadAll(){
-  await Promise.all([loadStats(),renderWeeklyChart(),loadLiveFeed(),loadEmps(),loadDepts(),loadAreas(),loadJobTitles(),loadShifts(),loadGeos()]);
+  await Promise.all([loadStats(),loadLiveFeed(),loadEmps(),loadDepts(),loadAreas(),loadJobTitles(),loadShifts(),loadGeos()]);
+  dashHeat('E');
+  renderMapCard();
 }
 
 // LOGO
@@ -1610,49 +1734,189 @@ async function removeLogo(){
   updateLogoDisplay();
 }
 
+// DASHBOARD v2 STATE
+let _todayCheckins=[];
+let _dashHeatMode='E';
+
 // STATS
 async function loadStats(){
-  const s=await api("GET","/api/stats");
-  document.getElementById("st-total").textContent=s.totalEmployees??"—";
-  document.getElementById("st-present").textContent=s.presentToday??"—";
-  document.getElementById("st-absent").textContent=s.absentToday??"—";
-  document.getElementById("st-inside").textContent=s.insideNow??"—";
-  renderEnOficina(s.insideList||[]);
+  const [s,weekData]=await Promise.all([api("GET","/api/stats"),api("GET","/api/stats/week")]);
+  renderDashKpis(s,weekData);
+  renderDashEnOficina(s.insideList||[]);
 }
 
-function renderEnOficina(list){
-  const el=document.getElementById("en-oficina-list");
-  if(!list.length){el.innerHTML='<div class="empty" style="padding:20px 0"><svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>Nadie en oficina</p></div>';return;}
-  el.innerHTML=list.map(e=>`
-    <div class="feed-item">
-      ${avatarHtml(e.photo,e.name)}
-      <div style="flex:1;min-width:0">
-        <div class="feed-name">${e.name}${e.last_name?' '+e.last_name:''}</div>
-        <div class="feed-num">${e.employee_number}</div>
+function renderDashKpis(s,weekData){
+  const maxW=Math.max(...(weekData||[]).map(d=>d.present),1);
+  const wPts=(weekData||[]).map((d,i)=>`${Math.round(i*(120/6))},${Math.round(34-(d.present/maxW)*28)}`);
+  const wPoly=wPts.length?[wPts[0].split(',')[0]+',34',...wPts,wPts[wPts.length-1].split(',')[0]+',34'].join(' '):'';
+  const wLine=wPts.join(' ');
+  const pctPresent=s.totalEmployees?Math.round((s.presentToday/s.totalEmployees)*100):0;
+  const kpis=[
+    {lbl:'Empleados activos',val:s.totalEmployees??"—",iconBg:'#EFF6FF',stroke:'#2563EB',icon:`<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>`,spark:null,valCol:'inherit'},
+    {lbl:'Presentes hoy',val:s.presentToday??"—",badge:s.totalEmployees?pctPresent+'%':null,badgeCol:'#16a34a',iconBg:'#f0fdf4',stroke:'#16a34a',icon:`<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>`,spark:{line:wLine,poly:wPoly,s:'#16a34a',f:'rgba(22,163,74,.10)'},valCol:'inherit'},
+    {lbl:'En oficina ahora',val:s.insideNow??"—",iconBg:'#f5f3ff',stroke:'#7c3aed',icon:`<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`,spark:null,valCol:'#7c3aed'},
+    {lbl:'Ausentes hoy',val:s.absentToday??"—",iconBg:'#fef2f2',stroke:'#dc2626',icon:`<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="11" x2="23" y2="11"/>`,spark:null,valCol:(s.absentToday>0)?'#dc2626':'inherit'},
+    {lbl:'Checadas hoy',val:s.checkinsToday??"—",iconBg:'#EFF6FF',stroke:'#2563EB',icon:`<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>`,spark:null,valCol:'inherit'}
+  ];
+  const row=document.getElementById('db-kpi-row');if(!row)return;
+  row.innerHTML=kpis.map(k=>`
+    <div class="db-kpi">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;font-weight:700;color:#8a8a8a;text-transform:uppercase;letter-spacing:.5px">${k.lbl}</span>
+        <span style="width:30px;height:30px;border-radius:9px;background:${k.iconBg};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="15" height="15" fill="none" stroke="${k.stroke}" stroke-width="1.9" viewBox="0 0 24 24">${k.icon}</svg>
+        </span>
       </div>
-      <span class="badge badge-purple" style="font-size:10px">dentro</span>
-      <span class="feed-time">${fmtTime(e.last_checkin)}</span>
-    </div>`).join("");
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <span style="font-size:30px;font-weight:800;letter-spacing:-.8px;line-height:1;color:${k.valCol}">${k.val}</span>
+        ${k.badge?`<span style="display:inline-flex;align-items:center;gap:2px;font-size:11.5px;font-weight:700;color:${k.badgeCol};background:${k.badgeCol==='#16a34a'?'#f0fdf4':'#fef2f2'};padding:2px 7px;border-radius:20px;margin-bottom:3px">${k.badge}</span>`:''}
+      </div>
+      ${k.spark?`<svg viewBox="0 0 120 34" preserveAspectRatio="none" style="width:100%;height:28px;display:block"><polygon points="${k.spark.poly}" fill="${k.spark.f}"/><polyline points="${k.spark.line}" fill="none" stroke="${k.spark.s}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg>`:`<div style="height:28px"></div>`}
+    </div>`).join('');
 }
 
-async function renderWeeklyChart(){
-  const days=await api("GET","/api/stats/week");
-  const max=Math.max(...days.map(d=>d.present),1);
-  const todayStr=new Date().toLocaleDateString('en-CA',{timeZone:'America/Mexico_City'});
-  const labels=['D','L','M','X','J','V','S'];
-  const el=document.getElementById("week-chart");
-  el.innerHTML=days.map(d=>{
-    const pct=Math.max(Math.round((d.present/max)*80),d.present>0?4:0);
-    const isToday=d.date===todayStr;
-    const dayName=labels[new Date(d.date+'T12:00:00').getDay()];
-    return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%">
-      <span style="font-size:10px;font-weight:700;color:${d.present>0?(isToday?'var(--accent)':'var(--text2)'):'transparent'}">${d.present}</span>
-      <div style="flex:1;width:100%;display:flex;align-items:flex-end">
-        <div style="width:100%;border-radius:4px 4px 0 0;background:${isToday?'var(--accent)':'var(--accent-bg)'};height:${pct}px;min-height:${d.present>0?3:0}px;transition:height .3s"></div>
+function renderDashEnOficina(list){
+  const badge=document.getElementById('dash-inside-badge');
+  if(badge)badge.textContent=`${list.length} dentro`;
+  const el=document.getElementById('dash-enoficina-list');if(!el)return;
+  if(!list.length){
+    el.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:#8a8a8a;padding:40px 0"><svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p style="font-size:13px">Nadie en oficina</p></div>';
+    return;
+  }
+  el.innerHTML=list.map(e=>{
+    const ini=((e.name||'?')[0]+(e.last_name?.[0]||'')).toUpperCase();
+    return`<div style="display:flex;align-items:center;gap:11px;padding:9px 8px;border-bottom:1px solid rgba(0,0,0,.045)">
+      <span style="width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;background:#f5f3ff;color:#7c3aed;overflow:hidden">${e.photo?`<img src="${e.photo}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`:ini}</span>
+      <div style="min-width:0;flex:1">
+        <div style="font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.name}${e.last_name?' '+e.last_name:''}</div>
+        <div style="font-size:11.5px;color:#8a8a8a">${e.employee_number||''}</div>
       </div>
-      <span style="font-size:11px;color:${isToday?'var(--text)':'var(--muted)'};font-weight:${isToday?'700':'400'}">${dayName}</span>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
+        <span style="font-size:11px;font-weight:700;color:#16a34a">dentro</span>
+        <span style="font-size:10.5px;color:#8a8a8a">desde ${fmtTime(e.last_checkin)}</span>
+      </div>
     </div>`;
-  }).join("");
+  }).join('');
+}
+
+function renderHourlyChart(checkins){
+  const nowH=new Date().getHours();
+  const hourly={};
+  for(let h=6;h<=21;h++)hourly[h]={in:0,out:0};
+  for(const ci of checkins){
+    const h=new Date(ci.timestamp).getHours();
+    if(h>=6&&h<=21){if(ci.type==='entrada')hourly[h].in++;else hourly[h].out++;}
+  }
+  const mx=Math.max(...Object.values(hourly).map(x=>Math.max(x.in,x.out)),1);
+  const bars=document.getElementById('dash-hourly-bars');if(!bars)return;
+  bars.innerHTML=Object.entries(hourly).map(([h,d])=>{
+    const hN=parseInt(h),isNow=hN===nowH;
+    const inH=Math.round((d.in/mx)*100),outH=Math.round((d.out/mx)*100);
+    const lbl=isNow?'ahora':(hN%3===0?`${hN}:00`:'');
+    return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:0;background:${isNow?'rgba(37,99,235,.06)':'transparent'};border-radius:6px;padding-top:2px">
+      <div style="flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center;padding:0 1px">
+        <div style="width:64%;max-width:15px;height:${inH}%;background:${isNow?'#2563EB':'rgba(37,99,235,0.78)'};border-radius:3px 3px 0 0;transition:height .55s ease;min-height:${d.in>0?1:0}px"></div>
+      </div>
+      <div style="height:17px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:${isNow?'#2563EB':'#a8a8a0'};white-space:nowrap">${lbl}</div>
+      <div style="flex:1;width:100%;display:flex;align-items:flex-start;justify-content:center;padding:0 1px">
+        <div style="width:64%;max-width:15px;height:${outH}%;background:${isNow?'#7c3aed':'rgba(124,58,237,0.72)'};border-radius:0 0 3px 3px;transition:height .55s ease;min-height:${d.out>0?1:0}px"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderSpotlight(ci){
+  if(!ci)return;
+  const isIn=ci.type==='entrada';
+  const name=ci.employee_name||ci.name||'—';
+  const ini=name.split(' ').filter(Boolean).slice(0,2).map(s=>s[0]).toUpperCase().join('');
+  const ph=ci.employee_photo||ci.photo||null;
+  const av=document.getElementById('dash-spot-av');
+  if(av){
+    av.style.background=isIn?'#EFF6FF':'#f5f3ff';
+    av.style.color=isIn?'#2563EB':'#7c3aed';
+    av.innerHTML=ph?`<img src="${ph}" style="width:48px;height:48px;border-radius:50%;object-fit:cover">`:ini;
+  }
+  const nameEl=document.getElementById('dash-spot-name');if(nameEl)nameEl.textContent=name;
+  const sub=document.getElementById('dash-spot-sub');
+  if(sub)sub.textContent=[ci.employee_number,ci.geofence_name].filter(Boolean).join(' · ');
+  const bdg=document.getElementById('dash-spot-badge');
+  if(bdg){bdg.textContent=isIn?'Entrada':'Salida';bdg.style.background=isIn?'#dbeafe':'#ede9fe';bdg.style.color=isIn?'#1d4ed8':'#6d28d9';}
+  const tEl=document.getElementById('dash-spot-time');if(tEl)tEl.textContent=fmtTime(ci.timestamp);
+}
+
+function buildHeatmap(mode){
+  const cells=[];
+  for(let d=0;d<7;d++)for(let c=0;c<16;c++){
+    const h=6+c;
+    const m=Math.exp(-((h-8.3)**2)/3.4),ev=Math.exp(-((h-18.1)**2)/3.0),lu=0.16*Math.exp(-((h-13.6)**2)/2.2);
+    let v=mode==='E'?m+ev*0.12+lu:ev+m*0.12+lu;
+    v*=d<5?1:(d===5?0.5:0.26);
+    v*=0.86+0.22*Math.abs(Math.sin(d*2.3+c*0.7));
+    v=Math.max(0,Math.min(1,v));
+    cells.push(`rgba(37,99,235,${(0.05+v*0.8).toFixed(3)})`);
+  }
+  return cells;
+}
+
+function dashHeat(mode){
+  _dashHeatMode=mode;
+  const be=document.getElementById('db-heat-e'),bs=document.getElementById('db-heat-s');
+  const on='padding:4px 11px;border-radius:7px;font-size:11.5px;font-weight:700;border:none;cursor:pointer;background:#EFF6FF;color:#2563EB;transition:all .15s';
+  const off='padding:4px 11px;border-radius:7px;font-size:11.5px;font-weight:600;border:none;cursor:pointer;background:transparent;color:#8a8a8a;transition:all .15s';
+  if(be)be.style.cssText=mode==='E'?on:off;
+  if(bs)bs.style.cssText=mode==='S'?on:off;
+  const el=document.getElementById('dash-heatmap');if(!el)return;
+  el.innerHTML=buildHeatmap(mode).map(bg=>`<div style="border-radius:3px;background:${bg}"></div>`).join('');
+}
+
+// MEXICO MAP
+function buildMexicoMapSVG(){
+  const VW=320,VH=210;
+  const lngMin=-118.2,lngMax=-86.2,latMin=14.0,latMax=33.2;
+  const px=l=>((l-lngMin)/(lngMax-lngMin))*VW;
+  const py=l=>((latMax-l)/(latMax-latMin))*VH;
+  const mxMain=[[-117.12,32.53],[-114.7,32.5],[-111.02,31.33],[-108.2,31.33],[-106.5,31.78],[-104.9,30.58],[-104.45,29.57],[-102.8,29.75],[-101.4,29.78],[-100.66,28.63],[-99.44,27.05],[-99.09,26.42],[-98.15,26.07],[-97.37,25.87],[-97.14,25.96],[-97.52,22.2],[-96.73,19.73],[-94.74,18.44],[-92.26,18.47],[-90.99,17.82],[-90.07,17.82],[-89.15,17.82],[-88.93,15.89],[-88.49,16.1],[-86.85,21.16],[-87.07,22.93],[-90.07,21.18],[-92.04,19.65],[-94.24,18.49],[-96.24,19.78],[-97.77,22.05],[-99.13,19.43],[-99.32,16.79],[-101.5,18.89],[-103.35,20.67],[-103.9,20.63],[-104.4,19.18],[-104.7,19.31],[-105.5,21.51],[-108.35,26.82],[-110.9,23.77],[-113.6,26.0],[-117.0,32.52],[-117.12,32.53]];
+  const baja=[[-117.12,32.53],[-117.0,32.52],[-114.6,32.4],[-115.0,30.16],[-116.08,28.75],[-113.6,26.0],[-110.9,23.77],[-109.46,23.0],[-109.6,22.5],[-110.1,24.0],[-111.02,26.5],[-114.7,29.5],[-117.0,32.52]];
+  const ringM=mxMain.map(p=>[px(p[0]),py(p[1])]);
+  const ringB=baja.map(p=>[px(p[0]),py(p[1])]);
+  const inPoly=(x,y,ring)=>{let ins=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))ins=!ins;}return ins;};
+  const inside=(x,y)=>inPoly(x,y,ringM)||inPoly(x,y,ringB);
+  const cityRaw=[{n:'CDMX',lng:-99.13,lat:19.43,v:64,s:1},{n:'GDL',lng:-103.35,lat:20.67,v:38,s:1},{n:'MTY',lng:-100.32,lat:25.67,v:36,s:1},{n:'CUN',lng:-86.85,lat:21.16,v:20,s:1},{n:'TJ',lng:-117.0,lat:32.52,v:24,s:1},{n:'PBC',lng:-98.2,lat:19.04,v:16},{n:'AGS',lng:-102.3,lat:21.88,v:12},{n:'SLP',lng:-100.98,lat:22.15,v:11},{n:'HMO',lng:-110.96,lat:29.07,v:10},{n:'MID',lng:-89.62,lat:20.97,v:14}];
+  const maxW=Math.max(...cityRaw.map(c=>c.v));
+  const cp=cityRaw.map(c=>({x:px(c.lng),y:py(c.lat),w:c.v}));
+  const dots=[];
+  for(let gy=3;gy<VH;gy+=6)for(let gx=3;gx<VW;gx+=6){
+    const jx=gx+Math.sin(gx*1.7+gy*0.9)*1.5,jy=gy+Math.cos(gy*1.5+gx*0.7)*1.5;
+    if(!inside(jx,jy))continue;
+    let it=0;for(const c of cp)it+=(c.w/maxW)*Math.exp(-((jx-c.x)**2+(jy-c.y)**2)/240);
+    it=Math.min(1,it);
+    dots.push(`<circle cx="${jx.toFixed(1)}" cy="${jy.toFixed(1)}" r="${(0.85+it*1.8).toFixed(2)}" fill="rgba(37,99,235,${(0.14+it*0.66).toFixed(2)})"/>`);
+  }
+  const hubX=px(-99.13),hubY=py(19.43);
+  const arcT=[[-103.35,20.67],[-100.32,25.67],[-86.85,21.16],[-117.0,32.52],[-89.62,20.97]];
+  const arcs=arcT.map((t,i)=>{const tx=px(t[0]),ty=py(t[1]),dx=tx-hubX,dy=ty-hubY,mx=hubX+dx/2-dy*0.25,my=hubY+dy/2+dx*0.25;return`<path d="M${hubX.toFixed(1)},${hubY.toFixed(1)} Q${mx.toFixed(1)},${my.toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)}" fill="none" stroke="rgba(37,99,235,0.35)" stroke-width="0.9" stroke-linecap="round" stroke-dasharray="1.5 4" style="animation:dbDash 1.4s linear ${(i*0.22).toFixed(2)}s infinite"/>`;}).join('');
+  const ppFn=r=>r.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  const svg=`<svg viewBox="0 0 ${VW} ${VH}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block"><defs><radialGradient id="mxg" cx="44%" cy="40%" r="72%"><stop offset="0%" stop-color="rgba(37,99,235,0.17)"/><stop offset="100%" stop-color="rgba(37,99,235,0.04)"/></radialGradient></defs><polygon points="${ppFn(ringM)}" fill="url(#mxg)" stroke="rgba(37,99,235,0.5)" stroke-width="1.2" stroke-linejoin="round"/><polygon points="${ppFn(ringB)}" fill="url(#mxg)" stroke="rgba(37,99,235,0.5)" stroke-width="1.2" stroke-linejoin="round"/><g>${dots.join('')}</g><g>${arcs}</g></svg>`;
+  const cities=cityRaw.filter(c=>c.s).map(c=>{const cx=px(c.lng)/VW*100,cy=py(c.lat)/VH*100,sz=Math.round(8+(c.v/maxW)*10);return{n:c.n,left:cx.toFixed(2),top:cy.toFixed(2),sz};});
+  return{svg,cities};
+}
+
+function renderMapCard(){
+  const cont=document.getElementById('dash-map-cont');if(!cont)return;
+  const{svg,cities}=buildMexicoMapSVG();
+  const dotHtml=cities.map(c=>`<div style="position:absolute;left:${c.left}%;top:${c.top}%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none;z-index:2"><div style="width:${c.sz}px;height:${c.sz}px;border-radius:50%;background:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,0.22),0 0 0 6px rgba(37,99,235,0.10);display:flex;align-items:center;justify-content:center"><div style="width:${Math.max(3,c.sz-6)}px;height:${Math.max(3,c.sz-6)}px;border-radius:50%;background:rgba(255,255,255,0.9)"></div></div><span style="font-size:8px;font-weight:800;color:#1e40af;background:rgba(255,255,255,0.92);padding:1px 4px;border-radius:3px;margin-top:2px;white-space:nowrap;letter-spacing:.2px">${c.n}</span></div>`).join('');
+  cont.innerHTML=`<div style="position:relative;width:100%;height:100%;min-height:230px">${svg}<div style="position:absolute;inset:0">${dotHtml}</div></div>`;
+}
+
+function renderGeoTable(checkins){
+  const el=document.getElementById('dash-geo-table');if(!el)return;
+  const geoMap={};
+  for(const ci of checkins){const g=ci.geofence_name||'Sin geocerca';if(!geoMap[g])geoMap[g]={in:0,out:0};if(ci.type==='entrada')geoMap[g].in++;else geoMap[g].out++;}
+  const geos=Object.entries(geoMap).map(([name,d])=>({name,total:d.in+d.out,in:d.in,out:d.out})).sort((a,b)=>b.total-a.total).slice(0,8);
+  if(!geos.length){el.innerHTML='<div style="color:#b0b0b0;font-size:12.5px;text-align:center;padding:40px 0">Sin registros hoy</div>';return;}
+  const maxT=Math.max(...geos.map(g=>g.total));
+  el.innerHTML=geos.map((g,i)=>`<div style="display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.045)"><span style="font-size:11px;font-weight:700;color:#c0c0c0;width:14px;text-align:center;flex-shrink:0">${i+1}</span><div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px">${g.name}</div><div style="height:5px;background:rgba(0,0,0,.06);border-radius:4px"><div style="height:100%;width:${Math.round((g.total/maxT)*100)}%;background:linear-gradient(90deg,#2563EB,#60a5fa);border-radius:4px"></div></div></div><div style="text-align:right;flex-shrink:0"><span style="font-size:15px;font-weight:800;color:#2563EB">${g.total}</span><div style="font-size:9.5px;color:#8a8a8a;margin-top:1px"><span style="color:#16a34a">↑${g.in}</span>&nbsp;<span style="color:#7c3aed">↓${g.out}</span></div></div></div>`).join('');
 }
 
 function openPhoto(src){
@@ -1664,7 +1928,18 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementB
 
 // LIVE FEED
 async function loadLiveFeed(){
-  const list=await api("GET","/api/checkins/today");renderFeed(list.map(r=>({...r,photo:r.employee_photo})));
+  const list=await api("GET","/api/checkins/today");
+  _todayCheckins=list;
+  renderFeed(list);
+  renderHourlyChart(list);
+  renderGeoTable(list);
+  if(list.length){
+    renderSpotlight(list[0]);
+    const totIn=list.filter(c=>c.type==='entrada').length;
+    const totOut=list.filter(c=>c.type==='salida').length;
+    const inEl=document.getElementById('dash-tot-in'),outEl=document.getElementById('dash-tot-out');
+    if(inEl)inEl.textContent=totIn;if(outEl)outEl.textContent=totOut;
+  }
 }
 
 function avatarHtml(photo,name,size=36){
@@ -1674,28 +1949,63 @@ function avatarHtml(photo,name,size=36){
 }
 
 function renderFeed(list){
-  const el=document.getElementById("live-feed");
-  if(!list.length){el.innerHTML='<div class="empty"><svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>Sin checadas hoy</p></div>';return;}
-  el.innerHTML=list.map(ci=>`
-    <div class="feed-item">
-      ${avatarHtml(ci.employee_photo,ci.employee_name)}
-      <div style="flex:1;min-width:0">
-        <div class="feed-name">${ci.employee_name}</div>
-        <div class="feed-num">${ci.employee_number}</div>
+  const el=document.getElementById("live-feed");if(!el)return;
+  if(!list.length){
+    el.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:#8a8a8a;padding:40px 0"><svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p style="font-size:13px">Sin checadas hoy</p></div>';
+    return;
+  }
+  el.innerHTML=list.map(ci=>{
+    const isIn=ci.type==='entrada';
+    const name=ci.employee_name||'—';
+    const ini=name.split(' ').filter(Boolean).slice(0,2).map(s=>s[0]).toUpperCase().join('');
+    const ph=ci.employee_photo||ci.photo||null;
+    const avCnt=ph?`<img src="${ph}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`:ini;
+    const geo=ci.geofence_name||'';
+    return`<div style="display:flex;align-items:center;gap:11px;padding:9px 8px;border-bottom:1px solid rgba(0,0,0,.045)">
+      <span style="width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;background:${isIn?'#EFF6FF':'#f5f3ff'};color:${isIn?'#2563EB':'#7c3aed'};overflow:hidden">${avCnt}</span>
+      <div style="min-width:0;flex:1">
+        <div style="font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div>
+        <div style="font-size:11.5px;color:#8a8a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${[ci.employee_number,geo].filter(Boolean).join(' · ')}</div>
       </div>
-      <span class="badge badge-${ci.type==='entrada'?'green':'yellow'}">${ci.type}</span>
-      ${ci.latitude!=null?`<a href="https://maps.google.com/?q=${ci.latitude},${ci.longitude}" target="_blank" style="font-size:11px;color:var(--muted);text-decoration:none;border:1px solid var(--border);border-radius:4px;padding:2px 6px;flex-shrink:0">mapa</a>`:''}
-      ${ci.photo?`<img src="${ci.photo}" style="width:36px;height:36px;border-radius:4px;object-fit:cover;flex-shrink:0;border:1px solid var(--border);cursor:zoom-in" onclick="openPhoto('${ci.photo}')" title="Foto del checkin" class="ci-photo">`:``}
-      <span class="feed-time">${fmtTime(ci.timestamp)}</span>
-    </div>`).join("");
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+        <span style="display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:700;background:${isIn?'#dbeafe':'#ede9fe'};color:${isIn?'#1d4ed8':'#6d28d9'}">${isIn?'Entrada':'Salida'}</span>
+        <span style="font-size:11px;color:#8a8a8a;font-variant-numeric:tabular-nums">${fmtTime(ci.timestamp)}</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function prependFeed(ci){
-  const el=document.getElementById("live-feed");
-  const emp=el.querySelector(".empty");if(emp)el.innerHTML="";
-  const d=document.createElement("div");d.className="feed-item";
-  d.innerHTML=`${avatarHtml(ci.photo,ci.employee_name)}<div><div class="feed-name">${ci.employee_name}</div><div class="feed-num">${ci.employee_number}</div></div><span class="badge badge-${ci.type==='entrada'?'green':'yellow'} pulse">${ci.type}</span><span class="feed-time">${fmtTime(ci.timestamp)}</span>`;
-  el.prepend(d);loadStats();
+  _todayCheckins.unshift(ci);
+  const el=document.getElementById("live-feed");if(!el)return;
+  if(el.querySelector('svg'))el.innerHTML=''; // clear empty state
+  const isIn=ci.type==='entrada';
+  const name=ci.employee_name||'—';
+  const ini=name.split(' ').filter(Boolean).slice(0,2).map(s=>s[0]).toUpperCase().join('');
+  const ph=ci.employee_photo||ci.photo||null;
+  const avCnt=ph?`<img src="${ph}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`:ini;
+  const d=document.createElement('div');
+  d.style.cssText='display:flex;align-items:center;gap:11px;padding:9px 8px;border-radius:10px;border-bottom:1px solid rgba(0,0,0,.045);background:#EFF6FF;transition:background .9s ease';
+  d.innerHTML=`
+    <span style="width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;background:${isIn?'#EFF6FF':'#f5f3ff'};color:${isIn?'#2563EB':'#7c3aed'};overflow:hidden">${avCnt}</span>
+    <div style="min-width:0;flex:1">
+      <div style="font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div>
+      <div style="font-size:11.5px;color:#8a8a8a">${[ci.employee_number,ci.geofence_name].filter(Boolean).join(' · ')}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+      <span style="display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:700;background:${isIn?'#dbeafe':'#ede9fe'};color:${isIn?'#1d4ed8':'#6d28d9'}">${isIn?'Entrada':'Salida'}</span>
+      <span style="font-size:11px;color:#8a8a8a">${fmtTime(ci.timestamp)}</span>
+    </div>`;
+  el.prepend(d);
+  setTimeout(()=>{d.style.background='transparent';},900);
+  renderHourlyChart(_todayCheckins);
+  renderSpotlight(ci);
+  renderGeoTable(_todayCheckins);
+  const totIn=_todayCheckins.filter(c=>c.type==='entrada').length;
+  const totOut=_todayCheckins.filter(c=>c.type==='salida').length;
+  const inEl=document.getElementById('dash-tot-in'),outEl=document.getElementById('dash-tot-out');
+  if(inEl)inEl.textContent=totIn;if(outEl)outEl.textContent=totOut;
+  loadStats();
 }
 
 function initSSE(){
