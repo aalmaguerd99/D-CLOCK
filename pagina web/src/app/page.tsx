@@ -93,7 +93,7 @@ export default function Home() {
 
           <div style={{display:'inline-flex',alignItems:'center',gap:'8px',fontSize:'12px',fontWeight:700,color:'#15803d',background:'#dcfce7',border:'1px solid #bbf7d0',padding:'7px 14px',borderRadius:'99px',marginBottom:'24px'}}>
             <span className="pdot" style={{width:'7px',height:'7px',borderRadius:'50%',background:'#16a34a',display:'inline-block'}}/>
-            Disponible ahora · v1.3.1 · Junio 2026
+            Disponible ahora · v1.3.2 · Junio 2026
           </div>
 
           <h1 style={{fontSize:'clamp(2.5rem,6vw,4.3rem)',fontWeight:900,letterSpacing:'-.04em',lineHeight:1.02,margin:'0 0 20px',textWrap:'balance' as never}}>
@@ -122,11 +122,11 @@ export default function Home() {
                 <span style={{fontSize:'11px',fontWeight:600,color:'#374151',background:'#F3F4F6',padding:'4px 9px',borderRadius:'99px'}}>64-bit</span>
                 <span style={{fontSize:'11px',fontWeight:600,color:'#374151',background:'#F3F4F6',padding:'4px 9px',borderRadius:'99px'}}>~95 MB</span>
               </div>
-              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.1/D-CLOCK-Setup-1.3.1.exe" download className="dcl-dl-btn" style={{marginTop:'auto',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'8px',background:'#1a1a1a',color:'#fff',fontWeight:700,fontSize:'14.5px',padding:'13px',borderRadius:'13px',transition:'transform .15s,box-shadow .18s'}}>
+              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.2/D-CLOCK-Setup-1.3.2.exe" download className="dcl-dl-btn" style={{marginTop:'auto',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'8px',background:'#1a1a1a',color:'#fff',fontWeight:700,fontSize:'14.5px',padding:'13px',borderRadius:'13px',transition:'transform .15s,box-shadow .18s'}}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Descargar .exe
               </a>
-              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.1/D-CLOCK-Portable-1.3.1.exe" download className="dcl-sec-win" style={{textAlign:'center',fontSize:'12px',fontWeight:600,color:'#6a6a6a',marginTop:'11px',transition:'color .15s'}}>Descargar versión portable →</a>
+              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.2/D-CLOCK-Portable-1.3.2.exe" download className="dcl-sec-win" style={{textAlign:'center',fontSize:'12px',fontWeight:600,color:'#6a6a6a',marginTop:'11px',transition:'color .15s'}}>Descargar versión portable →</a>
             </div>
 
             {/* ANDROID */}
@@ -580,7 +580,7 @@ export default function Home() {
             <h2 style={{fontSize:'clamp(1.8rem,3.6vw,2.5rem)',fontWeight:900,letterSpacing:'-.03em',color:'#fff',margin:'0 0 14px',lineHeight:1.1}}>Empieza a checar hoy mismo.</h2>
             <p style={{fontSize:'15px',color:'rgba(255,255,255,.7)',margin:'0 auto 28px',maxWidth:'480px',lineHeight:1.6}}>Descarga D-CLOCK para tu plataforma. Instalación en menos de 5 minutos.</p>
             <div style={{display:'flex',flexWrap:'wrap',gap:'12px',justifyContent:'center'}}>
-              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.1/D-CLOCK-Setup-1.3.1.exe" download className="dcl-cta-btn" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'#fff',color:'#1a1a1a',fontWeight:700,fontSize:'14px',padding:'13px 22px',borderRadius:'13px',transition:'transform .15s'}}>
+              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.2/D-CLOCK-Setup-1.3.2.exe" download className="dcl-cta-btn" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'#fff',color:'#1a1a1a',fontWeight:700,fontSize:'14px',padding:'13px 22px',borderRadius:'13px',transition:'transform .15s'}}>
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="#2563EB"><path d="M3 5.1 10.3 4v7.3H3V5.1zm0 13.8 7.3 1v-7.2H3v6.2zM11.2 3.85 21 2.5v8.8h-9.8V3.85zm0 16.3L21 21.5v-8.7h-9.8v7.35z"/></svg>
                 Windows
               </a>
