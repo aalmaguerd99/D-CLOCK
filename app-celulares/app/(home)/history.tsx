@@ -1,37 +1,69 @@
 import {
-  View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity, Linking,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity,
+  Image, ActivityIndicator, RefreshControl, Linking,
 } from "react-native";
 import { useState, useCallback } from "react";
 import { useFocusEffect } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { getSession } from "@/lib/storage";
 import { fetchTodayCheckins, Checkin } from "@/lib/api";
 
+const DAYS_ES    = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+const MONTHS_ES  = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+
+function toLocalDate(isoDate: string): Date {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function dateKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function fullDateLabel(isoDate: string): string {
+  const d = toLocalDate(isoDate);
+  return `${DAYS_ES[d.getDay()]} ${d.getDate()} ${MONTHS_ES[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function fmtTime(ts: string): string {
+  return new Date(ts).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: true });
+}
+
+function isToday(isoDate: string): boolean {
+  return isoDate === dateKey(new Date());
+}
+
 export default function HistoryScreen() {
-  const [checkins, setCheckins] = useState<Checkin[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [empName, setEmpName] = useState("");
+  const [checkins,   setCheckins]   = useState<Checkin[]>([]);
+  const [loading,    setLoading]    = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [currentDate, setCurrentDate] = useState<string>(dateKey(new Date()));
+  const [empId,      setEmpId]      = useState<number | null>(null);
+  const [empPhoto,   setEmpPhoto]   = useState<string | null>(null);
 
-  useFocusEffect(
-    useCallback(() => { load(); }, [])
-  );
+  useFocusEffect(useCallback(() => {
+    loadForDate(dateKey(new Date()), true);
+  }, []));
 
-  async function load() {
-    setLoading(true);
+  async function loadForDate(date: string, init = false) {
+    if (init) setLoading(true); else setRefreshing(true);
     try {
-      const session = await getSession();
-      if (!session) return;
-      setEmpName(`${session.name}${session.last_name ? " " + session.last_name : ""}`);
-      const rows = await fetchTodayCheckins(session.id);
-      setCheckins(rows.slice().reverse());
+      const s = await getSession();
+      if (!s) return;
+      setEmpId(s.id);
+      setEmpPhoto((s as any).photo ?? null);
+      const rows = await fetchTodayCheckins(s.id, date);
+      setCheckins(rows);
+      setCurrentDate(date);
     } catch {}
-    finally { setLoading(false); }
+    finally { setLoading(false); setRefreshing(false); }
   }
 
-  function fmtTimestamp(ts: string) {
-    return new Date(ts).toLocaleString("es-MX", {
-      day: "2-digit", month: "short",
-      hour: "2-digit", minute: "2-digit", hour12: true,
-    });
+  function changeDay(delta: number) {
+    const d = toLocalDate(currentDate);
+    d.setDate(d.getDate() + delta);
+    if (d > new Date()) return;
+    loadForDate(dateKey(d));
   }
 
   function openMap(lat: number, lng: number) {
@@ -39,104 +71,176 @@ export default function HistoryScreen() {
   }
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color="#1a1a1a" /></View>;
+    return <View style={ss.center}><ActivityIndicator size="large" color="#1a1a1a" /></View>;
   }
 
+  const entrada = checkins.find(c => c.type === "in");
+  const salida  = checkins.find(c => c.type === "out");
+  const isTodayFlag = isToday(currentDate);
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>HISTORIAL HOY</Text>
-        <Text style={styles.sub}>{empName}</Text>
+    <ScrollView
+      style={ss.root}
+      contentContainerStyle={ss.content}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadForDate(currentDate, false)} tintColor="#1a1a1a" />}
+    >
+      {/* Navegador de fechas */}
+      <View style={ss.nav}>
+        <TouchableOpacity style={ss.navBtn} onPress={() => changeDay(-1)}>
+          <Ionicons name="chevron-back" size={20} color="#1a1a1a" />
+        </TouchableOpacity>
+        <View style={ss.navCenter}>
+          <Text style={ss.navDate}>{fullDateLabel(currentDate)}</Text>
+          {isTodayFlag && <Text style={ss.navToday}>Hoy</Text>}
+        </View>
+        <TouchableOpacity
+          style={[ss.navBtn, isTodayFlag && ss.navBtnDisabled]}
+          onPress={() => changeDay(1)}
+          disabled={isTodayFlag}
+        >
+          <Ionicons name="chevron-forward" size={20} color={isTodayFlag ? "#ccc" : "#1a1a1a"} />
+        </TouchableOpacity>
       </View>
 
       {checkins.length === 0 ? (
-        <View style={styles.center}>
-          <Text style={styles.emptyTitle}>Sin registros</Text>
-          <Text style={styles.emptySub}>No hay registros para hoy</Text>
+        <View style={ss.empty}>
+          <Ionicons name="time-outline" size={48} color="#d1d5db" />
+          <Text style={ss.emptyTitle}>Sin registros</Text>
+          <Text style={ss.emptySub}>No hay fichadas para este día</Text>
         </View>
       ) : (
-        <FlatList
-          data={checkins}
-          keyExtractor={(item) => String(item.id)}
-          contentContainerStyle={styles.list}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={styles.cardTop}>
-                <View style={styles.cardLeft}>
-                  <View style={[styles.typePill, item.type === "in" ? styles.pillIn : styles.pillOut]}>
-                    <Text style={[styles.pillText, item.type === "in" ? styles.pillTextIn : styles.pillTextOut]}>
-                      {item.type === "in" ? "ENTRADA" : "SALIDA"}
-                    </Text>
-                  </View>
-                  <Text style={styles.cardTime}>{fmtTimestamp(item.timestamp)}</Text>
+        <View style={ss.cards}>
+          {checkins.map(item => (
+            <View key={item.id} style={ss.card}>
+              {/* Badge tipo */}
+              <View style={ss.cardHead}>
+                <View style={[ss.pill, item.type === "in" ? ss.pillIn : ss.pillOut]}>
+                  <Text style={[ss.pillTxt, item.type === "in" ? ss.pillTxtIn : ss.pillTxtOut]}>
+                    {item.type === "in" ? "ENTRADA" : "SALIDA"}
+                  </Text>
                 </View>
-                {(item as any).lat != null && (
-                  <TouchableOpacity
-                    onPress={() => openMap((item as any).lat, (item as any).lng)}
-                    style={styles.mapBtn}
-                  >
-                    <Text style={styles.mapBtnText}>VER MAPA</Text>
-                  </TouchableOpacity>
-                )}
+                <Text style={ss.time}>{fmtTime(item.timestamp)}</Text>
               </View>
-              {(item as any).photo && (
-                <Image
-                  source={{ uri: (item as any).photo }}
-                  style={styles.photo}
-                  resizeMode="cover"
-                />
+
+              {/* Geocerca */}
+              {item.geofence_name ? (
+                <View style={ss.geoRow}>
+                  <Ionicons name="location" size={13} color="#16a34a" />
+                  <Text style={ss.geoTxt}>{item.geofence_name}</Text>
+                </View>
+              ) : (
+                <View style={ss.geoRow}>
+                  <Ionicons name="location-outline" size={13} color="#aaa" />
+                  <Text style={ss.geoNone}>Sin geocerca</Text>
+                </View>
               )}
+
+              {/* Foto de fichada */}
+              {item.photo ? (
+                <Image source={{ uri: item.photo }} style={ss.photo} resizeMode="cover" />
+              ) : null}
+
+              {/* Mapa */}
+              {item.latitude != null && item.longitude != null ? (
+                <TouchableOpacity
+                  style={ss.mapBtn}
+                  onPress={() => openMap(item.latitude!, item.longitude!)}
+                  activeOpacity={0.8}
+                >
+                  <View style={ss.mapBtnInner}>
+                    {empPhoto ? (
+                      <Image source={{ uri: empPhoto }} style={ss.mapAvatar} />
+                    ) : (
+                      <View style={[ss.mapAvatar, ss.mapAvatarFallback]}>
+                        <Ionicons name="person" size={14} color="#888" />
+                      </View>
+                    )}
+                    <View>
+                      <Text style={ss.mapBtnLbl}>Ver en mapa</Text>
+                      <Text style={ss.mapBtnCoords}>
+                        {item.latitude.toFixed(5)}, {item.longitude.toFixed(5)}
+                      </Text>
+                    </View>
+                    <Ionicons name="open-outline" size={16} color="#2563EB" style={{ marginLeft: "auto" }} />
+                  </View>
+                </TouchableOpacity>
+              ) : null}
             </View>
-          )}
-          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-        />
+          ))}
+        </View>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F1EB" },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  header: {
-    paddingTop: 64, paddingHorizontal: 24, paddingBottom: 20,
-    borderBottomWidth: 1, borderBottomColor: "#e0dbd2",
-  },
-  title: { fontSize: 12, fontWeight: "700", color: "#888", letterSpacing: 2 },
-  sub: { fontSize: 20, fontWeight: "800", color: "#1a1a1a", marginTop: 4 },
-  list: { padding: 24 },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#e8e4de",
-  },
-  cardTop: {
+const ss = StyleSheet.create({
+  root:    { flex: 1, backgroundColor: "#F5F1EB" },
+  content: { paddingTop: 60, paddingHorizontal: 20, paddingBottom: 48 },
+  center:  { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#F5F1EB" },
+
+  nav: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    padding: 16,
+    marginBottom: 24,
   },
-  cardLeft: { gap: 6 },
-  typePill: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 10, paddingVertical: 3,
-    borderRadius: 4,
+  navBtn: {
+    width: 40, height: 40, borderRadius: 12,
+    backgroundColor: "#fff", borderWidth: 1, borderColor: "rgba(0,0,0,0.08)",
+    alignItems: "center", justifyContent: "center",
   },
-  pillIn: { backgroundColor: "#dcfce7" },
-  pillOut: { backgroundColor: "#fee2e2" },
-  pillText: { fontSize: 10, fontWeight: "700", letterSpacing: 1 },
-  pillTextIn: { color: "#16a34a" },
-  pillTextOut: { color: "#dc2626" },
-  cardTime: { fontSize: 14, color: "#555", fontVariant: ["tabular-nums"] },
-  mapBtn: {
-    borderWidth: 1, borderColor: "#ccc", borderRadius: 6,
-    paddingHorizontal: 10, paddingVertical: 6,
-  },
-  mapBtnText: { fontSize: 10, fontWeight: "700", letterSpacing: 1, color: "#555" },
-  photo: {
-    width: "100%", height: 200,
-    borderTopWidth: 1, borderTopColor: "#e8e4de",
-  },
+  navBtnDisabled: { opacity: 0.35 },
+  navCenter: { alignItems: "center", flex: 1 },
+  navDate:  { fontSize: 15, fontWeight: "700", color: "#1a1a1a" },
+  navToday: { fontSize: 11, color: "#2563EB", fontWeight: "600", marginTop: 2 },
+
+  empty: { alignItems: "center", paddingTop: 60, gap: 8 },
   emptyTitle: { fontSize: 16, fontWeight: "700", color: "#555" },
-  emptySub: { fontSize: 13, color: "#aaa", marginTop: 4 },
+  emptySub:   { fontSize: 13, color: "#aaa" },
+
+  cards: { gap: 14 },
+  card: {
+    backgroundColor: "#fff", borderRadius: 16,
+    borderWidth: 1, borderColor: "rgba(0,0,0,0.07)", overflow: "hidden",
+  },
+
+  cardHead: {
+    flexDirection: "row", alignItems: "center", gap: 10,
+    paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12,
+  },
+  pill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 },
+  pillIn:  { backgroundColor: "#dcfce7" },
+  pillOut: { backgroundColor: "#fff7ed" },
+  pillTxt: { fontSize: 10, fontWeight: "800", letterSpacing: 1 },
+  pillTxtIn:  { color: "#16a34a" },
+  pillTxtOut: { color: "#ea580c" },
+  time: { fontSize: 22, fontWeight: "800", color: "#1a1a1a", fontVariant: ["tabular-nums"] },
+
+  geoRow: {
+    flexDirection: "row", alignItems: "center", gap: 4,
+    paddingHorizontal: 16, paddingBottom: 14,
+  },
+  geoTxt:  { fontSize: 12, fontWeight: "600", color: "#16a34a" },
+  geoNone: { fontSize: 12, color: "#aaa" },
+
+  photo: {
+    width: "100%", height: 220,
+    borderTopWidth: 1, borderTopColor: "rgba(0,0,0,0.06)",
+  },
+
+  mapBtn: {
+    margin: 12, borderRadius: 12,
+    backgroundColor: "#f0f4ff", borderWidth: 1, borderColor: "#dbeafe",
+  },
+  mapBtnInner: {
+    flexDirection: "row", alignItems: "center", gap: 10,
+    padding: 12,
+  },
+  mapAvatar: {
+    width: 36, height: 36, borderRadius: 10,
+    borderWidth: 2, borderColor: "#fff",
+  },
+  mapAvatarFallback: {
+    backgroundColor: "#e8e2d8", alignItems: "center", justifyContent: "center",
+  },
+  mapBtnLbl:    { fontSize: 13, fontWeight: "700", color: "#1a1a1a" },
+  mapBtnCoords: { fontSize: 10, color: "#888", marginTop: 1 },
 });

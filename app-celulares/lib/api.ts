@@ -75,6 +75,7 @@ export interface MyTeam {
   name: string;
   description: string | null;
   members: TeamMember[];
+  date?: string;
 }
 
 export interface AdminCheckin {
@@ -96,9 +97,11 @@ export interface Checkin {
   employee_id: number;
   type: "in" | "out";
   timestamp: string;
-  lat: number | null;
-  lng: number | null;
-  note: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  photo: string | null;
+  geofence_name: string | null;
+  face_verified: number | null;
 }
 
 export interface CheckinResult {
@@ -171,8 +174,10 @@ export async function authEmployee(
   };
 }
 
-export async function fetchTodayCheckins(employee_id: number): Promise<Checkin[]> {
-  return get<Checkin[]>(`/api/mobile/checkins/today?employee_id=${employee_id}`);
+export async function fetchTodayCheckins(employee_id: number, date?: string): Promise<Checkin[]> {
+  const params = new URLSearchParams({ employee_id: String(employee_id) });
+  if (date) params.append("date", date);
+  return get<Checkin[]>(`/api/mobile/checkins/today?${params}`);
 }
 
 export async function registerCheckin(
@@ -206,7 +211,7 @@ export async function fetchAdminCheckins(
   return res.json();
 }
 
-export async function fetchMyTeam(employeeId: number, date?: string): Promise<MyTeam | null> {
+export async function fetchMyTeam(employeeId: number, date?: string): Promise<MyTeam[]> {
   try {
     const url = await base();
     const params = new URLSearchParams({ employee_id: String(employeeId) });
@@ -215,10 +220,11 @@ export async function fetchMyTeam(employeeId: number, date?: string): Promise<My
     const res = await fetch(`${url}${endpoint}?${params}`, {
       headers: { Accept: "application/json" },
     });
-    if (!res.ok) return null;
-    return res.json();
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
   } catch {
-    return null;
+    return [];
   }
 }
 

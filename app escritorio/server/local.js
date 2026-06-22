@@ -81,13 +81,18 @@ app.post("/api/mobile/auth", (req, res) => {
 
 // ── Checkins de hoy para empleado (móvil) ────────────
 app.get("/api/mobile/checkins/today", (req, res) => {
-  const { employee_id } = req.query;
+  const { employee_id, date } = req.query;
   if (!employee_id) return res.status(400).json({ error: "employee_id requerido" });
-  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
-  const rows  = DB.getDb().prepare(
-    "SELECT id, type, timestamp FROM check_ins WHERE employee_id=? AND date(timestamp,'localtime')=? ORDER BY timestamp ASC"
-  ).all(employee_id, today);
-  res.json(rows.map((r) => ({ ...r, type: r.type === "entrada" ? "in" : "out" })));
+  const targetDate = date || new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
+  const rows = DB.getDb().prepare(`
+    SELECT ci.id, ci.type, ci.timestamp, ci.latitude, ci.longitude, ci.photo, ci.face_verified,
+           g.name AS geofence_name
+    FROM check_ins ci
+    LEFT JOIN geofences g ON g.id = ci.geofence_id
+    WHERE ci.employee_id = ? AND date(ci.timestamp,'localtime') = ?
+    ORDER BY ci.timestamp ASC
+  `).all(employee_id, targetDate);
+  res.json(rows.map(r => ({ ...r, type: r.type === "entrada" ? "in" : "out" })));
 });
 
 function faceDistance(d1, d2) {
@@ -1309,12 +1314,11 @@ app.get("/api/mobile/my-team", (req, res) => {
   if (!employee_id) return res.status(400).json({ error: "employee_id requerido" });
   const db2 = DB.getDb();
 
-  // Busca el equipo donde este empleado es admin
-  const team = db2.prepare("SELECT id, name, description FROM teams WHERE admin_id=? LIMIT 1").get(employee_id);
-  if (!team) return res.json(null);
+  const teams = db2.prepare("SELECT id, name, description FROM teams WHERE admin_id=?").all(employee_id);
+  if (!teams.length) return res.json([]);
 
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
-  const members = db2.prepare(`
+  const memberQuery = db2.prepare(`
     SELECT e.id, e.employee_number, e.name, e.last_name, e.photo,
            j.name AS job_title,
            (SELECT type FROM check_ins
@@ -1328,9 +1332,13 @@ app.get("/api/mobile/my-team", (req, res) => {
     LEFT JOIN job_titles j ON j.id = e.job_title_id
     WHERE tm.team_id = ?
     ORDER BY e.name, e.last_name
-  `).all(today, today, team.id);
-
-  res.json({ ...team, members, date: today });
+  `);
+  const result = teams.map(team => ({
+    ...team,
+    members: memberQuery.all(today, today, team.id),
+    date: today,
+  }));
+  res.json(result);
 });
 
 // GET /api/mobile/my-team/history — historial del equipo por fecha
@@ -1339,10 +1347,10 @@ app.get("/api/mobile/my-team/history", (req, res) => {
   if (!employee_id || !date) return res.status(400).json({ error: "Parámetros requeridos" });
   const db2 = DB.getDb();
 
-  const team = db2.prepare("SELECT id, name FROM teams WHERE admin_id=? LIMIT 1").get(employee_id);
-  if (!team) return res.json(null);
+  const teams = db2.prepare("SELECT id, name FROM teams WHERE admin_id=?").all(employee_id);
+  if (!teams.length) return res.json([]);
 
-  const members = db2.prepare(`
+  const memberQuery = db2.prepare(`
     SELECT e.id, e.employee_number, e.name, e.last_name, e.photo,
            j.name AS job_title,
            (SELECT type FROM check_ins
@@ -1356,9 +1364,13 @@ app.get("/api/mobile/my-team/history", (req, res) => {
     LEFT JOIN job_titles j ON j.id = e.job_title_id
     WHERE tm.team_id = ?
     ORDER BY e.name, e.last_name
-  `).all(date, date, team.id);
-
-  res.json({ ...team, members, date });
+  `);
+  const result = teams.map(team => ({
+    ...team,
+    members: memberQuery.all(date, date, team.id),
+    date,
+  }));
+  res.json(result);
 });
 
 // ── Server lifecycle ──────────────────────────────────
