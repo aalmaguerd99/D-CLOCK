@@ -53,10 +53,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/D-CLOCKlogo.png", type: "image/png", sizes: "512x512" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
     ],
-    shortcut: "/favicon.svg",
+    shortcut: "/D-CLOCKlogo.png",
     apple: "/D-CLOCKlogo.png",
   },
   robots: {

@@ -124,6 +124,27 @@ section{position:relative;z-index:1;}
 }
 .int-pill:hover{background:#fff;border-color:rgba(37,99,235,.25);transform:translateY(-1px);}
 
+/* dcl landing hover */
+.dcl-nav-link:hover{color:#1a1a1a!important;}
+.dcl-nav-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.22);}
+.dcl-card{transition:transform .25s,box-shadow .25s;}
+.dcl-card-win:hover{transform:translateY(-4px);box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 22px 60px rgba(37,99,235,.14);}
+.dcl-card-android:hover{transform:translateY(-4px);box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 22px 60px rgba(22,163,74,.14);}
+.dcl-card-apple:hover{transform:translateY(-4px);box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 22px 60px rgba(0,0,0,.15);}
+.dcl-dl-btn:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(0,0,0,.25);}
+.dcl-sec-win:hover{color:#2563EB!important;}
+.dcl-sec-android:hover{color:#16a34a!important;}
+.dcl-sec-apple:hover{color:#1a1a1a!important;}
+.dcl-feature-card{transition:transform .25s,box-shadow .25s;}
+.dcl-feature-card:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(37,99,235,.1);}
+.dcl-plan-card{transition:transform .25s,box-shadow .25s;}
+.dcl-plan-card:hover{transform:translateY(-4px);box-shadow:0 18px 50px rgba(0,0,0,.09);}
+.dcl-plan-btn:hover{transform:translateY(-1px);}
+.dcl-cta-btn:hover{transform:translateY(-2px);}
+.dcl-footer-link:hover{color:#2563EB!important;}
+.dcl-mob-android:hover{border-color:rgba(22,163,74,.4)!important;transform:translateY(-1px);}
+.dcl-mob-apple:hover{border-color:rgba(0,0,0,.3)!important;transform:translateY(-1px);}
+
 /* map mock */
 .map-pin{
   position:absolute;
