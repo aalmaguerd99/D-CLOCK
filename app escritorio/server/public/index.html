@@ -3980,8 +3980,7 @@ function goto(name,el){
 
   async function openAddMemberModal() {
     _addMemberTeamId = currentTeamId;
-    const token = localStorage.getItem('dclock_token');
-    const r = await fetch('/api/employees', { headers: { 'x-auth-token': token } });
+    const r = await fetch(BASE + '/api/employees', { headers: { 'x-auth-token': TOKEN } });
     _allEmpsForTeam = (await r.json()).filter(e => e.active);
     document.getElementById('add-member-search').value = '';
     filterAddMemberList('');
