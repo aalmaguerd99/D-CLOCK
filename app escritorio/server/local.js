@@ -416,13 +416,23 @@ app.put("/api/employees/:id", auth, (req, res) => {
   res.json({ ok: true });
 });
 app.patch("/api/employees/:id", auth, (req, res) => {
-  const { active } = req.body;
-  DB.getDb().prepare("UPDATE employees SET active=? WHERE id=?").run(active ? 1 : 0, req.params.id);
-  res.json({ ok: true });
+  try {
+    const { active } = req.body;
+    DB.getDb().prepare("UPDATE employees SET active=? WHERE id=?").run(active ? 1 : 0, req.params.id);
+    res.json({ ok: true });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 app.delete("/api/employees/:id", auth, (req, res) => {
-  DB.getDb().prepare("DELETE FROM employees WHERE id=?").run(req.params.id);
-  res.json({ ok: true });
+  try {
+    const db = DB.getDb();
+    db.prepare("DELETE FROM check_ins WHERE employee_id=?").run(req.params.id);
+    db.prepare("DELETE FROM employees WHERE id=?").run(req.params.id);
+    res.json({ ok: true });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // ── Schedule Assignments ──────────────────────────────
