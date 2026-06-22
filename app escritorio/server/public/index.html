@@ -3763,8 +3763,7 @@ function _refreshNewPreview(){
   // QR real del empleado
   const qrImg=document.getElementById('wc-qr-img');
   if(qrImg&&emp.id){
-    const token=localStorage.getItem('dclock_token');
-    fetch(`/api/wallet-qr/${emp.id}`,{headers:{'x-auth-token':token}})
+    fetch(BASE+`/api/wallet-qr/${emp.id}`,{headers:{'x-auth-token':TOKEN}})
       .then(r=>r.json()).then(d=>{if(d.dataUrl){qrImg.src=d.dataUrl;qrImg.style.opacity='1';}}).catch(()=>{});
   }
 }
@@ -3796,8 +3795,7 @@ async function testWalletPass(){
   if(!empId){showWalletMsg('Selecciona un empleado para la prueba','red');return;}
   showWalletMsg('Generando pass...','blue');
   try{
-    const token=localStorage.getItem('dclock_token');
-    const res=await fetch(`/api/employees/${empId}/pass.pkpass`,{headers:{'x-auth-token':token}});
+    const res=await fetch(BASE+`/api/employees/${empId}/pass.pkpass`,{headers:{'x-auth-token':TOKEN}});
     if(!res.ok){const e=await res.json();showWalletMsg(e.error||'Error generando pass','red');return;}
     const blob=await res.blob();
     const url=URL.createObjectURL(blob);
@@ -3837,9 +3835,8 @@ function goto(name,el){
   let currentTeamId = null;
 
   async function loadTeams() {
-    const token = localStorage.getItem('dclock_token');
     try {
-      const r = await fetch('/api/teams', { headers: { 'x-auth-token': token } });
+      const r = await fetch(BASE + '/api/teams', { headers: { 'x-auth-token': TOKEN } });
       allTeams = await r.json();
       renderTeams();
     } catch(e) { console.error('loadTeams error', e); }
@@ -3879,8 +3876,7 @@ function goto(name,el){
 
   async function openTeamDetail(id) {
     currentTeamId = id;
-    const token = localStorage.getItem('dclock_token');
-    const r = await fetch('/api/teams/' + id, { headers: { 'x-auth-token': token } });
+    const r = await fetch(BASE + '/api/teams/' + id, { headers: { 'x-auth-token': TOKEN } });
     const team = await r.json();
     renderTeamDetail(team);
     document.getElementById('teams-grid-view').style.display = 'none';
@@ -3943,8 +3939,7 @@ function goto(name,el){
     const sel = document.getElementById('m-team-admin');
     sel.innerHTML = '<option value="">Sin responsable</option>';
     try {
-      const token = localStorage.getItem('dclock_token');
-      const r = await fetch('/api/employees', { headers: { 'x-auth-token': token } });
+      const r = await fetch(BASE + '/api/employees', { headers: { 'x-auth-token': TOKEN } });
       const emps = await r.json();
       if (Array.isArray(emps) && emps.length > 0) {
         sel.innerHTML = '<option value="">Sin responsable</option>' +
