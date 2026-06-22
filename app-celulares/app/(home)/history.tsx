@@ -2,7 +2,7 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   Image, ActivityIndicator, RefreshControl, Linking,
 } from "react-native";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { getSession } from "@/lib/storage";
@@ -106,6 +106,7 @@ export default function HistoryScreen() {
   const [currentDate, setCurrentDate] = useState<string>(dateKey(new Date()));
   const [empPhoto,    setEmpPhoto]    = useState<string | null>(null);
   const [empId,       setEmpId]       = useState<number | null>(null);
+  const scrollRef = useRef<ScrollView>(null);
 
   useFocusEffect(useCallback(() => {
     const today = dateKey(new Date());
@@ -136,6 +137,7 @@ export default function HistoryScreen() {
     d.setDate(d.getDate() + delta);
     const next = dateKey(d);
     if (delta > 0 && next > dateKey(new Date())) return;
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
     loadForDate(next);
   }
 
@@ -149,6 +151,7 @@ export default function HistoryScreen() {
 
   return (
     <ScrollView
+      ref={scrollRef}
       style={ss.root}
       contentContainerStyle={ss.content}
       refreshControl={
