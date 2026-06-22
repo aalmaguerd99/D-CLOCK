@@ -143,7 +143,7 @@ export default function Home() {
                 <span style={{fontSize:'11px',fontWeight:600,color:'#374151',background:'#F3F4F6',padding:'4px 9px',borderRadius:'99px'}}>v1.3.1</span>
                 <span style={{fontSize:'11px',fontWeight:600,color:'#374151',background:'#F3F4F6',padding:'4px 9px',borderRadius:'99px'}}>~95 MB</span>
               </div>
-              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.1/D-CLOCK-1.3.1.apk" download className="dcl-dl-btn" style={{marginTop:'auto',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'8px',background:'#1a1a1a',color:'#fff',fontWeight:700,fontSize:'14.5px',padding:'13px',borderRadius:'13px',transition:'transform .15s,box-shadow .18s'}}>
+              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.2/D-CLOCK-1.3.2.apk" download className="dcl-dl-btn" style={{marginTop:'auto',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'8px',background:'#1a1a1a',color:'#fff',fontWeight:700,fontSize:'14.5px',padding:'13px',borderRadius:'13px',transition:'transform .15s,box-shadow .18s'}}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Descargar APK
               </a>
@@ -398,7 +398,7 @@ export default function Home() {
               <div style={{display:'flex',gap:'13px',alignItems:'flex-start'}}><div style={{width:'34px',height:'34px',borderRadius:'10px',background:'#EFF6FF',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><circle cx="8" cy="12" r="2.5"/><path d="M13 10h5M13 14h3"/></svg></div><div><p style={{fontSize:'14px',fontWeight:800,margin:'0 0 2px'}}>Credencial Apple Wallet</p><p style={{fontSize:'12.5px',color:'#6a6a6a',lineHeight:1.5,margin:0}}>Genera pases .pkpass personalizados para iPhone.</p></div></div>
             </div>
             <div style={{display:'flex',flexWrap:'wrap',gap:'10px'}}>
-              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.1/D-CLOCK-1.3.1.apk" download className="dcl-mob-android" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'rgba(255,255,255,.75)',border:'1px solid rgba(0,0,0,.1)',borderRadius:'12px',padding:'10px 15px',fontSize:'13px',fontWeight:700,transition:'all .18s'}}>
+              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.2/D-CLOCK-1.3.2.apk" download className="dcl-mob-android" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'rgba(255,255,255,.75)',border:'1px solid rgba(0,0,0,.1)',borderRadius:'12px',padding:'10px 15px',fontSize:'13px',fontWeight:700,transition:'all .18s'}}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="#16a34a"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85a.637.637 0 0 0-.83.22l-1.88 3.24a11.463 11.463 0 0 0-8.94 0L5.65 5.67a.643.643 0 0 0-.87-.2c-.28.18-.37.54-.22.83L6.4 9.48A10.78 10.78 0 0 0 1 18h22a10.78 10.78 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
                 APK Android
               </a>
@@ -584,7 +584,7 @@ export default function Home() {
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="#2563EB"><path d="M3 5.1 10.3 4v7.3H3V5.1zm0 13.8 7.3 1v-7.2H3v6.2zM11.2 3.85 21 2.5v8.8h-9.8V3.85zm0 16.3L21 21.5v-8.7h-9.8v7.35z"/></svg>
                 Windows
               </a>
-              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.1/D-CLOCK-1.3.1.apk" download className="dcl-cta-btn" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'rgba(255,255,255,.12)',color:'#fff',border:'1px solid rgba(255,255,255,.2)',fontWeight:700,fontSize:'14px',padding:'13px 22px',borderRadius:'13px',transition:'transform .15s'}}>
+              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.2/D-CLOCK-1.3.2.apk" download className="dcl-cta-btn" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'rgba(255,255,255,.12)',color:'#fff',border:'1px solid rgba(255,255,255,.2)',fontWeight:700,fontSize:'14px',padding:'13px 22px',borderRadius:'13px',transition:'transform .15s'}}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="#3DDC84"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85a.637.637 0 0 0-.83.22l-1.88 3.24a11.463 11.463 0 0 0-8.94 0L5.65 5.67a.643.643 0 0 0-.87-.2c-.28.18-.37.54-.22.83L6.4 9.48A10.78 10.78 0 0 0 1 18h22a10.78 10.78 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
                 Android APK
               </a>
