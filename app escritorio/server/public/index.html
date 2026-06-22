@@ -1777,10 +1777,10 @@ function renderEmps(list){
           ${e.has_face?'Rostro ✓':'Rostro'}
         </button>
         <button class="btn btn-ghost btn-xs" onclick="editEmp(${e.id})">Editar</button>
-        <button class="btn btn-danger btn-xs" onclick="darBaja(${e.id},'${esc(e.name)}')">Dar de baja</button>
+        <button class="btn btn-danger btn-xs" onclick="darBaja(${e.id})">Dar de baja</button>
         `:`
-        <button class="btn btn-ghost btn-xs" onclick="reactivarEmp(${e.id},'${esc(e.name)}')">Reactivar</button>
-        <button class="btn btn-danger btn-xs" onclick="liberarId(${e.id},'${esc(e.name)}')">Liberar ID</button>
+        <button class="btn btn-ghost btn-xs" onclick="reactivarEmp(${e.id})">Reactivar</button>
+        <button class="btn btn-danger btn-xs" onclick="liberarId(${e.id})">Liberar ID</button>
         `}
       </div>
     </div>`;
@@ -1832,10 +1832,10 @@ function renderEmps(list){
           ${e.has_face?'Rostro ✓':'Rostro'}
         </button>
         <button class="btn btn-ghost btn-xs" onclick="editEmp(${e.id})">Editar</button>
-        <button class="btn btn-danger btn-xs" onclick="darBaja(${e.id},'${esc(e.name)}')">Dar de baja</button>
+        <button class="btn btn-danger btn-xs" onclick="darBaja(${e.id})">Dar de baja</button>
         `:`
-        <button class="btn btn-ghost btn-xs" onclick="reactivarEmp(${e.id},'${esc(e.name)}')">Reactivar</button>
-        <button class="btn btn-danger btn-xs" onclick="liberarId(${e.id},'${esc(e.name)}')">Liberar ID</button>
+        <button class="btn btn-ghost btn-xs" onclick="reactivarEmp(${e.id})">Reactivar</button>
+        <button class="btn btn-danger btn-xs" onclick="liberarId(${e.id})">Liberar ID</button>
         `}
       </div></td>
     </tr>`).join("");
@@ -1961,9 +1961,9 @@ async function saveEmp(){
   if(r.error)return alert(r.error);
   closeModal("m-emp");await loadEmps();
 }
-async function darBaja(id,name){if(!confirm(`¿Dar de baja a ${name}?\nDesaparecerá de todas las vistas activas y quedará en la sección de Bajas.`))return;await api("PATCH",`/api/employees/${id}`,{active:0});await loadEmps();}
-async function reactivarEmp(id,name){if(!confirm(`¿Reactivar a ${name}?`))return;await api("PATCH",`/api/employees/${id}`,{active:1});await loadEmps();}
-async function liberarId(id,name){if(!confirm(`¿Liberar el ID de ${name}?\nEsto eliminará el registro permanentemente y su número de empleado quedará disponible.\n\nEsta acción NO se puede deshacer.`))return;await api("DELETE",`/api/employees/${id}`);await loadEmps();}
+async function darBaja(id){const n=(employees.find(e=>e.id===id)||{}).name||'#'+id;if(!confirm(`¿Dar de baja a ${n}?\nDesaparecerá de todas las vistas activas y quedará en la sección de Bajas.`))return;await api("PATCH",`/api/employees/${id}`,{active:0});await loadEmps();}
+async function reactivarEmp(id){const n=(employees.find(e=>e.id===id)||{}).name||'#'+id;if(!confirm(`¿Reactivar a ${n}?`))return;await api("PATCH",`/api/employees/${id}`,{active:1});await loadEmps();}
+async function liberarId(id){const n=(employees.find(e=>e.id===id)||{}).name||'#'+id;if(!confirm(`¿Liberar el ID de ${n}?\nEsto eliminará el registro permanentemente y su número de empleado quedará disponible.\n\nEsta acción NO se puede deshacer.`))return;await api("DELETE",`/api/employees/${id}`);await loadEmps();}
 
 // JOB TITLES
 async function loadJobTitles(){
