@@ -415,6 +415,11 @@ app.put("/api/employees/:id", auth, (req, res) => {
   ).run(employee_number, name, last_name||null, email||null, phone||null, nss||null, curp||null, rfc||null, gender||null, birth_date||null, address||null, department_id||null, area_id||null, job_title_id||null, schedule_id||null, geofence_id||null, pin||null, photo||null, active?1:0, is_admin?1:0, req.params.id);
   res.json({ ok: true });
 });
+app.patch("/api/employees/:id", auth, (req, res) => {
+  const { active } = req.body;
+  DB.getDb().prepare("UPDATE employees SET active=? WHERE id=?").run(active ? 1 : 0, req.params.id);
+  res.json({ ok: true });
+});
 app.delete("/api/employees/:id", auth, (req, res) => {
   DB.getDb().prepare("DELETE FROM employees WHERE id=?").run(req.params.id);
   res.json({ ok: true });

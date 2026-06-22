@@ -726,7 +726,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
             <select class="inp" id="emp-filter-status" onchange="filterEmps()" style="padding:8px 12px;width:auto">
               <option value="">Cualquier estado</option>
               <option value="1">Activos</option>
-              <option value="0">Inactivos</option>
+              <option value="0">Bajas</option>
             </select>
             <div style="flex:1"></div>
             <div class="view-toggle">
@@ -1771,12 +1771,17 @@ function renderEmps(list){
         </div>`:''}
       </div>
       <div class="emp-card-foot">
+        ${e.active?`
         <button class="btn btn-ghost btn-xs" onclick="openFaceModal(${e.id})" style="color:${e.has_face?'var(--green)':'var(--muted)'}">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
           ${e.has_face?'Rostro ✓':'Rostro'}
         </button>
         <button class="btn btn-ghost btn-xs" onclick="editEmp(${e.id})">Editar</button>
-        <button class="btn btn-danger btn-xs" onclick="delEmp(${e.id},'${esc(e.name)}')">Eliminar</button>
+        <button class="btn btn-danger btn-xs" onclick="darBaja(${e.id},'${esc(e.name)}')">Dar de baja</button>
+        `:`
+        <button class="btn btn-ghost btn-xs" onclick="reactivarEmp(${e.id},'${esc(e.name)}')">Reactivar</button>
+        <button class="btn btn-danger btn-xs" onclick="liberarId(${e.id},'${esc(e.name)}')">Liberar ID</button>
+        `}
       </div>
     </div>`;
   }).join("");
@@ -1821,12 +1826,17 @@ function renderEmps(list){
         </div>
       </td>
       <td><div class="actions">
+        ${e.active?`
         <button class="btn btn-ghost btn-xs" onclick="openFaceModal(${e.id})" title="${e.has_face?'Rostro registrado':'Registrar rostro'}" style="color:${e.has_face?'var(--green)':'var(--muted)'}">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
           ${e.has_face?'Rostro ✓':'Rostro'}
         </button>
         <button class="btn btn-ghost btn-xs" onclick="editEmp(${e.id})">Editar</button>
-        <button class="btn btn-danger btn-xs" onclick="delEmp(${e.id},'${esc(e.name)}')">Eliminar</button>
+        <button class="btn btn-danger btn-xs" onclick="darBaja(${e.id},'${esc(e.name)}')">Dar de baja</button>
+        `:`
+        <button class="btn btn-ghost btn-xs" onclick="reactivarEmp(${e.id},'${esc(e.name)}')">Reactivar</button>
+        <button class="btn btn-danger btn-xs" onclick="liberarId(${e.id},'${esc(e.name)}')">Liberar ID</button>
+        `}
       </div></td>
     </tr>`).join("");
 }
@@ -1951,7 +1961,9 @@ async function saveEmp(){
   if(r.error)return alert(r.error);
   closeModal("m-emp");await loadEmps();
 }
-async function delEmp(id,name){if(!confirm(`¿Eliminar a ${name}?`))return;await api("DELETE",`/api/employees/${id}`);await loadEmps();}
+async function darBaja(id,name){if(!confirm(`¿Dar de baja a ${name}?\nDesaparecerá de todas las vistas activas y quedará en la sección de Bajas.`))return;await api("PATCH",`/api/employees/${id}`,{active:0});await loadEmps();}
+async function reactivarEmp(id,name){if(!confirm(`¿Reactivar a ${name}?`))return;await api("PATCH",`/api/employees/${id}`,{active:1});await loadEmps();}
+async function liberarId(id,name){if(!confirm(`¿Liberar el ID de ${name}?\nEsto eliminará el registro permanentemente y su número de empleado quedará disponible.\n\nEsta acción NO se puede deshacer.`))return;await api("DELETE",`/api/employees/${id}`);await loadEmps();}
 
 // JOB TITLES
 async function loadJobTitles(){
@@ -3923,14 +3935,19 @@ function goto(name,el){
     document.getElementById('m-team-id').value   = team ? team.id   : '';
     document.getElementById('m-team-name').value = team ? team.name : '';
     document.getElementById('m-team-desc').value = team ? (team.description || '') : '';
-    const token = localStorage.getItem('dclock_token');
-    const r = await fetch('/api/employees', { headers: { 'x-auth-token': token } });
-    const emps = await r.json();
     const sel = document.getElementById('m-team-admin');
-    sel.innerHTML = '<option value="">Sin responsable</option>' +
-      emps.filter(e => e.active).map(e =>
-        `<option value="${e.id}">${e.name}${e.last_name ? ' ' + e.last_name : ''} (#${e.employee_number})</option>`
-      ).join('');
+    sel.innerHTML = '<option value="">Sin responsable</option>';
+    try {
+      const token = localStorage.getItem('dclock_token');
+      const r = await fetch('/api/employees', { headers: { 'x-auth-token': token } });
+      const emps = await r.json();
+      if (Array.isArray(emps) && emps.length > 0) {
+        sel.innerHTML = '<option value="">Sin responsable</option>' +
+          emps.map(e =>
+            `<option value="${e.id}">${e.name}${e.last_name ? ' ' + e.last_name : ''} (#${e.employee_number})</option>`
+          ).join('');
+      }
+    } catch(e) { console.error('openTeamModal fetch error', e); }
     if (team && team.admin_id) sel.value = team.admin_id;
     openModal('m-team');
   }
