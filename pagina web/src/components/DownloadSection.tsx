@@ -17,8 +17,8 @@ const VERSIONS = [
       "Mapa en vivo en dashboard con marcadores de check-ins GPS del día",
       "Múltiples correcciones y mejoras de rendimiento",
     ],
-    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.5/D-CLOCK-Setup-1.3.5.exe",
-    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.5/D-CLOCK-Portable-1.3.5.exe",
+    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.5/D-CLOCK.Setup.1.3.5.exe",
+    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.5/D-CLOCK.1.3.5.exe",
   },
   {
     v: "1.3.4",
@@ -33,8 +33,8 @@ const VERSIONS = [
       "Gráfica de entradas por hora del día",
       "Corrección de errores de carga del dashboard con Promise.allSettled",
     ],
-    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.4/D-CLOCK-Setup-1.3.4.exe",
-    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.4/D-CLOCK-Portable-1.3.4.exe",
+    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.4/D-CLOCK.Setup.1.3.4.exe",
+    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.4/D-CLOCK.1.3.4.exe",
   },
   {
     v: "1.3.3",
@@ -50,8 +50,8 @@ const VERSIONS = [
       "Genera pases .pkpass para iPhone (Apple Wallet)",
       "Múltiples correcciones y mejoras de rendimiento",
     ],
-    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.3/D-CLOCK-Setup-1.3.3.exe",
-    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.3/D-CLOCK-Portable-1.3.3.exe",
+    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.3/D-CLOCK.Setup.1.3.3.exe",
+    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.3/D-CLOCK.1.3.3.exe",
   },
 ];
 
