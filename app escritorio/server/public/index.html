@@ -657,8 +657,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
             <div class="db-card" style="grid-column:span 4;min-height:340px">
               <div class="db-card-hdr">
                 <div>
-                  <div style="font-size:15px;font-weight:700;letter-spacing:-.2px">Cobertura nacional</div>
-                  <div style="font-size:12px;color:#8a8a8a;margin-top:2px">Presencia por región · México</div>
+                  <div style="font-size:15px;font-weight:700;letter-spacing:-.2px">Mapa en vivo</div>
+                  <div style="font-size:12px;color:#8a8a8a;margin-top:2px">Ubicaciones de checadas · hoy</div>
                 </div>
                 <svg width="20" height="20" fill="none" stroke="#2563EB" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               </div>
@@ -796,6 +796,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
         <!-- REPORTES -->
         <div class="section" id="sec-reportes">
+          <!-- Tab switcher -->
+          <div style="display:flex;gap:0;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.07);border-radius:10px;padding:3px;width:fit-content;margin-bottom:12px">
+            <button id="rpt-tab-registros" onclick="switchRptTab('registros')" style="padding:6px 16px;border-radius:7px;font-size:12.5px;font-weight:700;border:none;cursor:pointer;background:#2563EB;color:white;transition:all .15s">Registros</button>
+            <button id="rpt-tab-asistencia" onclick="switchRptTab('asistencia')" style="padding:6px 16px;border-radius:7px;font-size:12.5px;font-weight:600;border:none;cursor:pointer;background:transparent;color:#8a8a8a;transition:all .15s">Asistencia</button>
+          </div>
+
+          <!-- Panel Registros -->
+          <div id="rpt-panel-registros">
           <div class="toolbar" style="flex-wrap:wrap;gap:8px">
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
               <span style="font-size:12px;font-weight:700;color:var(--muted)">Del</span>
@@ -834,6 +842,37 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           <div id="rpt-body" style="flex:1;overflow:auto">
             <div class="empty" style="margin:48px auto"><svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><p>Selecciona el período y presiona Generar</p></div>
           </div>
+          </div><!-- /rpt-panel-registros -->
+
+          <!-- Panel Asistencia -->
+          <div id="rpt-panel-asistencia" style="display:none">
+            <div class="toolbar" style="flex-wrap:wrap;gap:8px">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                <span style="font-size:12px;font-weight:700;color:var(--muted)">Del</span>
+                <input type="date" id="att-from" class="inp" style="width:148px">
+                <span style="font-size:12px;font-weight:700;color:var(--muted)">al</span>
+                <input type="date" id="att-to" class="inp" style="width:148px">
+              </div>
+              <div style="margin-left:auto;display:flex;gap:6px">
+                <button class="btn btn-primary btn-sm" onclick="loadAttendanceReport()">
+                  <svg width="13" height="13" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  Generar
+                </button>
+              </div>
+            </div>
+            <!-- Leyenda asistencia -->
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;padding:8px 12px;background:var(--glass);border:1px solid var(--border);border-radius:10px;font-size:11px;font-weight:700;align-items:center">
+              <span style="color:var(--muted)">Leyenda:</span>
+              <span style="display:inline-flex;gap:4px;align-items:center"><span style="background:#15803d;color:#fff;border-radius:4px;padding:1px 5px">✅</span> A tiempo</span>
+              <span style="display:inline-flex;gap:4px;align-items:center"><span style="background:#f59e0b;color:#fff;border-radius:4px;padding:1px 5px">⚠️</span> Retardo</span>
+              <span style="display:inline-flex;gap:4px;align-items:center"><span style="background:#dc2626;color:#fff;border-radius:4px;padding:1px 5px">❌</span> Falta</span>
+              <span style="display:inline-flex;gap:4px;align-items:center"><span style="background:#7c3aed;color:#fff;border-radius:4px;padding:1px 5px">🔄</span> Desviación</span>
+              <span style="display:inline-flex;gap:4px;align-items:center"><span style="background:#e5e7eb;color:#6b7280;border-radius:4px;padding:1px 5px">—</span> No aplica</span>
+            </div>
+            <div id="att-body" style="flex:1;overflow:auto">
+              <div class="empty" style="margin:48px auto"><svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><p>Selecciona el período y presiona Generar</p></div>
+            </div>
+          </div><!-- /rpt-panel-asistencia -->
         </div>
 
         <!-- EMPLEADOS -->
@@ -1529,10 +1568,11 @@ input[type=range]{width:100%;accent-color:var(--accent)}
             <option value="vacation">🟢 Verde (Vacaciones)</option><option value="sick">🔴 Rojo (Incapacidad)</option>
           </select>
         </div>
-        <div id="shift-times" class="full" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div id="shift-times" class="full" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px">
           <div class="field"><label>Hora entrada</label><input type="time" id="shift-in" class="inp" value="09:00"></div>
           <div class="field"><label>Hora salida</label><input type="time" id="shift-out" class="inp" value="18:00"></div>
-          <div class="field"><label>Tolerancia (min)</label><input type="number" id="shift-tol" class="inp" value="15" min="0"></div>
+          <div class="field"><label>Tolerancia retardo (min)</label><input type="number" id="shift-tol" class="inp" value="15" min="0" title="Minutos de gracia antes de marcar retardo"></div>
+          <div class="field"><label>Falta si pasa de (min)</label><input type="number" id="shift-falta" class="inp" value="60" min="1" title="Minutos después del inicio para considerar falta"></div>
         </div>
         <div class="field full">
           <label style="margin-bottom:8px">Días laborables</label>
@@ -1633,6 +1673,7 @@ let geoView='map';
 
 async function api(m,p,b){
   const r=await fetch(BASE+p,{method:m,headers:{"Content-Type":"application/json","x-auth-token":TOKEN},body:b?JSON.stringify(b):undefined});
+  if(!r.ok){const t=await r.text().catch(()=>"");throw new Error(`API ${m} ${p} → ${r.status}: ${t.slice(0,120)}`);}
   return r.json();
 }
 
@@ -1679,7 +1720,8 @@ async function boot(){
 }
 
 async function loadAll(){
-  await Promise.all([loadStats(),loadLiveFeed(),loadEmps(),loadDepts(),loadAreas(),loadJobTitles(),loadShifts(),loadGeos()]);
+  const results=await Promise.allSettled([loadStats(),loadLiveFeed(),loadEmps(),loadDepts(),loadAreas(),loadJobTitles(),loadShifts(),loadGeos()]);
+  results.forEach((r,i)=>{if(r.status==='rejected')console.error('loadAll['+i+'] failed:',r.reason);});
   dashHeat('E');
   renderMapCard();
 }
@@ -1804,7 +1846,7 @@ function renderHourlyChart(checkins){
   const hourly={};
   for(let h=6;h<=21;h++)hourly[h]={in:0,out:0};
   for(const ci of checkins){
-    const h=new Date(ci.timestamp).getHours();
+    const h=new Date((ci.timestamp||'').replace(' ','T')).getHours();
     if(h>=6&&h<=21){if(ci.type==='entrada')hourly[h].in++;else hourly[h].out++;}
   }
   const mx=Math.max(...Object.values(hourly).map(x=>Math.max(x.in,x.out)),1);
@@ -1829,7 +1871,7 @@ function renderSpotlight(ci){
   if(!ci)return;
   const isIn=ci.type==='entrada';
   const name=ci.employee_name||ci.name||'—';
-  const ini=name.split(' ').filter(Boolean).slice(0,2).map(s=>s[0]).toUpperCase().join('');
+  const ini=name.split(' ').filter(Boolean).slice(0,2).map(s=>s[0]).join('').toUpperCase();
   const ph=ci.employee_photo||ci.photo||null;
   const av=document.getElementById('dash-spot-av');
   if(av){
@@ -1904,9 +1946,36 @@ function buildMexicoMapSVG(){
 
 function renderMapCard(){
   const cont=document.getElementById('dash-map-cont');if(!cont)return;
-  const{svg,cities}=buildMexicoMapSVG();
-  const dotHtml=cities.map(c=>`<div style="position:absolute;left:${c.left}%;top:${c.top}%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none;z-index:2"><div style="width:${c.sz}px;height:${c.sz}px;border-radius:50%;background:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,0.22),0 0 0 6px rgba(37,99,235,0.10);display:flex;align-items:center;justify-content:center"><div style="width:${Math.max(3,c.sz-6)}px;height:${Math.max(3,c.sz-6)}px;border-radius:50%;background:rgba(255,255,255,0.9)"></div></div><span style="font-size:8px;font-weight:800;color:#1e40af;background:rgba(255,255,255,0.92);padding:1px 4px;border-radius:3px;margin-top:2px;white-space:nowrap;letter-spacing:.2px">${c.n}</span></div>`).join('');
-  cont.innerHTML=`<div style="position:relative;width:100%;height:100%;min-height:230px">${svg}<div style="position:absolute;inset:0">${dotHtml}</div></div>`;
+  if(window._dashLeafMap){try{window._dashLeafMap.remove();}catch(e){}window._dashLeafMap=null;}
+  cont.innerHTML='<div id="dash-live-map" style="width:100%;height:290px;border-radius:10px;overflow:hidden"></div>';
+  setTimeout(()=>{
+    const el=document.getElementById('dash-live-map');if(!el)return;
+    const map=L.map('dash-live-map',{zoomControl:true,center:[23.6345,-102.5528],zoom:5,attributionControl:false});
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
+    L.control.attribution({prefix:false}).addTo(map);
+    window._dashLeafMap=map;
+    const checkins=(_todayCheckins||[]).filter(ci=>ci.latitude&&ci.longitude);
+    if(!checkins.length){
+      const noData=document.createElement('div');
+      noData.style.cssText='position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.88);backdrop-filter:blur(8px);border-radius:8px;padding:5px 14px;font-size:11.5px;color:#8a8a8a;z-index:999;pointer-events:none;white-space:nowrap;border:1px solid rgba(0,0,0,.07)';
+      noData.textContent='Sin ubicaciones GPS registradas hoy';
+      el.style.position='relative';el.appendChild(noData);
+    }
+    const bounds=[];
+    checkins.forEach(ci=>{
+      const isIn=ci.type==='entrada';
+      const full=[ci.employee_name,ci.employee_last_name].filter(Boolean).join(' ')||'—';
+      const ini=full.split(' ').filter(Boolean).slice(0,2).map(s=>s[0]).join('').toUpperCase();
+      const bg=isIn?'#2563EB':'#7c3aed';
+      const icon=L.divIcon({html:`<div style="width:34px;height:34px;border-radius:50%;background:${bg};border:2.5px solid white;box-shadow:0 2px 10px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:white;font-family:Inter,sans-serif">${ini}</div>`,className:'',iconSize:[34,34],iconAnchor:[17,17],popupAnchor:[0,-20]});
+      const marker=L.marker([ci.latitude,ci.longitude],{icon}).addTo(map);
+      const geo=ci.geofence_name?`<div style="font-size:11px;color:#16a34a;margin-top:5px">📍 ${ci.geofence_name}</div>`:'';
+      marker.bindPopup(`<div style="font-family:Inter,sans-serif;min-width:160px;padding:2px 0"><div style="font-weight:700;font-size:13px;margin-bottom:2px">${full}</div><div style="font-size:11px;color:#8a8a8a;margin-bottom:6px">${ci.employee_number||''}</div><div style="display:flex;align-items:center;gap:7px"><span style="padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:700;background:${isIn?'#dbeafe':'#ede9fe'};color:${isIn?'#1d4ed8':'#6d28d9'}">${isIn?'Entrada':'Salida'}</span><span style="font-size:11px;color:#8a8a8a">${fmtTime(ci.timestamp)}</span></div>${geo}</div>`);
+      bounds.push([ci.latitude,ci.longitude]);
+    });
+    if(bounds.length>0){try{map.fitBounds(bounds,{padding:[50,50],maxZoom:14});}catch(e){}}
+    map.invalidateSize();
+  },60);
 }
 
 function renderGeoTable(checkins){
@@ -1929,6 +1998,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementB
 // LIVE FEED
 async function loadLiveFeed(){
   const list=await api("GET","/api/checkins/today");
+  if(!Array.isArray(list))throw new Error("checkins/today no retornó array: "+JSON.stringify(list).slice(0,80));
   _todayCheckins=list;
   renderFeed(list);
   renderHourlyChart(list);
@@ -1957,7 +2027,7 @@ function renderFeed(list){
   el.innerHTML=list.map(ci=>{
     const isIn=ci.type==='entrada';
     const name=ci.employee_name||'—';
-    const ini=name.split(' ').filter(Boolean).slice(0,2).map(s=>s[0]).toUpperCase().join('');
+    const ini=name.split(' ').filter(Boolean).slice(0,2).map(s=>s[0]).join('').toUpperCase();
     const ph=ci.employee_photo||ci.photo||null;
     const avCnt=ph?`<img src="${ph}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`:ini;
     const geo=ci.geofence_name||'';
@@ -1981,7 +2051,7 @@ function prependFeed(ci){
   if(el.querySelector('svg'))el.innerHTML=''; // clear empty state
   const isIn=ci.type==='entrada';
   const name=ci.employee_name||'—';
-  const ini=name.split(' ').filter(Boolean).slice(0,2).map(s=>s[0]).toUpperCase().join('');
+  const ini=name.split(' ').filter(Boolean).slice(0,2).map(s=>s[0]).join('').toUpperCase();
   const ph=ci.employee_photo||ci.photo||null;
   const avCnt=ph?`<img src="${ph}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`:ini;
   const d=document.createElement('div');
@@ -2005,6 +2075,14 @@ function prependFeed(ci){
   const totOut=_todayCheckins.filter(c=>c.type==='salida').length;
   const inEl=document.getElementById('dash-tot-in'),outEl=document.getElementById('dash-tot-out');
   if(inEl)inEl.textContent=totIn;if(outEl)outEl.textContent=totOut;
+  if(ci.latitude&&ci.longitude&&window._dashLeafMap){
+    const isIn=ci.type==='entrada';
+    const full=[ci.employee_name,ci.employee_last_name].filter(Boolean).join(' ')||'—';
+    const ini=full.split(' ').filter(Boolean).slice(0,2).map(s=>s[0]).join('').toUpperCase();
+    const bg=isIn?'#2563EB':'#7c3aed';
+    const icon=L.divIcon({html:`<div style="width:34px;height:34px;border-radius:50%;background:${bg};border:2.5px solid white;box-shadow:0 2px 10px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:white;font-family:Inter,sans-serif">${ini}</div>`,className:'',iconSize:[34,34],iconAnchor:[17,17],popupAnchor:[0,-20]});
+    L.marker([ci.latitude,ci.longitude],{icon}).addTo(window._dashLeafMap).bindPopup(`<div style="font-family:Inter,sans-serif;min-width:140px"><div style="font-weight:700;font-size:13px;margin-bottom:4px">${full}</div><span style="padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:700;background:${isIn?'#dbeafe':'#ede9fe'};color:${isIn?'#1d4ed8':'#6d28d9'}">${isIn?'Entrada':'Salida'}</span><span style="font-size:11px;color:#8a8a8a;margin-left:7px">${fmtTime(ci.timestamp)}</span></div>`).openPopup();
+  }
   loadStats();
 }
 
@@ -2531,6 +2609,7 @@ function openShiftModal(id){
     document.getElementById("shift-in").value=s.check_in_time||"09:00";
     document.getElementById("shift-out").value=s.check_out_time||"18:00";
     document.getElementById("shift-tol").value=s.tolerance_minutes??15;
+    document.getElementById("shift-falta").value=s.falta_minutes??60;
     document.getElementById("shift-color").value=s.color||"morning";
     document.getElementById("m-shift-title").textContent="Editar turno";
     document.querySelectorAll(".day-chip").forEach(c=>c.classList.toggle("on",days.includes(c.dataset.day)));
@@ -2552,6 +2631,7 @@ async function saveShift(){
     check_in_time:document.getElementById("shift-in").value,
     check_out_time:document.getElementById("shift-out").value,
     tolerance_minutes:Number(document.getElementById("shift-tol").value),
+    falta_minutes:Number(document.getElementById("shift-falta").value)||60,
     days,
   };
   if(!body.name)return alert("Nombre requerido");
@@ -3284,6 +3364,105 @@ function initReportFilters(){
   }
 }
 
+function switchRptTab(tab){
+  const isReg=tab==='registros';
+  document.getElementById('rpt-panel-registros').style.display=isReg?'':'none';
+  document.getElementById('rpt-panel-asistencia').style.display=isReg?'none':'';
+  const tReg=document.getElementById('rpt-tab-registros');
+  const tAtt=document.getElementById('rpt-tab-asistencia');
+  tReg.style.background=isReg?'#2563EB':'transparent';
+  tReg.style.color=isReg?'white':'#8a8a8a';
+  tReg.style.fontWeight=isReg?'700':'600';
+  tAtt.style.background=isReg?'transparent':'#2563EB';
+  tAtt.style.color=isReg?'#8a8a8a':'white';
+  tAtt.style.fontWeight=isReg?'600':'700';
+  if(!isReg){
+    const now=new Date();const to=now.toISOString().slice(0,10);
+    const fr=new Date(now.getFullYear(),now.getMonth(),1).toISOString().slice(0,10);
+    if(!document.getElementById('att-from').value)document.getElementById('att-from').value=fr;
+    if(!document.getElementById('att-to').value)document.getElementById('att-to').value=to;
+  }
+}
+
+async function loadAttendanceReport(){
+  const from=document.getElementById('att-from').value;
+  const to=document.getElementById('att-to').value;
+  if(!from||!to)return alert('Selecciona el rango de fechas');
+  if(from>to)return alert('La fecha inicial debe ser anterior a la final');
+  const body=document.getElementById('att-body');
+  body.innerHTML='<div class="empty" style="margin:32px auto"><svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>Generando reporte...</p></div>';
+  try{
+    const data=await api(`/api/attendance-report?from=${from}&to=${to}`);
+    renderAttendanceReport(data,body);
+  }catch(e){
+    body.innerHTML=`<div class="empty" style="margin:32px auto"><p style="color:#dc2626">Error: ${e.message}</p></div>`;
+  }
+}
+
+function renderAttendanceReport(data,body){
+  if(!data||!data.report||!data.report.length){
+    body.innerHTML='<div class="empty" style="margin:32px auto"><p>Sin empleados con registros en este período</p></div>';return;
+  }
+  const {dates,report}=data;
+  const DOW=['D','L','M','X','J','V','S'];
+  const statusInfo={
+    a_tiempo: {bg:'#15803d',color:'#fff',icon:'✓',label:'A tiempo'},
+    retardo:  {bg:'#f59e0b',color:'#fff',icon:'R',label:'Retardo'},
+    falta:    {bg:'#dc2626',color:'#fff',icon:'F',label:'Falta'},
+    desviacion:{bg:'#7c3aed',color:'#fff',icon:'≠',label:'Desviación'},
+    no_aplica:{bg:'#e5e7eb',color:'#9ca3af',icon:'—',label:'No aplica'},
+  };
+
+  const dateHeaders=dates.map(d=>{
+    const dd=new Date(d+'T00:00:00');
+    const dow=DOW[dd.getDay()];
+    const num=dd.getDate();
+    return `<th class="rpt-day-td" style="min-width:30px;font-size:10px;padding:2px 3px;white-space:nowrap"><span style="display:block;color:var(--muted)">${dow}</span><span>${num}</span></th>`;
+  }).join('');
+
+  const rows=report.map((emp,i)=>{
+    const initials=(emp.name||'').split(' ').filter(Boolean).slice(0,2).map(s=>s[0]).join('').toUpperCase();
+    const avatar=emp.photo
+      ?`<img src="${emp.photo}" style="width:28px;height:28px;border-radius:50%;object-fit:cover">`
+      :`<div style="width:28px;height:28px;border-radius:50%;background:#2563EB22;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#2563EB">${initials}</div>`;
+
+    const cells=emp.days.map(day=>{
+      let st=day.status||'no_aplica';
+      if(day.status&&day.deviation)st='desviacion';
+      const s=statusInfo[st]||statusInfo.no_aplica;
+      const tip=day.checkin_time?`${day.checkin_time.slice(11,16)}${day.detectedShiftName?' ('+day.detectedShiftName+')':''}`:(day.shouldWork?'Sin registro':'Descanso');
+      return `<td class="rpt-day-td"><div title="${tip}" class="rpt-cell" style="background:${s.bg};color:${s.color};margin:0 auto">${s.icon}</div></td>`;
+    }).join('');
+
+    const {aT,ret,falt,dev}=emp.summary;
+    return `<tr>
+      <td style="padding:4px 6px;text-align:center;font-size:11px;font-weight:700;color:var(--muted)">${i+1}</td>
+      <td style="padding:4px 8px;white-space:nowrap"><div style="display:flex;align-items:center;gap:7px">${avatar}<div><div style="font-size:12px;font-weight:700">${emp.name}</div><div style="font-size:10px;color:var(--muted)">#${emp.employee_number}</div></div></div></td>
+      <td style="padding:4px 8px;white-space:nowrap;font-size:11px;color:var(--muted)">${emp.defaultShift||'—'}</td>
+      ${cells}
+      <td style="padding:4px 8px;white-space:nowrap">
+        <div style="display:flex;gap:4px;font-size:10px;font-weight:800">
+          <span style="background:#15803d22;color:#15803d;border-radius:4px;padding:1px 5px">${aT||0}✓</span>
+          <span style="background:#f59e0b22;color:#b45309;border-radius:4px;padding:1px 5px">${ret||0}R</span>
+          <span style="background:#dc262622;color:#dc2626;border-radius:4px;padding:1px 5px">${falt||0}F</span>
+          ${(dev||0)>0?`<span style="background:#7c3aed22;color:#7c3aed;border-radius:4px;padding:1px 5px">${dev}≠</span>`:''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  body.innerHTML=`<div class="rpt-wrap"><table class="rpt-table">
+    <thead><tr>
+      <th style="width:30px;text-align:center">#</th>
+      <th style="min-width:160px">Empleado</th>
+      <th style="min-width:120px">Horario</th>
+      ${dateHeaders}
+      <th style="min-width:140px">Resumen</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
 async function generateReport(){
   const from=document.getElementById('rpt-from').value;
   const to=document.getElementById('rpt-to').value;
@@ -3523,7 +3702,7 @@ async function deleteFaceDesc(){
 }
 
 // HELPERS
-function fmtTime(ts){return new Date(ts).toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});}
+function fmtTime(ts){return new Date((ts||'').replace(' ','T')).toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});}
 function fmtDateTime(ts){return new Date(ts).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"});}
 function esc(s){return(s||"").replace(/'/g,"\\'").replace(/"/g,"&quot;");}
 

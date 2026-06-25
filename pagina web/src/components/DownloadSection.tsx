@@ -4,10 +4,43 @@ import Image from "next/image";
 
 const VERSIONS = [
   {
-    v: "1.3.1",
+    v: "1.3.5",
     label: "Última versión",
     date: "Jun 2026",
     latest: true,
+    size: "~95 MB",
+    changes: [
+      "Reporte de asistencia inteligente — detección automática de horario por hora de entrada",
+      "Semáforo a tiempo / retardo / falta / desviación de turno por empleado y día",
+      "Alerta cuando un empleado entra en un turno diferente a su horario asignado",
+      "Campo de minutos de falta configurable por horario",
+      "Mapa en vivo en dashboard con marcadores de check-ins GPS del día",
+      "Múltiples correcciones y mejoras de rendimiento",
+    ],
+    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.5/D-CLOCK-Setup-1.3.5.exe",
+    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.5/D-CLOCK-Portable-1.3.5.exe",
+  },
+  {
+    v: "1.3.4",
+    label: "Versión anterior",
+    date: "Jun 2026",
+    latest: false,
+    size: "~95 MB",
+    changes: [
+      "Dashboard v2 — mapa de México interactivo con Leaflet y GPS real",
+      "Top geocercas por número de registros",
+      "Feed en vivo de check-ins actualizado por SSE",
+      "Gráfica de entradas por hora del día",
+      "Corrección de errores de carga del dashboard con Promise.allSettled",
+    ],
+    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.4/D-CLOCK-Setup-1.3.4.exe",
+    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.4/D-CLOCK-Portable-1.3.4.exe",
+  },
+  {
+    v: "1.3.3",
+    label: "Versión anterior",
+    date: "Jun 2026",
+    latest: false,
     size: "~95 MB",
     changes: [
       "Módulo de Equipos — admin visualiza asistencia de su equipo en la app móvil",
@@ -17,25 +50,8 @@ const VERSIONS = [
       "Genera pases .pkpass para iPhone (Apple Wallet)",
       "Múltiples correcciones y mejoras de rendimiento",
     ],
-    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.1/D-CLOCK-Setup-1.3.1.exe",
-    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.1/D-CLOCK-Portable-1.3.1.exe",
-  },
-  {
-    v: "1.3.0",
-    label: "Versión anterior",
-    date: "Mayo 2026",
-    latest: false,
-    size: "~95 MB",
-    changes: [
-      "Diseñador de credencial Apple Wallet con fondos, colores y campos personalizados",
-      "Reconocimiento facial al registrar asistencia",
-      "Genera pases .pkpass para iPhone (Apple Wallet)",
-      "Sincronización de credencial con app móvil D-CLOCK",
-      "Endpoint público para configuración visual de credencial",
-      "Múltiples correcciones y mejoras de rendimiento",
-    ],
-    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.0/D-CLOCK-Setup-1.3.0.exe",
-    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.0/D-CLOCK-Portable-1.3.0.exe",
+    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.3/D-CLOCK-Setup-1.3.3.exe",
+    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.3/D-CLOCK-Portable-1.3.3.exe",
   },
 ];
 

@@ -107,6 +107,35 @@ function haversineM(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function timeToMins(t) {
+  if (!t || t === '00:00') return null;
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function detectShift(checkinTimestamp, allSchedules) {
+  const d = new Date(checkinTimestamp.replace(' ', 'T'));
+  const checkinMins = d.getHours() * 60 + d.getMinutes();
+  const workShifts = allSchedules.filter(s => s.type === 'trabajo' && timeToMins(s.check_in_time));
+  let best = null, bestAbs = Infinity;
+  for (const shift of workShifts) {
+    const shiftMins = timeToMins(shift.check_in_time);
+    const falta = shift.falta_minutes || 60;
+    const delta = checkinMins - shiftMins;
+    if (delta >= -90 && delta <= falta) {
+      const abs = Math.abs(delta);
+      if (abs < bestAbs) { bestAbs = abs; best = { shift, delta }; }
+    }
+  }
+  return best;
+}
+
+function calcAttendanceStatus(delta, tolerance, faltaMins) {
+  if (delta <= (tolerance || 15)) return 'a_tiempo';
+  if (delta <= (faltaMins || 60)) return 'retardo';
+  return 'falta';
+}
+
 // ── Registrar checkin desde móvil ────────────────────
 app.post("/api/mobile/checkin", async (req, res) => {
   const { employee_id, type, lat, lng, photo = null } = req.body;
@@ -153,12 +182,25 @@ app.post("/api/mobile/checkin", async (req, res) => {
   }
 
   const dbType = type === "in" ? "entrada" : "salida";
+  const ts = nowMX();
   const result = db.prepare(
     "INSERT INTO check_ins (employee_id, type, timestamp, latitude, longitude, photo, geofence_id, face_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-  ).run(employee_id, dbType, nowMX(), lat, lng, photo, geofence_id, face_verified);
+  ).run(employee_id, dbType, ts, lat, lng, photo, geofence_id, face_verified);
+
+  let attendance_status = null, detected_schedule_id = null;
+  if (dbType === 'entrada') {
+    const allScheds = db.prepare("SELECT * FROM schedules").all();
+    const detected = detectShift(ts, allScheds);
+    if (detected) {
+      attendance_status = calcAttendanceStatus(detected.delta, detected.shift.tolerance_minutes, detected.shift.falta_minutes);
+      detected_schedule_id = detected.shift.id;
+      db.prepare("UPDATE check_ins SET attendance_status=?, detected_schedule_id=? WHERE id=?")
+        .run(attendance_status, detected_schedule_id, result.lastInsertRowid);
+    }
+  }
 
   const row = db.prepare("SELECT id, type, timestamp FROM check_ins WHERE id=?").get(result.lastInsertRowid);
-  res.json({ id: row.id, type: row.type === "entrada" ? "in" : "out", timestamp: row.timestamp, geofence_name, face_verified });
+  res.json({ id: row.id, type: row.type === "entrada" ? "in" : "out", timestamp: row.timestamp, geofence_name, face_verified, attendance_status });
 });
 
 // ── Registro de rostro desde móvil ────────────────
@@ -475,9 +517,22 @@ app.post("/api/checkin", (req, res) => {
   if (!emp) return res.status(404).json({ error: "Empleado no encontrado" });
 
   const ts = nowMX();
-  const r = DB.getDb().prepare(
+  const db2 = DB.getDb();
+  const r = db2.prepare(
     "INSERT INTO check_ins (employee_id,type,timestamp,latitude,longitude,geofence_id,device_id) VALUES (?,?,?,?,?,?,?)"
   ).run(employee_id, type, ts, latitude||null, longitude||null, geofence_id||null, device_id||null);
+
+  let attendance_status = null, detected_schedule_id = null;
+  if (type === 'entrada') {
+    const allScheds = db2.prepare("SELECT * FROM schedules").all();
+    const detected = detectShift(ts, allScheds);
+    if (detected) {
+      attendance_status = calcAttendanceStatus(detected.delta, detected.shift.tolerance_minutes, detected.shift.falta_minutes);
+      detected_schedule_id = detected.shift.id;
+      db2.prepare("UPDATE check_ins SET attendance_status=?, detected_schedule_id=? WHERE id=?")
+        .run(attendance_status, detected_schedule_id, r.lastInsertRowid);
+    }
+  }
 
   const checkin = {
     id: r.lastInsertRowid,
@@ -488,6 +543,7 @@ app.post("/api/checkin", (req, res) => {
     type,
     timestamp: ts,
     latitude, longitude,
+    attendance_status,
   };
   broadcast("checkin", checkin);
   res.json({ ok: true, checkin });
@@ -589,6 +645,66 @@ app.get("/api/schedule-status", auth, (req, res) => {
     WHERE sa.date>=? AND sa.date<=?
   `).all(from, to);
   res.json({ emps, assignments });
+});
+
+app.get("/api/attendance-report", auth, (req, res) => {
+  const { from, to } = req.query;
+  if (!from || !to) return res.status(400).json({ error: "from y to requeridos" });
+  const db = DB.getDb();
+  const DAY_NAMES = ['dom','lun','mar','mie','jue','vie','sab'];
+  const dates = [];
+  let cur = new Date(from + 'T12:00:00');
+  const end = new Date(to + 'T12:00:00');
+  while (cur <= end) { dates.push(cur.toLocaleDateString('en-CA')); cur.setDate(cur.getDate()+1); }
+  const emps = db.prepare(`
+    SELECT e.id, e.name, e.last_name, e.employee_number, e.photo,
+           s.id AS sched_id, s.name AS sched_name, s.check_in_time,
+           s.tolerance_minutes, s.falta_minutes, s.days, s.type AS sched_type
+    FROM employees e LEFT JOIN schedules s ON e.schedule_id=s.id
+    WHERE e.active=1 ORDER BY e.name, e.last_name
+  `).all();
+  const overrides = db.prepare(`
+    SELECT sa.employee_id, sa.date, s.id AS sched_id, s.name AS sched_name,
+           s.check_in_time, s.tolerance_minutes, s.falta_minutes, s.days, s.type AS sched_type
+    FROM schedule_assignments sa JOIN schedules s ON sa.schedule_id=s.id
+    WHERE sa.date>=? AND sa.date<=?
+  `).all(from, to);
+  const checkins = db.prepare(`
+    SELECT ci.employee_id, date(ci.timestamp) AS date, ci.timestamp,
+           ci.attendance_status, ci.detected_schedule_id, s.name AS detected_sched_name
+    FROM check_ins ci LEFT JOIN schedules s ON ci.detected_schedule_id=s.id
+    WHERE ci.type='entrada' AND date(ci.timestamp)>=? AND date(ci.timestamp)<=?
+    ORDER BY ci.timestamp ASC
+  `).all(from, to);
+  const overrideMap = {};
+  for (const o of overrides) overrideMap[`${o.employee_id}_${o.date}`] = o;
+  const checkinMap = {};
+  for (const ci of checkins) { const k=`${ci.employee_id}_${ci.date}`; if(!checkinMap[k])checkinMap[k]=ci; }
+  const report = emps.map(emp => {
+    const days = dates.map(date => {
+      const dow = DAY_NAMES[new Date(date+'T12:00:00').getDay()];
+      const override = overrideMap[`${emp.id}_${date}`];
+      const expected = override || emp;
+      let shouldWork = false;
+      if (expected.sched_type==='trabajo' && expected.days) {
+        try { shouldWork = JSON.parse(expected.days).includes(dow); } catch {}
+      }
+      const ci = checkinMap[`${emp.id}_${date}`];
+      let status = 'no_aplica', detectedShiftName = null, deviation = false;
+      if (shouldWork) {
+        if (!ci) { status = 'falta'; }
+        else {
+          status = ci.attendance_status || 'a_tiempo';
+          detectedShiftName = ci.detected_sched_name || null;
+          if (ci.detected_schedule_id && expected.sched_id && ci.detected_schedule_id !== expected.sched_id) deviation = true;
+        }
+      }
+      return { date, dow, status, checkin_time: ci ? ci.timestamp.slice(11,16) : null, detectedShiftName, deviation, expectedShiftName: expected.sched_name || null, shouldWork };
+    });
+    const s = days.reduce((a,d)=>{ if(d.status==='a_tiempo')a.aT++; else if(d.status==='retardo')a.ret++; else if(d.status==='falta')a.falt++; if(d.deviation)a.dev++; return a; },{aT:0,ret:0,falt:0,dev:0});
+    return { id:emp.id, name:[emp.name,emp.last_name].filter(Boolean).join(' '), employee_number:emp.employee_number, photo:emp.photo, defaultShift:emp.sched_name||'—', days, summary:s };
+  });
+  res.json({ dates, report });
 });
 
 app.get("/api/stats/week", auth, (req, res) => {

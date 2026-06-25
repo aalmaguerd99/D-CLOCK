@@ -155,6 +155,9 @@ function init(dataDir) {
     "ALTER TABLE employees ADD COLUMN face_descriptor TEXT DEFAULT NULL",
     "ALTER TABLE employees ADD COLUMN is_admin INTEGER DEFAULT 0",
     "ALTER TABLE check_ins ADD COLUMN face_verified INTEGER DEFAULT NULL",
+    "ALTER TABLE schedules ADD COLUMN falta_minutes INTEGER DEFAULT 60",
+    "ALTER TABLE check_ins ADD COLUMN attendance_status TEXT DEFAULT NULL",
+    "ALTER TABLE check_ins ADD COLUMN detected_schedule_id INTEGER REFERENCES schedules(id) ON DELETE SET NULL",
   ];
   for (const sql of migrations) {
     try { db.exec(sql); } catch {}
