@@ -1129,7 +1129,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         </div>
 
         <!-- NOTIFICACIONES -->
-        <div class="section" id="sec-notificaciones" style="overflow-y:auto;display:flex;flex-direction:column;gap:0">
+        <div class="section" id="sec-notificaciones" style="overflow-y:auto">
+          <div style="display:flex;flex-direction:column;height:100%">
           <!-- Mass message toolbar -->
           <div class="toolbar" style="gap:10px;align-items:flex-end;flex-wrap:nowrap;padding:14px 20px;border-bottom:1px solid var(--border)">
             <div style="flex:1;display:flex;flex-direction:column;gap:6px">
@@ -1154,6 +1155,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           </div>
           <!-- Cards grid -->
           <div id="notif-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;padding:16px 20px;align-content:start"></div>
+          </div>
         </div>
 
         <!-- VAC REVIEW OVERLAY -->
