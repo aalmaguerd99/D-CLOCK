@@ -4,10 +4,26 @@ import Image from "next/image";
 
 const VERSIONS = [
   {
+    v: "1.3.6",
+    label: "v1.3.6 — Vacaciones",
+    date: "Julio 2026",
+    latest: true,
+    size: "~95 MB",
+    changes: [
+      "Modulo de vacaciones (solicitudes, saldos, calculo LFT)",
+      "Mejoras en horarios: asignar semana completa, multi-seleccion, copiar semana",
+      "App movil: pantalla de vacaciones con solicitud de fechas",
+      "Fecha de ingreso por empleado para calculo automatico",
+    ],
+    installer: "https://github.com/D99-TECH/D-CLOCK/releases/download/v1.3.6/D-CLOCK.Setup.1.3.6.exe",
+    portable: "https://github.com/D99-TECH/D-CLOCK/releases/download/v1.3.6/D-CLOCK.1.3.6.exe",
+    apk: "https://github.com/D99-TECH/D-CLOCK/releases/download/v1.3.6/D-CLOCK-1.3.6.apk",
+  },
+  {
     v: "1.3.5",
     label: "Última versión",
     date: "Jun 2026",
-    latest: true,
+    latest: false,
     size: "~95 MB",
     changes: [
       "Reporte de asistencia inteligente — detección automática de horario por hora de entrada",
@@ -241,12 +257,12 @@ export default function DownloadSection() {
             <p className="text-[10.5px] font-bold text-[#AEAEA4] uppercase tracking-wider mb-4">App móvil D-CLOCK</p>
             <div className="flex flex-wrap gap-3">
               <a
-                href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.1/D-CLOCK-1.3.1.apk"
+                href="https://github.com/D99-TECH/D-CLOCK/releases/download/v1.3.6/D-CLOCK-1.3.6.apk"
                 className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-[10px] bg-[#1a1a1a] text-white text-[13px] font-bold hover:opacity-85 transition-opacity"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.523 15.341c-.462 0-.836-.374-.836-.836s.374-.836.836-.836.836.374.836.836-.374.836-.836.836m-11.046 0c-.462 0-.836-.374-.836-.836s.374-.836.836-.836.836.374.836.836-.374.836-.836.836m11.405-6.268l1.67-2.893a.347.347 0 0 0-.127-.474.347.347 0 0 0-.474.127l-1.692 2.929A10.29 10.29 0 0 0 12 8.16c-1.52 0-2.96.33-4.259.902L6.049 6.133a.347.347 0 0 0-.474-.127.347.347 0 0 0-.127.474l1.67 2.893C4.562 10.812 3 13.218 3 16h18c0-2.782-1.562-5.188-4.118-6.927"/></svg>
                 Descargar APK Android
-                <span className="text-white/50 text-[11px]">.apk · v1.3.1</span>
+                <span className="text-white/50 text-[11px]">.apk · v1.3.6</span>
               </a>
               <a
                 href="https://apps.apple.com/app/d-clock/id6769932290"

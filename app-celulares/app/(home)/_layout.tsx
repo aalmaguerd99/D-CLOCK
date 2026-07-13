@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
 import { getSession } from "@/lib/storage";
@@ -8,6 +9,7 @@ const ACTIVE = "#1a1a1a";
 const INACTIVE = "#b0a99f";
 
 export default function HomeLayout() {
+  const { bottom } = useSafeAreaInsets();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isTeamAdmin, setIsTeamAdmin] = useState(false);
 
@@ -34,9 +36,9 @@ export default function HomeLayout() {
           backgroundColor: "#FDFAF6",
           borderTopWidth: 1,
           borderTopColor: "rgba(0,0,0,0.07)",
-          height: Platform.OS === "ios" ? 84 : 66,
+          height: Platform.OS === "ios" ? 84 : 56 + bottom,
           paddingTop: 8,
-          paddingBottom: Platform.OS === "ios" ? 24 : 10,
+          paddingBottom: Platform.OS === "ios" ? 24 : Math.max(bottom, 8),
           shadowColor: "#000",
           shadowOffset: { width: 0, height: -3 },
           shadowOpacity: 0.06,
@@ -78,6 +80,15 @@ export default function HomeLayout() {
           title: "Credencial",
           tabBarIcon: ({ focused, color }) => (
             <Ionicons name={focused ? "card" : "card-outline"} size={26} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="vacaciones"
+        options={{
+          title: "Vacaciones",
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons name={focused ? "sunny" : "sunny-outline"} size={26} color={color} />
           ),
         }}
       />

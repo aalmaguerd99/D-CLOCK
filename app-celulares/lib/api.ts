@@ -236,3 +236,54 @@ export async function testConnection(): Promise<boolean> {
     return false;
   }
 }
+
+// ── Vacation types ────────────────────────────────────
+
+export interface VacationBalance {
+  id: number | null;
+  employee_id: number;
+  year: number;
+  days_granted: number;
+  days_used: number;
+  days_available: number;
+}
+
+export interface VacationRequest {
+  id: number;
+  employee_id: number;
+  start_date: string;
+  end_date: string;
+  days_count: number;
+  status: "pending" | "approved" | "rejected";
+  notes: string | null;
+  requested_at: string;
+  reviewed_at: string | null;
+  review_notes: string | null;
+}
+
+export interface VacationData {
+  balance: VacationBalance;
+  requests: VacationRequest[];
+}
+
+// ── Vacation API calls ────────────────────────────────
+
+export async function fetchVacation(employee_id: number): Promise<VacationData> {
+  return get<VacationData>(`/api/mobile/vacation?employee_id=${employee_id}`);
+}
+
+export async function submitVacationRequest(
+  employee_id: number,
+  start_date: string,
+  end_date: string,
+  days_count: number,
+  notes?: string
+): Promise<{ id: number; ok: boolean }> {
+  return post<{ id: number; ok: boolean }>("/api/mobile/vacation/request", {
+    employee_id,
+    start_date,
+    end_date,
+    days_count,
+    notes: notes ?? null,
+  });
+}
