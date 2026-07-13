@@ -1129,37 +1129,49 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         </div>
 
         <!-- NOTIFICACIONES -->
-        <div class="section" id="sec-notificaciones" style="overflow-y:auto">
-          <div class="toolbar" style="flex-wrap:wrap;gap:8px">
-            <h3 style="font-size:14px;font-weight:700;margin:0">Enviar notificación push</h3>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:0 20px 20px">
-            <!-- Compose -->
-            <div style="display:flex;flex-direction:column;gap:12px">
-              <div>
-                <label style="font-size:11px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px">DESTINATARIOS</label>
-                <div style="display:flex;gap:8px;margin-bottom:8px">
-                  <button onclick="notifSelectAll(true)" style="font-size:12px;padding:5px 12px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;font-weight:600">Todos</button>
-                  <button onclick="notifSelectAll(false)" style="font-size:12px;padding:5px 12px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;font-weight:600">Ninguno</button>
+        <div class="section" id="sec-notificaciones" style="overflow-y:auto;display:flex;flex-direction:column;gap:0">
+          <!-- Mass message toolbar -->
+          <div class="toolbar" style="gap:10px;align-items:flex-end;flex-wrap:nowrap;padding:14px 20px;border-bottom:1px solid var(--border)">
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;gap:8px">
+                <div style="flex:1">
+                  <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">TÍTULO (opcional)</div>
+                  <input id="notif-title" type="text" class="inp" placeholder="D-CLOCK" style="width:100%;box-sizing:border-box">
                 </div>
-                <div id="notif-emp-list" style="max-height:180px;overflow-y:auto;border:1px solid #eee;border-radius:8px;background:#fff;padding:4px 0"></div>
+                <div style="flex:2">
+                  <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">MENSAJE PARA SELECCIONADOS *</div>
+                  <input id="notif-body" type="text" class="inp" placeholder="Escribe el mensaje..." style="width:100%;box-sizing:border-box" onkeydown="if(event.key==='Enter')sendMassNotif()">
+                </div>
               </div>
-              <div>
-                <label style="font-size:11px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px">TÍTULO (opcional)</label>
-                <input id="notif-title" type="text" placeholder="D-CLOCK" style="width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;outline:none">
-              </div>
-              <div>
-                <label style="font-size:11px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px">MENSAJE *</label>
-                <textarea id="notif-body" rows="4" placeholder="Escribe el mensaje aquí..." style="width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;resize:vertical;outline:none;font-family:inherit"></textarea>
-              </div>
-              <button onclick="sendNotification()" style="background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.5px">
-                Enviar notificación
+            </div>
+            <div style="display:flex;gap:6px;flex-shrink:0;align-items:center">
+              <button onclick="notifSelectAll(true)" class="btn btn-ghost btn-sm">Todos</button>
+              <button onclick="notifSelectAll(false)" class="btn btn-ghost btn-sm">Ninguno</button>
+              <button id="notif-mass-btn" onclick="sendMassNotif()" class="btn btn-primary" disabled style="white-space:nowrap">
+                Enviar a seleccionados &nbsp;<span id="notif-sel-count" style="background:rgba(255,255,255,.25);border-radius:10px;padding:1px 7px;font-size:11px">0</span>
               </button>
             </div>
-            <!-- History -->
-            <div>
-              <label style="font-size:11px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px">HISTORIAL</label>
-              <div id="notif-history" style="display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto"></div>
+          </div>
+          <!-- Cards grid -->
+          <div id="notif-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;padding:16px 20px;align-content:start"></div>
+        </div>
+
+        <!-- VAC REVIEW OVERLAY -->
+        <div id="vac-review-overlay" onclick="if(event.target===this)closeVacReview()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;align-items:center;justify-content:center">
+          <div style="background:var(--surface);border-radius:18px;padding:28px;width:480px;max-width:92vw;box-shadow:0 24px 64px rgba(0,0,0,.22)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px">
+              <div id="vac-review-title" style="font-size:17px;font-weight:800;color:var(--text)"></div>
+              <button onclick="closeVacReview()" style="border:none;background:var(--bg2);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:14px;color:var(--text2)">✕</button>
+            </div>
+            <div id="vac-review-emp" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg2);border-radius:12px;margin-bottom:14px"></div>
+            <div id="vac-review-period" style="padding:12px 16px;background:var(--bg2);border-radius:12px;margin-bottom:14px;font-size:13px;color:var(--text2)"></div>
+            <div id="vac-review-notes-wrap" style="display:none;margin-bottom:14px">
+              <label style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:7px">MOTIVO DEL RECHAZO</label>
+              <textarea id="vac-review-notes" class="inp" rows="3" placeholder="Opcional — se mostrará al empleado en la app..." style="width:100%;box-sizing:border-box;resize:none;font-family:inherit"></textarea>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:6px">
+              <button onclick="closeVacReview()" class="btn btn-ghost" style="flex:1">Cancelar</button>
+              <button id="vac-review-confirm-btn" onclick="confirmVacReview()" class="btn" style="flex:1;font-weight:700"></button>
             </div>
           </div>
         </div>
@@ -2880,30 +2892,75 @@ async function loadVacaciones(){
     approved:'<span class="badge badge-green">Aprobada</span>',
     rejected:'<span class="badge badge-red">Rechazada</span>',
   };
-  tbody.innerHTML=rows.map(r=>`
-    <tr>
-      <td><div style="display:flex;align-items:center;gap:8px">${avatarHtml(r.photo,r.name,28)}<div><strong>${r.name}${r.last_name?' '+r.last_name:''}</strong><div style="font-size:11px;color:var(--muted)">${r.employee_number}</div></div></div></td>
-      <td style="white-space:nowrap">${r.start_date} → ${r.end_date}</td>
-      <td style="text-align:center"><strong>${r.days_count}</strong></td>
+  tbody.innerHTML=rows.map(r=>{
+    const emp=employees.find(e=>e.id===r.employee_id)||{};
+    const startFmt=fmtDateShort(r.start_date),endFmt=fmtDateShort(r.end_date);
+    const sameMonth=r.start_date?.slice(0,7)===r.end_date?.slice(0,7);
+    const periodHtml=`<div style="font-weight:600;font-size:13px">${startFmt}</div><div style="font-size:11px;color:var(--muted)">al ${endFmt}</div>`;
+    const reviewData=JSON.stringify({id:r.id,name:`${r.name}${r.last_name?' '+r.last_name:''}`,photo:r.photo||null,start:r.start_date,end:r.end_date,days:r.days_count,notes:r.review_notes||''}).replace(/'/g,'&#39;');
+    return`<tr>
+      <td><div style="display:flex;align-items:center;gap:8px">${avatarHtml(r.photo,r.name,30)}<div><strong>${r.name}${r.last_name?' '+r.last_name:''}</strong><div style="font-size:11px;color:var(--muted)">#${r.employee_number}</div></div></div></td>
+      <td>${periodHtml}</td>
+      <td style="text-align:center"><strong style="font-size:16px">${r.days_count}</strong><div style="font-size:10px;color:var(--muted)">días</div></td>
       <td style="font-size:12px;color:var(--muted)">${r.requested_at?.slice(0,10)||'—'}</td>
       <td>${statusBadge[r.status]||r.status}</td>
       <td>
         ${r.status==='pending'?`
           <div class="actions">
-            <button class="btn btn-success btn-xs" onclick="reviewVacRequest(${r.id},'approved')">Aprobar</button>
-            <button class="btn btn-danger btn-xs" onclick="reviewVacRequest(${r.id},'rejected')">Rechazar</button>
-          </div>`:r.status==='approved'?`<button class="btn btn-ghost btn-xs" onclick="reviewVacRequest(${r.id},'rejected')">Cancelar</button>`:''}
+            <button class="btn btn-success btn-xs" onclick='openVacReview(${r.id},"approved","${r.name}${r.last_name?' '+r.last_name:''}","${r.photo||''}","${r.start_date}","${r.end_date}",${r.days_count})'>Aprobar</button>
+            <button class="btn btn-danger btn-xs" onclick='openVacReview(${r.id},"rejected","${r.name}${r.last_name?' '+r.last_name:''}","${r.photo||''}","${r.start_date}","${r.end_date}",${r.days_count})'>Rechazar</button>
+          </div>`:r.status==='approved'?`<button class="btn btn-ghost btn-xs" onclick='openVacReview(${r.id},"rejected","${r.name}${r.last_name?' '+r.last_name:''}","${r.photo||''}","${r.start_date}","${r.end_date}",${r.days_count})'>Cancelar</button>`:''}
       </td>
-    </tr>`).join("");
+    </tr>`;}).join("");
   await loadVacSaldos();
 }
 
-async function reviewVacRequest(id,status){
-  const msg=status==='approved'?'Aprobar solicitud':status==='rejected'?'Rechazar/cancelar solicitud':'';
-  const notes=status==='rejected'?prompt("Motivo (opcional):")??'':'';
-  if(status==='rejected'&&notes===null)return;
-  await api("PUT",`/api/vacation/requests/${id}`,{status,review_notes:notes||null});
-  await loadVacaciones();
+function fmtDateShort(iso){
+  if(!iso)return'—';
+  const[y,m,d]=iso.split('-');
+  const mn=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return`${parseInt(d)} ${mn[parseInt(m)-1]} ${y}`;
+}
+
+let _vacReviewId=null,_vacReviewStatus=null;
+
+function openVacReview(id,status,name,photo,start,end,days){
+  _vacReviewId=id;_vacReviewStatus=status;
+  const ov=document.getElementById('vac-review-overlay');
+  document.getElementById('vac-review-title').textContent=status==='approved'?'Aprobar vacaciones':'Rechazar solicitud';
+  document.getElementById('vac-review-emp').innerHTML=`${avatarHtml(photo,name,42)}<div><div style="font-weight:700;font-size:15px;color:var(--text)">${name}</div></div>`;
+  document.getElementById('vac-review-period').innerHTML=`
+    <div style="display:flex;align-items:center;gap:16px">
+      <div style="text-align:center"><div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Inicio</div><div style="font-weight:800;font-size:15px;color:var(--text)">${fmtDateShort(start)}</div></div>
+      <div style="font-size:18px;color:var(--muted)">→</div>
+      <div style="text-align:center"><div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Fin</div><div style="font-weight:800;font-size:15px;color:var(--text)">${fmtDateShort(end)}</div></div>
+      <div style="margin-left:auto;text-align:center;padding:10px 16px;background:${status==='approved'?'var(--green-bg)':'var(--red-bg)'};border-radius:10px">
+        <div style="font-size:26px;font-weight:900;color:${status==='approved'?'var(--green)':'var(--red)'};line-height:1">${days}</div>
+        <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px">días hábiles</div>
+      </div>
+    </div>`;
+  const nw=document.getElementById('vac-review-notes-wrap');
+  nw.style.display=status==='rejected'?'block':'none';
+  document.getElementById('vac-review-notes').value='';
+  const btn=document.getElementById('vac-review-confirm-btn');
+  btn.textContent=status==='approved'?'✓ Aprobar':'✕ Rechazar';
+  btn.style.cssText=`flex:1;font-weight:700;padding:11px 0;border:none;border-radius:8px;cursor:pointer;font-size:14px;background:${status==='approved'?'var(--green)':'var(--red)'};color:#fff`;
+  ov.style.display='flex';
+}
+
+function closeVacReview(){
+  document.getElementById('vac-review-overlay').style.display='none';
+  _vacReviewId=null;
+}
+
+async function confirmVacReview(){
+  if(!_vacReviewId)return;
+  const notes=_vacReviewStatus==='rejected'?document.getElementById('vac-review-notes').value:'';
+  try{
+    await api('PUT',`/api/vacation/requests/${_vacReviewId}`,{status:_vacReviewStatus,review_notes:notes||null});
+    closeVacReview();
+    await loadVacaciones();
+  }catch(e){alert('Error: '+e.message);}
 }
 
 async function loadVacSaldos(){
@@ -4843,66 +4900,113 @@ function showWalletMsg(msg,type){
 }
 
 // ── Notificaciones ────────────────────────────────────
-let notifEmployees = [];
-async function loadNotificaciones() {
-  try {
-    const emps = await api('GET','/api/employees');
-    notifEmployees = (emps||[]).filter(e=>e.active!==0);
-    renderNotifEmpList();
-  } catch {}
-  loadNotifHistory();
+let notifEmployees=[], notifSelected=new Set(), _notifHistory=[];
+
+async function loadNotificaciones(){
+  try{
+    const[emps,hist]=await Promise.all([api('GET','/api/employees'),api('GET','/api/notifications')]);
+    notifEmployees=(emps||[]).filter(e=>e.active!==0);
+    _notifHistory=hist||[];
+  }catch{}
+  renderNotifCards();
 }
-function renderNotifEmpList() {
-  const el = document.getElementById('notif-emp-list');
-  if (!el) return;
-  el.innerHTML = notifEmployees.map(e => `
-    <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;border-bottom:1px solid #f5f5f5;font-size:13px">
-      <input type="checkbox" class="notif-emp-cb" data-id="${e.id}" checked style="accent-color:#1a1a1a">
-      <span>${e.name}${e.last_name?' '+e.last_name:''}</span>
-      <span style="font-size:11px;color:#aaa;margin-left:auto">#${e.employee_number}</span>
-    </label>`).join('');
-}
-function notifSelectAll(val) {
-  document.querySelectorAll('.notif-emp-cb').forEach(cb => cb.checked = val);
-}
-async function loadNotifHistory() {
-  try {
-    const rows = await api('GET','/api/notifications');
-    const el = document.getElementById('notif-history');
-    if (!el) return;
-    if (!rows||rows.length===0) { el.innerHTML='<p style="font-size:13px;color:#aaa">Sin notificaciones enviadas</p>'; return; }
-    el.innerHTML = rows.map(n => {
-      const ids = JSON.parse(n.employee_ids||'[]');
-      const dest = ids.length===0 ? 'Todos' : `${ids.length} empleado${ids.length!==1?'s':''}`;
-      return `<div style="background:#fff;border-radius:8px;padding:12px 14px;border:1px solid #eee">
-        <div style="font-size:13px;font-weight:700;margin-bottom:2px">${escHtml(n.title)}</div>
-        <div style="font-size:12px;color:#555;margin-bottom:6px">${escHtml(n.body)}</div>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:11px;color:#aaa">${dest} · ${n.sent_count} enviadas</span>
-          <span style="font-size:11px;color:#aaa">${n.sent_at?.split(' ')[0]||''}</span>
+
+function renderNotifCards(){
+  const grid=document.getElementById('notif-cards-grid');
+  if(!grid)return;
+  if(!notifEmployees.length){grid.innerHTML='<div class="empty" style="padding:40px"><p>Sin empleados</p></div>';return;}
+  grid.innerHTML=notifEmployees.map(e=>{
+    const sel=notifSelected.has(e.id);
+    const lastN=_notifHistory.find(n=>{
+      try{const ids=JSON.parse(n.employee_ids||'[]');return ids.length===0||ids.includes(e.id);}catch{return false;}
+    });
+    return`<div id="notif-card-${e.id}" onclick="toggleNotifCard(${e.id},event)"
+      style="border-radius:12px;overflow:hidden;cursor:pointer;transition:box-shadow .18s,transform .15s;
+             border:${sel?'2px solid #2563EB':'1.5px solid var(--border)'};
+             background:${sel?'rgba(37,99,235,.04)':'var(--surface)'};
+             box-shadow:0 1px 4px rgba(0,0,0,.06)">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)">
+        ${avatarHtml(e.photo,e.name,38)}
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:14px;color:var(--text);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.name}${e.last_name?' '+e.last_name:''}</div>
+          <div style="font-size:11px;color:var(--muted);font-family:'Courier New',monospace">#${e.employee_number}</div>
         </div>
-      </div>`;
-    }).join('');
-  } catch {}
+        <div id="notif-check-${e.id}" style="width:20px;height:20px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;
+             border:2px solid ${sel?'#2563EB':'var(--border2)'};background:${sel?'#2563EB':'transparent'}">
+          ${sel?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>':''}
+        </div>
+      </div>
+      <div style="padding:9px 16px;border-bottom:1px solid var(--border);min-height:44px">
+        ${lastN?`<div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Último mensaje</div>
+          <div style="font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"${escHtml(lastN.body)}"</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:1px">${lastN.sent_at?.slice(0,10)||''}</div>`
+        :`<div style="font-size:12px;color:var(--muted);font-style:italic;line-height:44px;line-height:1;margin-top:4px">Sin mensajes enviados</div>`}
+      </div>
+      <div style="padding:10px 12px;display:flex;gap:7px" onclick="event.stopPropagation()">
+        <input id="notif-direct-${e.id}" class="inp" type="text" placeholder="Mensaje directo..." style="flex:1;font-size:12px;padding:7px 10px"
+          onkeydown="if(event.key==='Enter')sendDirectNotif(${e.id})">
+        <button onclick="sendDirectNotif(${e.id})" class="btn btn-primary btn-sm" style="padding:7px 13px;font-size:14px">→</button>
+      </div>
+    </div>`;
+  }).join('');
 }
-async function sendNotification() {
-  const title = document.getElementById('notif-title').value.trim() || 'D-CLOCK';
-  const body  = document.getElementById('notif-body').value.trim();
-  if (!body) { alert('Escribe un mensaje'); return; }
-  const checked = [...document.querySelectorAll('.notif-emp-cb:checked')].map(cb=>+cb.dataset.id);
-  const allChecked = checked.length === notifEmployees.length;
-  const employee_ids = allChecked ? [] : checked;
-  try {
-    const r = await api('POST','/api/notifications/send',{ title, body, employee_ids });
-    if (r.ok) {
-      document.getElementById('notif-body').value = '';
-      document.getElementById('notif-title').value = '';
-      alert(`Notificación enviada a ${r.sent} dispositivo${r.sent!==1?'s':''}`);
-      loadNotifHistory();
+
+function toggleNotifCard(empId,event){
+  if(event?.target?.tagName==='INPUT'||event?.target?.tagName==='BUTTON'||event?.target?.closest('button'))return;
+  const sel=notifSelected.has(empId);
+  if(sel)notifSelected.delete(empId);else notifSelected.add(empId);
+  const card=document.getElementById(`notif-card-${empId}`);
+  const check=document.getElementById(`notif-check-${empId}`);
+  const now=notifSelected.has(empId);
+  card.style.border=now?'2px solid #2563EB':'1.5px solid var(--border)';
+  card.style.background=now?'rgba(37,99,235,.04)':'var(--surface)';
+  check.style.borderColor=now?'#2563EB':'var(--border2)';
+  check.style.background=now?'#2563EB':'transparent';
+  check.innerHTML=now?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>':'';
+  const cnt=notifSelected.size;
+  document.getElementById('notif-sel-count').textContent=cnt;
+  document.getElementById('notif-mass-btn').disabled=cnt===0;
+}
+
+function notifSelectAll(val){
+  notifSelected=val?new Set(notifEmployees.map(e=>e.id)):new Set();
+  renderNotifCards();
+  const cnt=notifSelected.size;
+  document.getElementById('notif-sel-count').textContent=cnt;
+  document.getElementById('notif-mass-btn').disabled=cnt===0;
+}
+
+async function sendDirectNotif(empId){
+  const inp=document.getElementById(`notif-direct-${empId}`);
+  if(!inp)return;
+  const body=inp.value.trim();
+  if(!body){inp.focus();return;}
+  const title=document.getElementById('notif-title').value.trim()||'D-CLOCK';
+  try{
+    const r=await api('POST','/api/notifications/send',{title,body,employee_ids:[empId]});
+    if(r.ok){inp.value='';await loadNotificaciones();}
+  }catch(e){alert('Error: '+e.message);}
+}
+
+async function sendMassNotif(){
+  const title=document.getElementById('notif-title').value.trim()||'D-CLOCK';
+  const body=document.getElementById('notif-body').value.trim();
+  if(!body){document.getElementById('notif-body').focus();return;}
+  const employee_ids=notifSelected.size===notifEmployees.length?[]:[...notifSelected];
+  try{
+    const r=await api('POST','/api/notifications/send',{title,body,employee_ids});
+    if(r.ok){
+      document.getElementById('notif-body').value='';
+      notifSelected.clear();
+      document.getElementById('notif-sel-count').textContent='0';
+      document.getElementById('notif-mass-btn').disabled=true;
+      alert(`Enviado a ${r.sent} dispositivo${r.sent!==1?'s':''}`);
+      await loadNotificaciones();
     }
-  } catch(e) { alert('Error: '+e.message); }
+  }catch(e){alert('Error: '+e.message);}
 }
-function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function goto(name,el){
   document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));

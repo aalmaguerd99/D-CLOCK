@@ -976,7 +976,7 @@ app.post("/api/notifications/send", auth, async (req, res) => {
 
   try {
     const messages = tokens.map(t => ({ to: t.token, title, body, sound: "default", data: { type: "admin_notification" } }));
-    const response = await fetch("https://exp.host/push/send", {
+    const response = await fetch("https://exp.host/--/api/v2/push/send", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept": "application/json", "Accept-Encoding": "gzip, deflate" },
       body: JSON.stringify(messages),
