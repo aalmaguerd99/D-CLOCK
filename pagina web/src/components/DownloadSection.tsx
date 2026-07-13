@@ -15,9 +15,9 @@ const VERSIONS = [
       "App movil: pantalla de vacaciones con solicitud de fechas",
       "Fecha de ingreso por empleado para calculo automatico",
     ],
-    installer: "https://github.com/D99-TECH/D-CLOCK/releases/download/v1.3.6/D-CLOCK.Setup.1.3.6.exe",
-    portable: "https://github.com/D99-TECH/D-CLOCK/releases/download/v1.3.6/D-CLOCK.1.3.6.exe",
-    apk: "https://github.com/D99-TECH/D-CLOCK/releases/download/v1.3.6/D-CLOCK-1.3.6.apk",
+    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.6/D-CLOCK.Setup.1.3.6.exe",
+    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.6/D-CLOCK.1.3.6.exe",
+    apk: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.6/D-CLOCK-1.3.6.apk",
   },
   {
     v: "1.3.5",
