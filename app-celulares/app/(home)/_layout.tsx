@@ -20,6 +20,8 @@ Notifications.setNotificationHandler({
 
 async function registerPushToken(employeeId: number) {
   try {
+    // expo-notifications push tokens require a dev build (not Expo Go)
+    if (Constants.appOwnership === "expo") return;
     const { status } = await Notifications.requestPermissionsAsync();
     if (status !== "granted") return;
     const projectId = Constants.expoConfig?.extra?.eas?.projectId;
