@@ -207,6 +207,21 @@ export default function ProfileScreen() {
         </View>
       </Section>
 
+      {/* Credencial digital */}
+      <Section label="CREDENCIAL DIGITAL">
+        <View style={{ paddingHorizontal: 16, paddingVertical: 14 }}>
+          <TouchableOpacity
+            style={faceStyles.faceBtn}
+            onPress={() => router.push("/credential")}
+            activeOpacity={0.8}
+          >
+            <Text style={faceStyles.faceBtnText}>
+              {Platform.OS === "ios" ? "Agregar a Apple Wallet" : "Ver credencial"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </Section>
+
       {/* Actions */}
       <View style={styles.actions}>
         <TouchableOpacity style={styles.btn} onPress={handleChangeServer}>

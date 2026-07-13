@@ -938,6 +938,58 @@ app.post("/api/mobile/vacation/request", (req, res) => {
   res.json({ id: r.lastInsertRowid, ok: true });
 });
 
+// ── Push Notifications ────────────────────────────────
+app.post("/api/mobile/push-token", (req, res) => {
+  const { employee_id, token, platform } = req.body;
+  if (!employee_id || !token) return res.status(400).json({ error: "Datos incompletos" });
+  const db = DB.getDb();
+  db.prepare(`INSERT INTO push_tokens (employee_id,token,platform,updated_at)
+    VALUES (?,?,?,datetime('now','localtime'))
+    ON CONFLICT(employee_id) DO UPDATE SET token=excluded.token,platform=excluded.platform,updated_at=datetime('now','localtime')`)
+    .run(employee_id, token, platform || null);
+  res.json({ ok: true });
+});
+
+app.get("/api/notifications", auth, (req, res) => {
+  const db = DB.getDb();
+  const rows = db.prepare("SELECT * FROM notifications ORDER BY sent_at DESC LIMIT 50").all();
+  res.json(rows);
+});
+
+app.post("/api/notifications/send", auth, async (req, res) => {
+  const { title, body, employee_ids } = req.body;
+  if (!title || !body) return res.status(400).json({ error: "Título y mensaje requeridos" });
+  const db = DB.getDb();
+
+  let tokens;
+  if (!employee_ids || employee_ids.length === 0) {
+    tokens = db.prepare("SELECT pt.token, pt.employee_id FROM push_tokens pt JOIN employees e ON e.id=pt.employee_id WHERE e.active=1").all();
+  } else {
+    const placeholders = employee_ids.map(() => "?").join(",");
+    tokens = db.prepare(`SELECT token, employee_id FROM push_tokens WHERE employee_id IN (${placeholders})`).all(...employee_ids);
+  }
+
+  const notifId = db.prepare("INSERT INTO notifications (title,body,employee_ids,sent_count) VALUES (?,?,?,0)")
+    .run(title, body, JSON.stringify(employee_ids || [])).lastInsertRowid;
+
+  if (tokens.length === 0) return res.json({ ok: true, sent: 0, id: notifId });
+
+  try {
+    const messages = tokens.map(t => ({ to: t.token, title, body, sound: "default", data: { type: "admin_notification" } }));
+    const response = await fetch("https://exp.host/push/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json", "Accept-Encoding": "gzip, deflate" },
+      body: JSON.stringify(messages),
+    });
+    const result = await response.json();
+    const sent = Array.isArray(result.data) ? result.data.filter(r => r.status === "ok").length : tokens.length;
+    db.prepare("UPDATE notifications SET sent_count=? WHERE id=?").run(sent, notifId);
+    res.json({ ok: true, sent, id: notifId });
+  } catch (e) {
+    res.status(500).json({ error: "Error al enviar: " + e.message });
+  }
+});
+
 // ── Wallet background rendering ───────────────────────
 // CSS patterns mirrored from the frontend designer
 const BG_PRESETS_SERVER = {

@@ -565,6 +565,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17.5 7.5L12 2 6.5 7.5"/><path d="M12 2v13"/><path d="M3 19h18"/><path d="M6 15c0 2 1.5 4 6 4s6-2 6-4"/></svg>
           Vacaciones
         </div>
+        <div class="nav-item" onclick="goto('notificaciones',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Notificaciones
+        </div>
         <div class="nav-item" onclick="goto('geocercas',this)">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg>
           Geocercas
@@ -1120,6 +1124,42 @@ input[type=range]{width:100%;accent-color:var(--accent)}
                 </div>
                 <div id="vac-detail-body" style="padding:12px"></div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTIFICACIONES -->
+        <div class="section" id="sec-notificaciones" style="overflow-y:auto">
+          <div class="toolbar" style="flex-wrap:wrap;gap:8px">
+            <h3 style="font-size:14px;font-weight:700;margin:0">Enviar notificación push</h3>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:0 20px 20px">
+            <!-- Compose -->
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px">DESTINATARIOS</label>
+                <div style="display:flex;gap:8px;margin-bottom:8px">
+                  <button onclick="notifSelectAll(true)" style="font-size:12px;padding:5px 12px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;font-weight:600">Todos</button>
+                  <button onclick="notifSelectAll(false)" style="font-size:12px;padding:5px 12px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;font-weight:600">Ninguno</button>
+                </div>
+                <div id="notif-emp-list" style="max-height:180px;overflow-y:auto;border:1px solid #eee;border-radius:8px;background:#fff;padding:4px 0"></div>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px">TÍTULO (opcional)</label>
+                <input id="notif-title" type="text" placeholder="D-CLOCK" style="width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;outline:none">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px">MENSAJE *</label>
+                <textarea id="notif-body" rows="4" placeholder="Escribe el mensaje aquí..." style="width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;resize:vertical;outline:none;font-family:inherit"></textarea>
+              </div>
+              <button onclick="sendNotification()" style="background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.5px">
+                Enviar notificación
+              </button>
+            </div>
+            <!-- History -->
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px">HISTORIAL</label>
+              <div id="notif-history" style="display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto"></div>
             </div>
           </div>
         </div>
@@ -4802,17 +4842,80 @@ function showWalletMsg(msg,type){
   setTimeout(()=>{el.style.display='none';},4000);
 }
 
+// ── Notificaciones ────────────────────────────────────
+let notifEmployees = [];
+async function loadNotificaciones() {
+  try {
+    const emps = await api('GET','/api/employees');
+    notifEmployees = (emps||[]).filter(e=>e.active!==0);
+    renderNotifEmpList();
+  } catch {}
+  loadNotifHistory();
+}
+function renderNotifEmpList() {
+  const el = document.getElementById('notif-emp-list');
+  if (!el) return;
+  el.innerHTML = notifEmployees.map(e => `
+    <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;border-bottom:1px solid #f5f5f5;font-size:13px">
+      <input type="checkbox" class="notif-emp-cb" data-id="${e.id}" checked style="accent-color:#1a1a1a">
+      <span>${e.name}${e.last_name?' '+e.last_name:''}</span>
+      <span style="font-size:11px;color:#aaa;margin-left:auto">#${e.employee_number}</span>
+    </label>`).join('');
+}
+function notifSelectAll(val) {
+  document.querySelectorAll('.notif-emp-cb').forEach(cb => cb.checked = val);
+}
+async function loadNotifHistory() {
+  try {
+    const rows = await api('GET','/api/notifications');
+    const el = document.getElementById('notif-history');
+    if (!el) return;
+    if (!rows||rows.length===0) { el.innerHTML='<p style="font-size:13px;color:#aaa">Sin notificaciones enviadas</p>'; return; }
+    el.innerHTML = rows.map(n => {
+      const ids = JSON.parse(n.employee_ids||'[]');
+      const dest = ids.length===0 ? 'Todos' : `${ids.length} empleado${ids.length!==1?'s':''}`;
+      return `<div style="background:#fff;border-radius:8px;padding:12px 14px;border:1px solid #eee">
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px">${escHtml(n.title)}</div>
+        <div style="font-size:12px;color:#555;margin-bottom:6px">${escHtml(n.body)}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;color:#aaa">${dest} · ${n.sent_count} enviadas</span>
+          <span style="font-size:11px;color:#aaa">${n.sent_at?.split(' ')[0]||''}</span>
+        </div>
+      </div>`;
+    }).join('');
+  } catch {}
+}
+async function sendNotification() {
+  const title = document.getElementById('notif-title').value.trim() || 'D-CLOCK';
+  const body  = document.getElementById('notif-body').value.trim();
+  if (!body) { alert('Escribe un mensaje'); return; }
+  const checked = [...document.querySelectorAll('.notif-emp-cb:checked')].map(cb=>+cb.dataset.id);
+  const allChecked = checked.length === notifEmployees.length;
+  const employee_ids = allChecked ? [] : checked;
+  try {
+    const r = await api('POST','/api/notifications/send',{ title, body, employee_ids });
+    if (r.ok) {
+      document.getElementById('notif-body').value = '';
+      document.getElementById('notif-title').value = '';
+      alert(`Notificación enviada a ${r.sent} dispositivo${r.sent!==1?'s':''}`);
+      loadNotifHistory();
+    }
+  } catch(e) { alert('Error: '+e.message); }
+}
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
 function goto(name,el){
   document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
   el.classList.add("active");
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.getElementById("sec-"+name).classList.add("active");
-  const titles={dashboard:"Dashboard",registros:"Registros de asistencia",reportes:"Reportes de asistencia",empleados:"Empleados",equipos:"Equipos",departamentos:"Departamentos",areas:"Áreas",puestos:"Puestos",horarios:"Horarios",vacaciones:"Vacaciones",geocercas:"Geocercas",credencial:"Credencial digital",configuracion:"Configuración"};
+  const titles={dashboard:"Dashboard",registros:"Registros de asistencia",reportes:"Reportes de asistencia",empleados:"Empleados",equipos:"Equipos",departamentos:"Departamentos",areas:"Áreas",puestos:"Puestos",horarios:"Horarios",vacaciones:"Vacaciones",notificaciones:"Notificaciones push",geocercas:"Geocercas",credencial:"Credencial digital",configuracion:"Configuración"};
   document.getElementById("page-title").textContent=titles[name]||name;
   if(name==="registros"){if(recMode==='day')loadRecords();else loadPeriodRecords();}
   if(name==="reportes")initReportFilters();
   if(name==="horarios")loadAssignments();
   if(name==="vacaciones")loadVacaciones();
+  if(name==="notificaciones")loadNotificaciones();
   if(name==="geocercas"&&geoView==='map')setTimeout(()=>{renderGeoListMap();if(geoListMap)geoListMap.invalidateSize();},150);
   if(name==="credencial")loadWalletConfig();
   if(name==="equipos")loadTeams();

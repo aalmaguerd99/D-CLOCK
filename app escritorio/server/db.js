@@ -153,6 +153,24 @@ function init(dataDir) {
       review_notes TEXT
     );
 
+    CREATE TABLE IF NOT EXISTS push_tokens (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
+      token       TEXT NOT NULL,
+      platform    TEXT,
+      updated_at  TEXT DEFAULT (datetime('now','localtime')),
+      UNIQUE(employee_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS notifications (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      title        TEXT NOT NULL,
+      body         TEXT NOT NULL,
+      employee_ids TEXT,
+      sent_count   INTEGER DEFAULT 0,
+      sent_at      TEXT DEFAULT (datetime('now','localtime'))
+    );
+
     CREATE INDEX IF NOT EXISTS idx_ci_emp    ON check_ins(employee_id);
     CREATE INDEX IF NOT EXISTS idx_ci_time   ON check_ins(timestamp);
     CREATE INDEX IF NOT EXISTS idx_sa_emp    ON schedule_assignments(employee_id);
@@ -184,6 +202,8 @@ function init(dataDir) {
     "ALTER TABLE employees ADD COLUMN hire_date TEXT",
     "CREATE TABLE IF NOT EXISTS vacation_balances (id INTEGER PRIMARY KEY AUTOINCREMENT, employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE, year INTEGER NOT NULL, days_granted INTEGER NOT NULL DEFAULT 0, days_used INTEGER NOT NULL DEFAULT 0, UNIQUE(employee_id, year))",
     "CREATE TABLE IF NOT EXISTS vacation_requests (id INTEGER PRIMARY KEY AUTOINCREMENT, employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE, start_date TEXT NOT NULL, end_date TEXT NOT NULL, days_count INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'pending', notes TEXT, requested_at TEXT DEFAULT (datetime('now','localtime')), reviewed_at TEXT, review_notes TEXT)",
+    "CREATE TABLE IF NOT EXISTS push_tokens (id INTEGER PRIMARY KEY AUTOINCREMENT, employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE, token TEXT NOT NULL, platform TEXT, updated_at TEXT DEFAULT (datetime('now','localtime')), UNIQUE(employee_id))",
+    "CREATE TABLE IF NOT EXISTS notifications (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, body TEXT NOT NULL, employee_ids TEXT, sent_count INTEGER DEFAULT 0, sent_at TEXT DEFAULT (datetime('now','localtime')))",
   ];
   for (const sql of migrations) {
     try { db.exec(sql); } catch {}

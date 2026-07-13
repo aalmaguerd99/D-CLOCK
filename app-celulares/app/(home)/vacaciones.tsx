@@ -154,7 +154,7 @@ export default function VacacionesScreen() {
             <Text style={styles.balanceLbl}>Usados</Text>
           </View>
           <View style={styles.balanceStat}>
-            <Text style={[styles.balanceNum, { color: "#fff", fontSize: 40 }]}>{available}</Text>
+            <Text style={[styles.balanceNum, { color: "#fff", fontSize: 40, lineHeight: 48 }]}>{available}</Text>
             <Text style={styles.balanceLbl}>Disponibles</Text>
           </View>
         </View>
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
   },
   balanceRow: { flexDirection: "row", marginBottom: 16 },
   balanceStat: { flex: 1, alignItems: "center", paddingVertical: 4 },
-  balanceNum: { fontSize: 32, fontWeight: "900", letterSpacing: -1, lineHeight: 36 },
+  balanceNum: { fontSize: 32, fontWeight: "900", letterSpacing: -1, lineHeight: 40 },
   balanceLbl: { fontSize: 10, fontWeight: "700", color: "rgba(255,255,255,0.5)", letterSpacing: 1, marginTop: 4, textTransform: "uppercase" },
   progressBg: { height: 4, backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 2, marginBottom: 8 },
   progressFill: { height: "100%", backgroundColor: "#16a34a", borderRadius: 2 },
