@@ -441,12 +441,12 @@ app.get("/api/employees", auth, (req, res) => {
   res.json(rows.map(({ face_descriptor, ...r }) => ({ ...r, has_face: !!face_descriptor })));
 });
 app.post("/api/employees", auth, (req, res) => {
-  const { employee_number, name, last_name, email, phone, nss, curp, rfc, gender, birth_date, address, department_id, area_id, job_title_id, schedule_id, geofence_id, pin, photo, is_admin } = req.body;
+  const { employee_number, name, last_name, email, phone, nss, curp, rfc, gender, birth_date, hire_date, address, department_id, area_id, job_title_id, schedule_id, geofence_id, pin, photo, is_admin } = req.body;
   if (!employee_number || !name) return res.status(400).json({ error: "Número y nombre requeridos" });
   try {
     const r = DB.getDb().prepare(
-      "INSERT INTO employees (employee_number,name,last_name,email,phone,nss,curp,rfc,gender,birth_date,address,department_id,area_id,job_title_id,schedule_id,geofence_id,pin,photo,is_admin) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-    ).run(employee_number, name, last_name||null, email||null, phone||null, nss||null, curp||null, rfc||null, gender||null, birth_date||null, address||null, department_id||null, area_id||null, job_title_id||null, schedule_id||null, geofence_id||null, pin||null, photo||null, is_admin?1:0);
+      "INSERT INTO employees (employee_number,name,last_name,email,phone,nss,curp,rfc,gender,birth_date,hire_date,address,department_id,area_id,job_title_id,schedule_id,geofence_id,pin,photo,is_admin) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+    ).run(employee_number, name, last_name||null, email||null, phone||null, nss||null, curp||null, rfc||null, gender||null, birth_date||null, hire_date||null, address||null, department_id||null, area_id||null, job_title_id||null, schedule_id||null, geofence_id||null, pin||null, photo||null, is_admin?1:0);
     res.json({ id: r.lastInsertRowid });
   } catch { res.status(400).json({ error: "El número de empleado ya existe" }); }
 });
@@ -456,10 +456,10 @@ app.get("/api/employees/:id", auth, (req, res) => {
   res.json(emp);
 });
 app.put("/api/employees/:id", auth, (req, res) => {
-  const { employee_number, name, last_name, email, phone, nss, curp, rfc, gender, birth_date, address, department_id, area_id, job_title_id, schedule_id, geofence_id, pin, photo, active, is_admin } = req.body;
+  const { employee_number, name, last_name, email, phone, nss, curp, rfc, gender, birth_date, hire_date, address, department_id, area_id, job_title_id, schedule_id, geofence_id, pin, photo, active, is_admin } = req.body;
   DB.getDb().prepare(
-    "UPDATE employees SET employee_number=?,name=?,last_name=?,email=?,phone=?,nss=?,curp=?,rfc=?,gender=?,birth_date=?,address=?,department_id=?,area_id=?,job_title_id=?,schedule_id=?,geofence_id=?,pin=?,photo=?,active=?,is_admin=? WHERE id=?"
-  ).run(employee_number, name, last_name||null, email||null, phone||null, nss||null, curp||null, rfc||null, gender||null, birth_date||null, address||null, department_id||null, area_id||null, job_title_id||null, schedule_id||null, geofence_id||null, pin||null, photo||null, active?1:0, is_admin?1:0, req.params.id);
+    "UPDATE employees SET employee_number=?,name=?,last_name=?,email=?,phone=?,nss=?,curp=?,rfc=?,gender=?,birth_date=?,hire_date=?,address=?,department_id=?,area_id=?,job_title_id=?,schedule_id=?,geofence_id=?,pin=?,photo=?,active=?,is_admin=? WHERE id=?"
+  ).run(employee_number, name, last_name||null, email||null, phone||null, nss||null, curp||null, rfc||null, gender||null, birth_date||null, hire_date||null, address||null, department_id||null, area_id||null, job_title_id||null, schedule_id||null, geofence_id||null, pin||null, photo||null, active?1:0, is_admin?1:0, req.params.id);
   res.json({ ok: true });
 });
 app.patch("/api/employees/:id", auth, (req, res) => {
@@ -505,6 +505,26 @@ app.delete("/api/assignments/:empId/:date", auth, (req, res) => {
     "DELETE FROM schedule_assignments WHERE employee_id=? AND date=?"
   ).run(req.params.empId, req.params.date);
   res.json({ ok: true });
+});
+
+app.post("/api/assignments/bulk", auth, (req, res) => {
+  const { assignments } = req.body; // [{employee_id, date, schedule_id}]
+  if (!Array.isArray(assignments) || !assignments.length)
+    return res.status(400).json({ error: "assignments[] requerido" });
+  const stmt = DB.getDb().prepare(
+    "INSERT OR REPLACE INTO schedule_assignments (employee_id, date, schedule_id) VALUES (?,?,?)"
+  );
+  const tx = DB.getDb().transaction(() => {
+    for (const a of assignments) {
+      if (a.schedule_id === null) {
+        DB.getDb().prepare("DELETE FROM schedule_assignments WHERE employee_id=? AND date=?").run(a.employee_id, a.date);
+      } else {
+        stmt.run(a.employee_id, a.date, a.schedule_id);
+      }
+    }
+  });
+  tx();
+  res.json({ ok: true, count: assignments.length });
 });
 
 // ── Check-ins ─────────────────────────────────────────
@@ -676,10 +696,17 @@ app.get("/api/attendance-report", auth, (req, res) => {
     WHERE ci.type='entrada' AND date(ci.timestamp)>=? AND date(ci.timestamp)<=?
     ORDER BY ci.timestamp ASC
   `).all(from, to);
+  const checkouts = db.prepare(`
+    SELECT employee_id, date(timestamp) AS date, timestamp
+    FROM check_ins WHERE type='salida' AND date(timestamp)>=? AND date(timestamp)<=?
+    ORDER BY timestamp DESC
+  `).all(from, to);
   const overrideMap = {};
   for (const o of overrides) overrideMap[`${o.employee_id}_${o.date}`] = o;
   const checkinMap = {};
   for (const ci of checkins) { const k=`${ci.employee_id}_${ci.date}`; if(!checkinMap[k])checkinMap[k]=ci; }
+  const checkoutMap = {};
+  for (const co of checkouts) { const k=`${co.employee_id}_${co.date}`; if(!checkoutMap[k])checkoutMap[k]=co; }
   const report = emps.map(emp => {
     const days = dates.map(date => {
       const dow = DAY_NAMES[new Date(date+'T12:00:00').getDay()];
@@ -691,7 +718,10 @@ app.get("/api/attendance-report", auth, (req, res) => {
       }
       const ci = checkinMap[`${emp.id}_${date}`];
       let status = 'no_aplica', detectedShiftName = null, deviation = false;
-      if (shouldWork) {
+      // override explícito de tipo no-trabajo (descanso, vacaciones, incapacidad)
+      if (override && override.sched_type !== 'trabajo') {
+        status = override.sched_type || 'no_aplica';
+      } else if (shouldWork) {
         if (!ci) { status = 'falta'; }
         else {
           status = ci.attendance_status || 'a_tiempo';
@@ -699,9 +729,20 @@ app.get("/api/attendance-report", auth, (req, res) => {
           if (ci.detected_schedule_id && expected.sched_id && ci.detected_schedule_id !== expected.sched_id) deviation = true;
         }
       }
-      return { date, dow, status, checkin_time: ci ? ci.timestamp.slice(11,16) : null, detectedShiftName, deviation, expectedShiftName: expected.sched_name || null, shouldWork };
+      // si hay registro aunque el día no sea "shouldWork", mostrar igual
+      if (!shouldWork && ci && status === 'no_aplica') {
+        status = ci.attendance_status || 'a_tiempo';
+        detectedShiftName = ci.detected_sched_name || null;
+      }
+      const co = checkoutMap[`${emp.id}_${date}`];
+      let hours_worked = null;
+      if (ci && co) {
+        const mins = (new Date(co.timestamp.replace(' ','T')) - new Date(ci.timestamp.replace(' ','T'))) / 60000;
+        if (mins > 0) hours_worked = Math.round(mins / 6) / 10; // 1 decimal
+      }
+      return { date, dow, status, checkin_time: ci ? ci.timestamp.slice(11,16) : null, salida_time: co ? co.timestamp.slice(11,16) : null, hours_worked, detectedShiftName, deviation, expectedShiftName: expected.sched_name || null, shouldWork };
     });
-    const s = days.reduce((a,d)=>{ if(d.status==='a_tiempo')a.aT++; else if(d.status==='retardo')a.ret++; else if(d.status==='falta')a.falt++; if(d.deviation)a.dev++; return a; },{aT:0,ret:0,falt:0,dev:0});
+    const s = days.reduce((a,d)=>{ if(d.status==='a_tiempo')a.aT++; else if(d.status==='retardo')a.ret++; else if(d.status==='falta')a.falt++; if(d.deviation)a.dev++; if(d.hours_worked)a.totalHrs=Math.round((a.totalHrs+d.hours_worked)*10)/10; return a; },{aT:0,ret:0,falt:0,dev:0,totalHrs:0});
     return { id:emp.id, name:[emp.name,emp.last_name].filter(Boolean).join(' '), employee_number:emp.employee_number, photo:emp.photo, defaultShift:emp.sched_name||'—', days, summary:s };
   });
   res.json({ dates, report });
@@ -748,6 +789,148 @@ app.get("/api/stats", auth, (req, res) => {
   `).all(today);
   const absentToday = Math.max(0, totalEmployees - presentToday);
   res.json({ totalEmployees, presentToday, checkinsToday, insideNow, insideList, absentToday, date: today });
+});
+
+// ── Vacation ──────────────────────────────────────────
+
+function lftDaysForYears(years) {
+  if (years < 1) return 0;
+  if (years <= 4) return 10 + years * 2;  // 1→12, 2→14, 3→16, 4→18
+  if (years < 10) return 20;
+  if (years < 15) return 22;
+  return 24;
+}
+
+function calcVacationBalance(db, employeeId, year) {
+  const emp = db.prepare("SELECT hire_date FROM employees WHERE id=?").get(employeeId);
+  let days_granted = 0;
+  if (emp?.hire_date) {
+    const hired = new Date(emp.hire_date);
+    const refDate = new Date(year + '-12-31');
+    const years = Math.floor((refDate - hired) / (365.25 * 24 * 3600 * 1000));
+    days_granted = lftDaysForYears(years);
+  }
+  let bal = db.prepare("SELECT * FROM vacation_balances WHERE employee_id=? AND year=?").get(employeeId, year);
+  if (!bal) {
+    db.prepare("INSERT OR IGNORE INTO vacation_balances (employee_id,year,days_granted,days_used) VALUES (?,?,?,0)")
+      .run(employeeId, year, days_granted);
+    bal = db.prepare("SELECT * FROM vacation_balances WHERE employee_id=? AND year=?").get(employeeId, year);
+  }
+  return { ...bal, days_available: bal.days_granted - bal.days_used };
+}
+
+app.get("/api/vacation/requests", auth, (req, res) => {
+  const { status, employee_id } = req.query;
+  let sql = `SELECT vr.*, e.name, e.last_name, e.employee_number, e.photo
+             FROM vacation_requests vr JOIN employees e ON vr.employee_id=e.id WHERE 1=1`;
+  const params = [];
+  if (status) { sql += " AND vr.status=?"; params.push(status); }
+  if (employee_id) { sql += " AND vr.employee_id=?"; params.push(employee_id); }
+  sql += " ORDER BY vr.requested_at DESC";
+  res.json(DB.getDb().prepare(sql).all(...params));
+});
+
+app.post("/api/vacation/requests", auth, (req, res) => {
+  const { employee_id, start_date, end_date, days_count, notes } = req.body;
+  if (!employee_id || !start_date || !end_date || !days_count)
+    return res.status(400).json({ error: "Datos incompletos" });
+  const r = DB.getDb().prepare(
+    "INSERT INTO vacation_requests (employee_id,start_date,end_date,days_count,notes) VALUES (?,?,?,?,?)"
+  ).run(employee_id, start_date, end_date, days_count, notes||null);
+  res.json({ id: r.lastInsertRowid, ok: true });
+});
+
+app.put("/api/vacation/requests/:id", auth, (req, res) => {
+  const { status, review_notes } = req.body;
+  if (!['approved','rejected','pending'].includes(status))
+    return res.status(400).json({ error: "status inválido" });
+  const db = DB.getDb();
+  const vr = db.prepare("SELECT * FROM vacation_requests WHERE id=?").get(req.params.id);
+  if (!vr) return res.status(404).json({ error: "Solicitud no encontrada" });
+
+  db.prepare("UPDATE vacation_requests SET status=?,reviewed_at=datetime('now','localtime'),review_notes=? WHERE id=?")
+    .run(status, review_notes||null, req.params.id);
+
+  if (status === 'approved' && vr.status !== 'approved') {
+    // auto-assign vacaciones schedule to each day in range
+    const vacSched = db.prepare("SELECT id FROM schedules WHERE type='vacaciones' LIMIT 1").get();
+    if (vacSched) {
+      const stmt = db.prepare("INSERT OR REPLACE INTO schedule_assignments (employee_id,date,schedule_id) VALUES (?,?,?)");
+      const tx = db.transaction(() => {
+        const cur = new Date(vr.start_date + 'T12:00:00');
+        const endD = new Date(vr.end_date + 'T12:00:00');
+        while (cur <= endD) {
+          stmt.run(vr.employee_id, cur.toLocaleDateString('en-CA'), vacSched.id);
+          cur.setDate(cur.getDate() + 1);
+        }
+      });
+      tx();
+    }
+    // deduct from balance
+    const year = new Date(vr.start_date).getFullYear();
+    const bal = calcVacationBalance(db, vr.employee_id, year);
+    db.prepare("UPDATE vacation_balances SET days_used=days_used+? WHERE employee_id=? AND year=?")
+      .run(vr.days_count, vr.employee_id, year);
+  }
+
+  if (status === 'rejected' && vr.status === 'approved') {
+    // refund days
+    const year = new Date(vr.start_date).getFullYear();
+    db.prepare("UPDATE vacation_balances SET days_used=MAX(0,days_used-?) WHERE employee_id=? AND year=?")
+      .run(vr.days_count, vr.employee_id, year);
+  }
+
+  res.json({ ok: true });
+});
+
+app.get("/api/vacation/balance/:empId", auth, (req, res) => {
+  const db = DB.getDb();
+  const year = parseInt(req.query.year) || new Date().getFullYear();
+  const bal = calcVacationBalance(db, req.params.empId, year);
+  const history = db.prepare(
+    "SELECT * FROM vacation_requests WHERE employee_id=? ORDER BY requested_at DESC LIMIT 50"
+  ).all(req.params.empId);
+  res.json({ balance: bal, history });
+});
+
+app.post("/api/vacation/balance/:empId", auth, (req, res) => {
+  const { year, days_granted, days_used } = req.body;
+  const y = year || new Date().getFullYear();
+  DB.getDb().prepare(
+    "INSERT INTO vacation_balances (employee_id,year,days_granted,days_used) VALUES (?,?,?,?) ON CONFLICT(employee_id,year) DO UPDATE SET days_granted=excluded.days_granted, days_used=excluded.days_used"
+  ).run(req.params.empId, y, days_granted ?? 0, days_used ?? 0);
+  res.json({ ok: true });
+});
+
+// ── Vacation (mobile — employee self-service) ─────────
+app.get("/api/mobile/vacation", (req, res) => {
+  const { employee_id } = req.query;
+  if (!employee_id) return res.status(400).json({ error: "employee_id requerido" });
+  const db = DB.getDb();
+  const year = new Date().getFullYear();
+  const bal = calcVacationBalance(db, employee_id, year);
+  const requests = db.prepare(
+    "SELECT * FROM vacation_requests WHERE employee_id=? ORDER BY requested_at DESC LIMIT 20"
+  ).all(employee_id);
+  res.json({ balance: bal, requests });
+});
+
+app.post("/api/mobile/vacation/request", (req, res) => {
+  const { employee_id, start_date, end_date, days_count, notes } = req.body;
+  if (!employee_id || !start_date || !end_date || !days_count)
+    return res.status(400).json({ error: "Datos incompletos" });
+  const db = DB.getDb();
+  const emp = db.prepare("SELECT id FROM employees WHERE id=? AND active=1").get(employee_id);
+  if (!emp) return res.status(404).json({ error: "Empleado no encontrado" });
+  // check balance
+  const year = new Date(start_date).getFullYear();
+  const bal = calcVacationBalance(db, employee_id, year);
+  if (days_count > bal.days_available)
+    return res.status(400).json({ error: "Saldo insuficiente de vacaciones" });
+  const r = db.prepare(
+    "INSERT INTO vacation_requests (employee_id,start_date,end_date,days_count,notes) VALUES (?,?,?,?,?)"
+  ).run(employee_id, start_date, end_date, days_count, notes||null);
+  res.json({ id: r.lastInsertRowid, ok: true });
 });
 
 // ── Wallet background rendering ───────────────────────

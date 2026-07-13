@@ -92,7 +92,8 @@ function init(dataDir) {
       pin             TEXT,
       photo           TEXT,
       active          INTEGER DEFAULT 1,
-      created_at      TEXT DEFAULT (datetime('now','localtime'))
+      created_at      TEXT DEFAULT (datetime('now','localtime')),
+      hire_date      TEXT
     );
 
     CREATE TABLE IF NOT EXISTS schedule_assignments (
@@ -130,6 +131,28 @@ function init(dataDir) {
       PRIMARY KEY (team_id, employee_id)
     );
 
+    CREATE TABLE IF NOT EXISTS vacation_balances (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      employee_id  INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
+      year         INTEGER NOT NULL,
+      days_granted INTEGER NOT NULL DEFAULT 0,
+      days_used    INTEGER NOT NULL DEFAULT 0,
+      UNIQUE(employee_id, year)
+    );
+
+    CREATE TABLE IF NOT EXISTS vacation_requests (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      employee_id  INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
+      start_date   TEXT NOT NULL,
+      end_date     TEXT NOT NULL,
+      days_count   INTEGER NOT NULL,
+      status       TEXT NOT NULL DEFAULT 'pending',
+      notes        TEXT,
+      requested_at TEXT DEFAULT (datetime('now','localtime')),
+      reviewed_at  TEXT,
+      review_notes TEXT
+    );
+
     CREATE INDEX IF NOT EXISTS idx_ci_emp    ON check_ins(employee_id);
     CREATE INDEX IF NOT EXISTS idx_ci_time   ON check_ins(timestamp);
     CREATE INDEX IF NOT EXISTS idx_sa_emp    ON schedule_assignments(employee_id);
@@ -158,6 +181,9 @@ function init(dataDir) {
     "ALTER TABLE schedules ADD COLUMN falta_minutes INTEGER DEFAULT 60",
     "ALTER TABLE check_ins ADD COLUMN attendance_status TEXT DEFAULT NULL",
     "ALTER TABLE check_ins ADD COLUMN detected_schedule_id INTEGER REFERENCES schedules(id) ON DELETE SET NULL",
+    "ALTER TABLE employees ADD COLUMN hire_date TEXT",
+    "CREATE TABLE IF NOT EXISTS vacation_balances (id INTEGER PRIMARY KEY AUTOINCREMENT, employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE, year INTEGER NOT NULL, days_granted INTEGER NOT NULL DEFAULT 0, days_used INTEGER NOT NULL DEFAULT 0, UNIQUE(employee_id, year))",
+    "CREATE TABLE IF NOT EXISTS vacation_requests (id INTEGER PRIMARY KEY AUTOINCREMENT, employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE, start_date TEXT NOT NULL, end_date TEXT NOT NULL, days_count INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'pending', notes TEXT, requested_at TEXT DEFAULT (datetime('now','localtime')), reviewed_at TEXT, review_notes TEXT)",
   ];
   for (const sql of migrations) {
     try { db.exec(sql); } catch {}
