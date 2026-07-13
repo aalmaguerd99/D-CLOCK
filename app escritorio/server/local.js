@@ -803,20 +803,25 @@ function lftDaysForYears(years) {
 
 function calcVacationBalance(db, employeeId, year) {
   const emp = db.prepare("SELECT hire_date FROM employees WHERE id=?").get(employeeId);
-  let days_granted = 0;
+  let lft_days = 0;
   if (emp?.hire_date) {
-    const hired = new Date(emp.hire_date);
-    const refDate = new Date(year + '-12-31');
-    const years = Math.floor((refDate - hired) / (365.25 * 24 * 3600 * 1000));
-    days_granted = lftDaysForYears(years);
+    const hired  = new Date(emp.hire_date + 'T12:00:00');
+    const refDate = new Date(year + '-12-31T12:00:00');
+    const years  = Math.floor((refDate - hired) / (365.25 * 24 * 3600 * 1000));
+    lft_days = lftDaysForYears(years);
   }
   let bal = db.prepare("SELECT * FROM vacation_balances WHERE employee_id=? AND year=?").get(employeeId, year);
   if (!bal) {
-    db.prepare("INSERT OR IGNORE INTO vacation_balances (employee_id,year,days_granted,days_used) VALUES (?,?,?,0)")
-      .run(employeeId, year, days_granted);
+    db.prepare("INSERT INTO vacation_balances (employee_id,year,days_granted,days_used) VALUES (?,?,?,0)")
+      .run(employeeId, year, lft_days);
+    bal = db.prepare("SELECT * FROM vacation_balances WHERE employee_id=? AND year=?").get(employeeId, year);
+  } else if (lft_days > 0 && bal.days_granted === 0) {
+    // hire_date se puso después de que se creó el registro con 0 — actualizar
+    db.prepare("UPDATE vacation_balances SET days_granted=? WHERE employee_id=? AND year=?")
+      .run(lft_days, employeeId, year);
     bal = db.prepare("SELECT * FROM vacation_balances WHERE employee_id=? AND year=?").get(employeeId, year);
   }
-  return { ...bal, days_available: bal.days_granted - bal.days_used };
+  return { ...bal, days_available: Math.max(0, bal.days_granted - bal.days_used) };
 }
 
 app.get("/api/vacation/requests", auth, (req, res) => {
