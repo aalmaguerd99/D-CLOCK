@@ -3,9 +3,9 @@ import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
-import { getSession, getServerUrl } from "@/lib/storage";
+import { getSession } from "@/lib/storage";
 import * as Notifications from "expo-notifications";
-import Constants from "expo-constants";
+import { registerPushToken } from "@/lib/notifications";
 
 const ACTIVE = "#1a1a1a";
 const INACTIVE = "#b0a99f";
@@ -17,24 +17,6 @@ Notifications.setNotificationHandler({
     shouldSetBadge: false,
   }),
 });
-
-async function registerPushToken(employeeId: number) {
-  try {
-    // expo-notifications push tokens require a dev build (not Expo Go)
-    if (Constants.appOwnership === "expo") return;
-    const { status } = await Notifications.requestPermissionsAsync();
-    if (status !== "granted") return;
-    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
-    const token = await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined);
-    const serverUrl = await getServerUrl();
-    if (!serverUrl) return;
-    await fetch(`${serverUrl}/api/mobile/push-token`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ employee_id: employeeId, token: token.data, platform: Platform.OS }),
-    });
-  } catch {}
-}
 
 export default function HomeLayout() {
   const { bottom } = useSafeAreaInsets();

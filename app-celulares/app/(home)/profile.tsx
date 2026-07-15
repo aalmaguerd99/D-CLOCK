@@ -10,6 +10,7 @@ import {
   getCompanyInfo, EmployeeSession, saveSession,
 } from "@/lib/storage";
 import { registerFace } from "@/lib/api";
+import { registerPushToken, getPushStatus } from "@/lib/notifications";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -19,16 +20,19 @@ export default function ProfileScreen() {
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
   const [hasFace, setHasFace] = useState(false);
   const [faceLoading, setFaceLoading] = useState(false);
+  const [pushRegistered, setPushRegistered] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
-      Promise.all([getSession(), getServerUrl(), getCompanyInfo()]).then(
-        ([s, url, info]) => {
+      Promise.all([getSession(), getServerUrl(), getCompanyInfo(), getPushStatus()]).then(
+        ([s, url, info, push]) => {
           setSession(s);
           setHasFace(!!s?.has_face);
           setServerUrl(url);
           setCompanyName(info.company_name);
           setCompanyLogo(info.logo);
+          setPushRegistered(push);
         }
       );
     }, [])
@@ -94,6 +98,19 @@ export default function ProfileScreen() {
       Alert.alert("Error", e?.message ?? "No se pudo conectar al servidor");
     } finally {
       setFaceLoading(false);
+    }
+  }
+
+  async function handleRegisterPush() {
+    if (!session?.id) return;
+    setPushLoading(true);
+    const result = await registerPushToken(session.id);
+    setPushLoading(false);
+    if (result.ok) {
+      setPushRegistered(true);
+      Alert.alert("Notificaciones activadas", "Tu dispositivo recibirá mensajes del administrador.");
+    } else {
+      Alert.alert("Error al registrar", result.error ?? "Error desconocido");
     }
   }
 
@@ -204,6 +221,32 @@ export default function ProfileScreen() {
               Toma una selfie con buena iluminación mirando directo a la cámara frontal.
             </Text>
           )}
+        </View>
+      </Section>
+
+      {/* Push notifications */}
+      <Section label="NOTIFICACIONES PUSH">
+        <View style={{ paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+            <View style={[faceStyles.indicator, pushRegistered ? faceStyles.indicatorOn : faceStyles.indicatorOff]} />
+            <Text style={faceStyles.statusText}>
+              {pushRegistered ? "Dispositivo registrado — recibirás mensajes" : "Sin registrar — no recibirás notificaciones"}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={[faceStyles.faceBtn, pushRegistered && faceStyles.faceBtnRegistered]}
+            onPress={handleRegisterPush}
+            disabled={pushLoading}
+            activeOpacity={0.8}
+          >
+            {pushLoading ? (
+              <ActivityIndicator size="small" color={pushRegistered ? "#16a34a" : "#fff"} />
+            ) : (
+              <Text style={[faceStyles.faceBtnText, pushRegistered && faceStyles.faceBtnTextRegistered]}>
+                {pushRegistered ? "Re-registrar dispositivo" : "Activar notificaciones"}
+              </Text>
+            )}
+          </TouchableOpacity>
         </View>
       </Section>
 
