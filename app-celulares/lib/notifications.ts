@@ -34,19 +34,33 @@ export async function registerPushToken(
     return { ok: false, error: "URL de servidor no configurada" };
   }
 
-  const res = await fetch(`${serverUrl}/api/mobile/push-token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      employee_id: employeeId,
-      token: tokenResult.data,
-      platform: Platform.OS,
-    }),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  let res: Response;
+  try {
+    res = await fetch(`${serverUrl}/api/mobile/push-token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        employee_id: employeeId,
+        token: tokenResult.data,
+        platform: Platform.OS,
+      }),
+      signal: controller.signal,
+    });
+  } catch (e: any) {
+    clearTimeout(timeout);
+    await AsyncStorage.setItem(PUSH_STATUS_KEY, "false");
+    const msg = e?.name === "AbortError"
+      ? `Servidor no responde (timeout). URL: ${serverUrl}`
+      : `No se pudo conectar al servidor. URL: ${serverUrl}`;
+    return { ok: false, error: msg };
+  }
+  clearTimeout(timeout);
 
   if (!res.ok) {
     await AsyncStorage.setItem(PUSH_STATUS_KEY, "false");
-    return { ok: false, error: `Error del servidor (${res.status}). Verifica conexión al servidor.` };
+    return { ok: false, error: `Error del servidor (${res.status}). URL: ${serverUrl}` };
   }
 
   await AsyncStorage.setItem(PUSH_STATUS_KEY, "true");
