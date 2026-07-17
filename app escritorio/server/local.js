@@ -794,12 +794,12 @@ app.get("/api/stats", auth, (req, res) => {
 
 // ── Vacation ──────────────────────────────────────────
 
+// LFT art. 76 reformado 27-12-2022
+// Años 1-5: 12,14,16,18,20. Año 6+: 22 + 2 por cada 5 años adicionales
 function lftDaysForYears(years) {
-  if (years < 1) return 0;
-  if (years <= 4) return 10 + years * 2;  // 1→12, 2→14, 3→16, 4→18
-  if (years < 10) return 20;
-  if (years < 15) return 22;
-  return 24;
+  if (years < 1)  return 0;
+  if (years <= 5) return 10 + years * 2;          // 1→12 … 5→20
+  return 22 + Math.floor((years - 6) / 5) * 2;   // 6-10→22, 11-15→24, 16-20→26…
 }
 
 function calcVacationBalance(db, employeeId, year) {
@@ -816,8 +816,8 @@ function calcVacationBalance(db, employeeId, year) {
     db.prepare("INSERT INTO vacation_balances (employee_id,year,days_granted,days_used) VALUES (?,?,?,0)")
       .run(employeeId, year, lft_days);
     bal = db.prepare("SELECT * FROM vacation_balances WHERE employee_id=? AND year=?").get(employeeId, year);
-  } else if (lft_days > 0 && bal.days_granted === 0) {
-    // hire_date se puso después de que se creó el registro con 0 — actualizar
+  } else if (lft_days > 0 && bal.days_granted < lft_days) {
+    // Registro existe pero LFT exige más días (ley reformada o hire_date tardío) — actualizar al mínimo legal
     db.prepare("UPDATE vacation_balances SET days_granted=? WHERE employee_id=? AND year=?")
       .run(lft_days, employeeId, year);
     bal = db.prepare("SELECT * FROM vacation_balances WHERE employee_id=? AND year=?").get(employeeId, year);
