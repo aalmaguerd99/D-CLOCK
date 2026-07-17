@@ -41,14 +41,15 @@ function nowMX() {
 
 // ── Status ────────────────────────────────────────────
 app.get("/",           (req, res) => res.redirect("/api/status"));
-app.get("/api/status", (req, res) => res.json({ app: "D-CLOCK", version: "1.0.0", status: "active", timestamp: new Date().toISOString() }));
+const APP_VERSION = require('../package.json').version;
+app.get("/api/status", (req, res) => res.json({ app: "D-CLOCK", version: APP_VERSION, status: "active", timestamp: new Date().toISOString() }));
 
 // ── Info pública (para app móvil) ─────────────────────
 app.get("/api/info", (req, res) => {
   const db = DB.getDb();
   const company_name = db.prepare("SELECT value FROM config WHERE key='company_name'").get()?.value || "D-CLOCK";
   const logo         = db.prepare("SELECT value FROM config WHERE key='company_logo'").get()?.value || null;
-  res.json({ company_name, logo, version: "1.0.0" });
+  res.json({ company_name, logo, version: APP_VERSION });
 });
 
 // ── Auth móvil (empleado: número + PIN) ───────────────
