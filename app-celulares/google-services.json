@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "347579413915",
+    "project_id": "d-clock-f8a92",
+    "storage_bucket": "d-clock-f8a92.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347579413915:android:0e42503692865fbcf15d3e",
+        "android_client_info": {
+          "package_name": "com.d99tech.dclock"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0fNyxhjdLQwtu3v8KLw6uJF5u2l45V4g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
