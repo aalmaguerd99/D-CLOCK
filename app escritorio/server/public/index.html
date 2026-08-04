@@ -85,10 +85,10 @@ html,body{height:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
 .sb-footer{padding:8px;border-top:1px solid var(--border)}
 
 /* MAIN */
-.main{flex:1;min-width:0;display:grid;grid-template-rows:auto 1fr;overflow:hidden}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
 .topbar{height:54px;padding:0 24px;background:var(--glass);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .topbar h2{font-size:17px;font-weight:700;letter-spacing:-.3px}
-.content{overflow-y:auto;padding:24px;background:var(--bg);display:flex;flex-direction:column;min-height:0}
+.content{flex:1;min-height:0;overflow-y:auto;padding:24px;background:var(--bg)}
 
 /* CARDS */
 .card{background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
@@ -251,6 +251,9 @@ html,body{height:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
 .rec-hours{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-bg);padding:3px 9px;border-radius:20px;white-space:nowrap}
 #rec-full-map{width:100%;flex:1;min-height:520px}
 /* REPORTES */
+.rpt-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.rpt-preset{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:var(--glass);font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;transition:background .12s,color .12s,border-color .12s;white-space:nowrap}
+.rpt-preset:hover,.rpt-preset.active{background:var(--accent-bg);color:var(--accent);border-color:var(--accent)}
 .rpt-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px;flex:1;min-height:0}
 .rpt-table{border-collapse:collapse;white-space:nowrap;width:100%}
 .rpt-table th{background:var(--surface);padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border);position:sticky;top:0;z-index:3}
@@ -386,7 +389,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
 /* SECTIONS */
 .section{display:none}
-.section.active{display:flex;flex-direction:column;min-height:0;flex:1}
+.section.active{display:block}
 
 /* LEAFLET FIX */
 .leaflet-container{font-family:inherit}
@@ -436,17 +439,30 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .photo-ring:hover .photo-ring-overlay svg{opacity:1}
 
     /* ── Equipos ──────────────────────────────────────── */
-    .teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;align-content:start}
-    .team-card{background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:18px;cursor:pointer;transition:box-shadow .15s,border-color .15s}
-    .team-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08);border-color:var(--accent)}
-    .team-card-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-    .team-icon{width:38px;height:38px;border-radius:10px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0}
-    .team-name{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.2px}
-    .team-admin{font-size:12px;color:var(--muted);margin-top:1px}
-    .team-desc{font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.4}
-    .team-stats{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600}
-    .team-bar-bg{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+    .teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;align-content:start}
+    .team-card{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:18px;cursor:pointer;transition:box-shadow .15s,border-color .15s,transform .12s;display:flex;flex-direction:column;gap:12px}
+    .team-card:hover{box-shadow:0 6px 28px rgba(0,0,0,.1);border-color:var(--accent);transform:translateY(-1px)}
+    /* card header: initial icon + name */
+    .tc-header{display:flex;align-items:flex-start;gap:12px}
+    .tc-team-icon{width:46px;height:46px;border-radius:13px;background:var(--accent-bg);color:var(--accent);font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:-.5px;border:1.5px solid rgba(0,0,0,.04)}
+    .tc-title{flex:1;min-width:0;padding-top:2px}
+    .tc-name{font-size:16px;font-weight:800;color:var(--text);letter-spacing:-.3px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .tc-desc{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    /* leader strip */
+    .tc-leader{display:flex;align-items:center;gap:10px;background:var(--accent-bg);border-radius:10px;padding:9px 12px}
+    .tc-leader-av{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:.2px}
+    .tc-leader-lbl{font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.9px;text-transform:uppercase;line-height:1}
+    .tc-leader-nm{font-size:13px;font-weight:600;color:var(--text);margin-top:2px}
+    /* footer stats */
+    .tc-footer{display:flex;align-items:center;justify-content:space-between;margin-top:-2px}
+    .tc-members{font-size:12px;color:var(--muted);font-weight:600}
+    .tc-att{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+    .team-bar-bg{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:-4px}
     .team-bar-fill{height:100%;border-radius:3px;transition:width .3s}
+    /* keep legacy names used by detail view badge */
+    .team-card-header{display:flex;align-items:center;gap:12px}
+    .team-name{font-size:15px;font-weight:700;color:var(--text)}
+    .team-admin{font-size:12px;color:var(--muted)}
     .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.4px}
     .badge-green{background:#dcfce7;color:#16a34a}
     .badge-yellow{background:#fef9c3;color:#92400e}
@@ -556,6 +572,11 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           Puestos
         </div>
 
+        <div class="nav-section">Finanzas</div>
+        <div class="nav-item" onclick="goto('nomina',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="13" r="2"/><path d="M12 15v2"/></svg>
+          Nómina
+        </div>
         <div class="nav-section">Herramientas</div>
         <div class="nav-item" onclick="goto('horarios',this)">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -809,10 +830,20 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           <div style="display:flex;gap:0;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.07);border-radius:10px;padding:3px;width:fit-content;margin-bottom:12px">
             <button id="rpt-tab-asistencia" onclick="switchRptTab('asistencia')" style="padding:6px 16px;border-radius:7px;font-size:12.5px;font-weight:700;border:none;cursor:pointer;background:#2563EB;color:white;transition:all .15s">Asistencia</button>
             <button id="rpt-tab-registros" onclick="switchRptTab('registros')" style="padding:6px 16px;border-radius:7px;font-size:12.5px;font-weight:600;border:none;cursor:pointer;background:transparent;color:#8a8a8a;transition:all .15s">Registros</button>
+            <button id="rpt-tab-notas" onclick="switchRptTab('notas')" style="padding:6px 16px;border-radius:7px;font-size:12.5px;font-weight:600;border:none;cursor:pointer;background:transparent;color:#8a8a8a;transition:all .15s">Notas de ausencia</button>
           </div>
 
           <!-- Panel Registros -->
           <div id="rpt-panel-registros" style="display:none">
+          <div class="rpt-presets">
+            <button class="rpt-preset" data-target="rpt-from" data-preset="hoy"          onclick="setDatePreset('rpt-from','rpt-to','hoy',generateReport)">Hoy</button>
+            <button class="rpt-preset" data-target="rpt-from" data-preset="semana"       onclick="setDatePreset('rpt-from','rpt-to','semana',generateReport)">Esta semana</button>
+            <button class="rpt-preset" data-target="rpt-from" data-preset="semana-pasada"onclick="setDatePreset('rpt-from','rpt-to','semana-pasada',generateReport)">Semana pasada</button>
+            <button class="rpt-preset" data-target="rpt-from" data-preset="quincena"     onclick="setDatePreset('rpt-from','rpt-to','quincena',generateReport)">Quincena actual</button>
+            <button class="rpt-preset" data-target="rpt-from" data-preset="mes"          onclick="setDatePreset('rpt-from','rpt-to','mes',generateReport)">Este mes</button>
+            <button class="rpt-preset" data-target="rpt-from" data-preset="mes-pasado"   onclick="setDatePreset('rpt-from','rpt-to','mes-pasado',generateReport)">Mes pasado</button>
+            <button class="rpt-preset" data-target="rpt-from" data-preset="año"          onclick="setDatePreset('rpt-from','rpt-to','año',generateReport)">Este año</button>
+          </div>
           <div class="toolbar" style="flex-wrap:wrap;gap:8px">
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
               <span style="font-size:12px;font-weight:700;color:var(--muted)">Del</span>
@@ -855,6 +886,15 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
           <!-- Panel Asistencia -->
           <div id="rpt-panel-asistencia" style="display:block">
+            <div class="rpt-presets">
+              <button class="rpt-preset" data-target="att-from" data-preset="hoy"          onclick="setDatePreset('att-from','att-to','hoy',loadAttendanceReport)">Hoy</button>
+              <button class="rpt-preset" data-target="att-from" data-preset="semana"       onclick="setDatePreset('att-from','att-to','semana',loadAttendanceReport)">Esta semana</button>
+              <button class="rpt-preset" data-target="att-from" data-preset="semana-pasada"onclick="setDatePreset('att-from','att-to','semana-pasada',loadAttendanceReport)">Semana pasada</button>
+              <button class="rpt-preset" data-target="att-from" data-preset="quincena"     onclick="setDatePreset('att-from','att-to','quincena',loadAttendanceReport)">Quincena actual</button>
+              <button class="rpt-preset" data-target="att-from" data-preset="mes"          onclick="setDatePreset('att-from','att-to','mes',loadAttendanceReport)">Este mes</button>
+              <button class="rpt-preset" data-target="att-from" data-preset="mes-pasado"   onclick="setDatePreset('att-from','att-to','mes-pasado',loadAttendanceReport)">Mes pasado</button>
+              <button class="rpt-preset" data-target="att-from" data-preset="año"          onclick="setDatePreset('att-from','att-to','año',loadAttendanceReport)">Este año</button>
+            </div>
             <div class="toolbar" style="flex-wrap:wrap;gap:8px">
               <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
                 <span style="font-size:12px;font-weight:700;color:var(--muted)">Del</span>
@@ -892,6 +932,34 @@ input[type=range]{width:100%;accent-color:var(--accent)}
               <div class="empty" style="margin:48px auto"><svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><p>Selecciona el período y presiona Generar</p></div>
             </div>
           </div><!-- /rpt-panel-asistencia -->
+
+          <!-- Panel Notas de ausencia -->
+          <div id="rpt-panel-notas" style="display:none">
+            <div class="rpt-presets">
+              <button class="rpt-preset" data-target="notes-from" data-preset="hoy"          onclick="setDatePreset('notes-from','notes-to','hoy',loadAbsenceNotesReport)">Hoy</button>
+              <button class="rpt-preset" data-target="notes-from" data-preset="semana"       onclick="setDatePreset('notes-from','notes-to','semana',loadAbsenceNotesReport)">Esta semana</button>
+              <button class="rpt-preset" data-target="notes-from" data-preset="semana-pasada"onclick="setDatePreset('notes-from','notes-to','semana-pasada',loadAbsenceNotesReport)">Semana pasada</button>
+              <button class="rpt-preset" data-target="notes-from" data-preset="quincena"     onclick="setDatePreset('notes-from','notes-to','quincena',loadAbsenceNotesReport)">Quincena actual</button>
+              <button class="rpt-preset" data-target="notes-from" data-preset="mes"          onclick="setDatePreset('notes-from','notes-to','mes',loadAbsenceNotesReport)">Este mes</button>
+              <button class="rpt-preset" data-target="notes-from" data-preset="mes-pasado"   onclick="setDatePreset('notes-from','notes-to','mes-pasado',loadAbsenceNotesReport)">Mes pasado</button>
+              <button class="rpt-preset" data-target="notes-from" data-preset="año"          onclick="setDatePreset('notes-from','notes-to','año',loadAbsenceNotesReport)">Este año</button>
+            </div>
+            <div class="toolbar" style="flex-wrap:wrap;gap:8px;margin-bottom:12px">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                <span style="font-size:12px;font-weight:700;color:var(--muted)">Del</span>
+                <input type="date" id="notes-from" class="inp" style="width:148px">
+                <span style="font-size:12px;font-weight:700;color:var(--muted)">al</span>
+                <input type="date" id="notes-to" class="inp" style="width:148px">
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="loadAbsenceNotesReport()">
+                <svg width="13" height="13" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Cargar
+              </button>
+            </div>
+            <div id="notes-body">
+              <div class="empty" style="margin:48px auto"><svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p>Selecciona el período y presiona Cargar</p></div>
+            </div>
+          </div><!-- /rpt-panel-notas -->
         </div>
 
         <!-- EMPLEADOS -->
@@ -987,6 +1055,43 @@ input[type=range]{width:100%;accent-color:var(--accent)}
               </div>
             </div>
           </div>
+
+          <!-- Transferencias de equipo -->
+          <div style="margin-top:28px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <h3 style="font-size:15px;font-weight:700">Transferencias de equipo</h3>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-sm btn-ghost" onclick="loadTransfers()">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.06-4.43"/></svg>
+                  Actualizar
+                </button>
+                <button class="btn btn-sm btn-primary" onclick="openTransferModal()">+ Solicitar transferencia</button>
+              </div>
+            </div>
+            <div class="tbl-wrap">
+              <table class="table">
+                <thead><tr><th>Empleado</th><th>De equipo</th><th>A equipo</th><th>Solicitado por</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                <tbody id="transfers-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Modal: solicitar transferencia -->
+          <div class="overlay" id="transfer-modal" onclick="if(event.target===this)closeTransferModal()">
+            <div class="modal" style="width:480px" onclick="event.stopPropagation()">
+              <div class="modal-head"><h3>Solicitar transferencia de equipo</h3><button class="modal-close" onclick="closeTransferModal()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+              <div class="modal-body">
+                <div class="form-row"><label class="lbl">Empleado</label><select id="tr-employee" class="inp"><option value="">Selecciona...</option></select></div>
+                <div class="form-row" style="margin-top:12px"><label class="lbl">Equipo destino</label><select id="tr-to-team" class="inp"><option value="">Selecciona...</option></select></div>
+                <div class="form-row" style="margin-top:12px"><label class="lbl">Notas (opcional)</label><input type="text" id="tr-notes" class="inp" placeholder="Motivo de la transferencia..."></div>
+                <div style="display:flex;gap:8px;margin-top:12px">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="tr-force"> Aplicar inmediatamente (admin)</label>
+                </div>
+              </div>
+              <div class="modal-foot"><button class="btn btn-ghost btn-sm" onclick="closeTransferModal()">Cancelar</button><button class="btn btn-primary btn-sm" onclick="submitTransfer()">Solicitar</button></div>
+            </div>
+          </div>
+
         </div>
 
         <!-- DEPARTAMENTOS -->
@@ -1103,7 +1208,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
                   </div>
                 </div>
                 <div style="flex:1;overflow:auto">
-                  <table><thead><tr><th>Empleado</th><th>Periodo</th><th>Dias</th><th>Solicitado</th><th>Estado</th><th></th></tr></thead>
+                  <table><thead><tr><th>Empleado</th><th>Tipo</th><th>Periodo</th><th>Dias</th><th>Solicitado</th><th>Estado</th><th></th></tr></thead>
                   <tbody id="vac-tbody"></tbody></table>
                 </div>
               </div>
@@ -1158,6 +1263,31 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           </div>
         </div>
 
+        <!-- MODAL: NUEVA SOLICITUD VACACIONES/INCAPACIDAD -->
+        <div class="overlay" id="m-vac-new" onclick="if(event.target===this)closeVacNew()">
+          <div class="modal" style="width:480px" onclick="event.stopPropagation()">
+            <div class="modal-head"><h3>Nueva solicitud</h3><button class="modal-close" onclick="closeVacNew()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            <div class="modal-body">
+              <div class="form-row"><label class="lbl">Empleado *</label><select class="inp" id="vac-new-emp"></select></div>
+              <div class="form-row" style="margin-top:12px"><label class="lbl">Tipo *</label>
+                <select class="inp" id="vac-new-type">
+                  <option value="vacation">Vacaciones</option>
+                  <option value="incapacidad">Incapacidad</option>
+                  <option value="permiso">Permiso con goce de sueldo</option>
+                </select>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:12px">
+                <div class="form-row" style="flex:1;margin:0"><label class="lbl">Fecha inicio *</label><input type="date" class="inp" id="vac-new-start" oninput="calcVacNewDays()"></div>
+                <div class="form-row" style="flex:1;margin:0"><label class="lbl">Fecha fin *</label><input type="date" class="inp" id="vac-new-end" oninput="calcVacNewDays()"></div>
+              </div>
+              <div style="margin-top:10px;font-size:13px;color:var(--muted)" id="vac-new-days-label"></div>
+              <div class="form-row" style="margin-top:12px"><label class="lbl">Notas</label><input type="text" class="inp" id="vac-new-notes" placeholder="Opcional..."></div>
+              <div style="margin-top:12px"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="vac-new-approve"> Aprobar automáticamente</label></div>
+            </div>
+            <div class="modal-foot"><button class="btn btn-ghost btn-sm" onclick="closeVacNew()">Cancelar</button><button class="btn btn-primary btn-sm" onclick="submitVacNew()">Guardar</button></div>
+          </div>
+        </div>
+
         <!-- VAC REVIEW OVERLAY -->
         <div id="vac-review-overlay" onclick="if(event.target===this)closeVacReview()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;align-items:center;justify-content:center">
           <div style="background:var(--surface);border-radius:18px;padding:28px;width:480px;max-width:92vw;box-shadow:0 24px 64px rgba(0,0,0,.22)">
@@ -1166,7 +1296,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
               <button onclick="closeVacReview()" style="border:none;background:var(--bg2);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:14px;color:var(--text2)">✕</button>
             </div>
             <div id="vac-review-emp" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg2);border-radius:12px;margin-bottom:14px"></div>
-            <div id="vac-review-period" style="padding:12px 16px;background:var(--bg2);border-radius:12px;margin-bottom:14px;font-size:13px;color:var(--text2)"></div>
+            <div id="vac-review-period" style="padding:12px 16px;background:var(--bg2);border-radius:12px;margin-bottom:10px;font-size:13px;color:var(--text2)"></div>
+            <div id="vac-review-extra" style="margin-bottom:14px"></div>
             <div id="vac-review-notes-wrap" style="display:none;margin-bottom:14px">
               <label style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:7px">MOTIVO DEL RECHAZO</label>
               <textarea id="vac-review-notes" class="inp" rows="3" placeholder="Opcional — se mostrará al empleado en la app..." style="width:100%;box-sizing:border-box;resize:none;font-family:inherit"></textarea>
@@ -1408,10 +1539,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
             </div>
 
           </div>
-        </div>
 
         <!-- CONFIGURACIÓN -->
-        <div class="section" id="sec-configuracion" style="overflow-y:auto">
+        <div class="section" id="sec-configuracion">
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:start;width:100%">
 
             <!-- Logo -->
@@ -1481,8 +1611,29 @@ input[type=range]{width:100%;accent-color:var(--accent)}
                   Buscar actualización
                 </button>
                 <div style="font-size:11px;color:var(--muted);line-height:1.5">
-                  Las actualizaciones se descargan e instalan manualmente desde GitHub Releases.
+                  Al instalar, el servidor descarga y se reinicia solo. Reconéctate en ~30 seg.
                 </div>
+              </div>
+            </div>
+
+            <!-- Nómina config -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Ciclos de Nómina</div>
+                  <div class="card-sub">Define cómo se calculan los períodos de pago</div>
+                </div>
+              </div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+                <div>
+                  <label class="label">Tipo de período</label>
+                  <select id="cfg-payroll-period" class="inp" style="width:100%">
+                    <option value="calendar">Días calendario (1-15 / 16-fin de mes)</option>
+                    <option value="friday">Anclado a viernes (semana = Lun-Vie)</option>
+                  </select>
+                </div>
+                <div id="cfg-payroll-desc" style="font-size:12px;color:var(--muted);line-height:1.6;background:var(--bg);padding:10px;border-radius:8px"></div>
+                <button class="btn btn-primary btn-sm" onclick="savePayrollConfig()">Guardar</button>
               </div>
             </div>
 
@@ -1502,6 +1653,97 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           </div>
         </div>
 
+        <!-- ── NÓMINA ────────────────────────────────── -->
+        <div id="sec-nomina" class="section">
+
+          <!-- Password gate -->
+          <div id="nomina-gate" style="display:none">
+            <div style="max-width:400px;margin:60px auto;text-align:center">
+              <div style="width:56px;height:56px;background:var(--accent-bg);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+                <svg width="24" height="24" fill="none" stroke="var(--accent)" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <h3 style="font-size:18px;font-weight:700;margin-bottom:8px">Módulo de Nómina</h3>
+              <p style="color:var(--text2);font-size:14px;margin-bottom:24px">Ingresa la contraseña de nómina para continuar. Esta contraseña se muestra en la app de escritorio del servidor.</p>
+              <div style="display:flex;gap:8px">
+                <input type="password" id="nomina-pwd-input" class="inp" placeholder="Contraseña de nómina" style="flex:1" onkeydown="if(event.key==='Enter')unlockNomina()">
+                <button class="btn btn-primary" onclick="unlockNomina()">Entrar</button>
+              </div>
+              <div id="nomina-gate-error" style="color:var(--red);font-size:13px;margin-top:8px;display:none"></div>
+            </div>
+          </div>
+
+          <!-- Main content (hidden until unlocked) -->
+          <div id="nomina-content" style="display:none">
+
+            <!-- Sub-tabs -->
+            <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:12px">
+              <button class="btn btn-sm" id="nom-tab-salarios" onclick="showNominaTab('salarios')" style="background:var(--accent-bg);color:var(--accent);font-weight:700">Salarios</button>
+              <button class="btn btn-sm btn-ghost" id="nom-tab-reporte" onclick="showNominaTab('reporte')">Reporte</button>
+            </div>
+
+            <!-- SALARIOS TAB -->
+            <div id="nom-salarios">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                <h3 style="font-size:16px;font-weight:700">Salarios por empleado</h3>
+                <button class="btn btn-sm btn-ghost" onclick="loadNominaEmployees()">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.06-4.43"/></svg>
+                  Actualizar
+                </button>
+              </div>
+              <div class="tbl-wrap">
+                <table class="table" id="nom-emp-table">
+                  <thead><tr><th>Empleado</th><th>Área/Depto</th><th>Salario mensual</th><th>Frecuencia de pago</th><th>Acciones</th></tr></thead>
+                  <tbody id="nom-emp-body"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- REPORTE TAB -->
+            <div id="nom-reporte" style="display:none">
+              <div class="rpt-presets" style="margin-bottom:12px">
+                <button class="rpt-preset nom-preset" data-preset="todos"          onclick="setNominaPreset('todos')">Todos</button>
+                <button class="rpt-preset nom-preset" data-preset="semana"         onclick="setNominaPreset('semana')">Semana actual</button>
+                <button class="rpt-preset nom-preset" data-preset="semana-pasada"  onclick="setNominaPreset('semana-pasada')">Semana pasada</button>
+                <button class="rpt-preset nom-preset" data-preset="quincena"       onclick="setNominaPreset('quincena')">Quincena actual</button>
+                <button class="rpt-preset nom-preset" data-preset="quincena-pasada"onclick="setNominaPreset('quincena-pasada')">Quincena pasada</button>
+                <button class="rpt-preset nom-preset" data-preset="mes"            onclick="setNominaPreset('mes')">Este mes</button>
+                <button class="rpt-preset nom-preset" data-preset="mes-pasado"     onclick="setNominaPreset('mes-pasado')">Mes pasado</button>
+              </div>
+              <div style="position:sticky;top:0;z-index:10;background:var(--bg);padding-bottom:12px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+                <div class="field" style="margin:0">
+                  <label>Período desde</label>
+                  <input type="date" id="nom-from" class="inp" style="width:160px">
+                </div>
+                <div class="field" style="margin:0">
+                  <label>Hasta</label>
+                  <input type="date" id="nom-to" class="inp" style="width:160px">
+                </div>
+                <div class="field" style="margin:0">
+                  <label>Frecuencia</label>
+                  <select id="nom-freq" class="inp" style="width:140px">
+                    <option value="">Todas</option>
+                    <option value="weekly">Semanal</option>
+                    <option value="biweekly">Quincenal</option>
+                    <option value="monthly">Mensual</option>
+                  </select>
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="loadNominaReport()">Generar</button>
+                <button class="btn btn-ghost btn-sm" onclick="exportNominaExcel()">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+                  Exportar Excel
+                </button>
+              </div>
+              <div id="nom-report-summary" style="display:none;background:var(--accent-bg);border:1px solid var(--accent);border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:14px">
+                Total nómina neta: <strong id="nom-total-net" style="font-size:18px;color:var(--accent)"></strong>
+              </div>
+              <div id="nom-report-wrap">
+                <div class="empty" style="margin:48px auto"><svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="13" r="2"/><path d="M12 15v2"/></svg><p>Selecciona el período y presiona Generar</p></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -1509,6 +1751,26 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
 <!-- ASSIGN POPUP -->
 <div class="assign-popup" id="assign-popup"></div>
+
+<!-- MODAL NOTA DE AUSENCIA -->
+<div class="overlay" id="m-note-review" onclick="if(event.target===this)closeNoteReview()">
+  <div class="modal" style="width:460px" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h3>Nota de ausencia</h3>
+      <button class="modal-close" onclick="closeNoteReview()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div id="m-note-meta" style="font-size:12px;color:var(--muted);margin-bottom:12px"></div>
+      <div id="m-note-text" style="background:var(--accent-bg);border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.5;color:var(--text);margin-bottom:16px;border-left:3px solid var(--accent)"></div>
+      <div id="m-note-by" style="font-size:12px;color:var(--muted);margin-bottom:20px"></div>
+      <div id="m-note-status-row" style="margin-bottom:16px"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-sm" id="m-note-accept-btn" onclick="updateNoteStatus('accepted')" style="flex:1;background:#16a34a;color:#fff;border:none;padding:10px;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px">✓ Aceptar justificación</button>
+        <button class="btn btn-sm" id="m-note-reject-btn" onclick="updateNoteStatus('rejected')" style="flex:1;background:#dc2626;color:#fff;border:none;padding:10px;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px">✗ Rechazar (cuenta como falta)</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL EQUIPO -->
 <div class="overlay" id="m-team">
@@ -1621,6 +1883,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
             <input type="checkbox" id="emp-active" checked style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer"> Empleado activo
           </label>
         </div>
+        <div class="field"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="emp-is-team-leader" style="width:16px;height:16px;accent-color:var(--accent)"> Jefe de área / equipo</label></div>
       </div>
     </div>
     <div class="modal-foot" style="border-top:1px solid var(--border);background:var(--bg)">
@@ -1757,7 +2020,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         <div class="field full"><label>Nombre del turno *</label><input type="text" id="shift-name" class="inp" placeholder="ej. Turno Mañana"></div>
         <div class="field"><label>Tipo</label>
           <select id="shift-type" class="inp" onchange="toggleShiftTimes()">
-            <option value="trabajo">Trabajo</option><option value="descanso">Descanso</option>
+            <option value="trabajo">Trabajo</option><option value="descanso">Descanso</option><option value="disponibilidad">Disponibilidad (sin checada)</option>
             <option value="vacaciones">Vacaciones</option><option value="incapacidad">Incapacidad</option>
           </select>
         </div>
@@ -1768,11 +2031,23 @@ input[type=range]{width:100%;accent-color:var(--accent)}
             <option value="vacation">🟢 Verde (Vacaciones)</option><option value="sick">🔴 Rojo (Incapacidad)</option>
           </select>
         </div>
-        <div id="shift-times" class="full" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px">
+        <div id="shift-times" class="full" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           <div class="field"><label>Hora entrada</label><input type="time" id="shift-in" class="inp" value="09:00"></div>
           <div class="field"><label>Hora salida</label><input type="time" id="shift-out" class="inp" value="18:00"></div>
-          <div class="field"><label>Tolerancia retardo (min)</label><input type="number" id="shift-tol" class="inp" value="15" min="0" title="Minutos de gracia antes de marcar retardo"></div>
-          <div class="field"><label>Falta si pasa de (min)</label><input type="number" id="shift-falta" class="inp" value="60" min="1" title="Minutos después del inicio para considerar falta"></div>
+        </div>
+        <div id="shift-retardo-wrap" class="full" style="display:none">
+          <div class="field" style="margin-bottom:10px">
+            <label style="margin-bottom:8px">Control de retardo</label>
+            <select id="shift-retardo-mode" class="inp" onchange="updateShiftRetardoMode()">
+              <option value="sin-retardo">Sin retardo — cualquier check-in cuenta como presente</option>
+              <option value="retardo-sin-falta">Retardo sin falta — marca tardanza pero nunca convierte en falta</option>
+              <option value="retardo-con-falta" selected>Retardo con falta — después de X minutos cuenta como falta</option>
+            </select>
+          </div>
+          <div id="shift-tol-wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="field"><label>Tolerancia retardo (min)</label><input type="number" id="shift-tol" class="inp" value="15" min="0" title="Minutos de gracia antes de marcar retardo"></div>
+            <div id="shift-falta-wrap" class="field"><label>Falta si lleva más de (min)</label><input type="number" id="shift-falta" class="inp" value="60" min="1" title="Minutos después del inicio para considerar falta"></div>
+          </div>
         </div>
         <div class="field full">
           <label style="margin-bottom:8px">Días laborables</label>
@@ -2474,6 +2749,7 @@ async function openEmpModal(id){
   document.getElementById("emp-active-row").style.display="none";
   ["num","name","lastname","email","phone","nss","curp","rfc","pin","address"].forEach(f=>document.getElementById("emp-"+f).value="");
   document.getElementById("emp-admin").checked=false;
+  document.getElementById("emp-is-team-leader").checked=false;
   document.getElementById("emp-gender").value="";
   document.getElementById("emp-birth").value="";
   document.getElementById("emp-hire-date").value="";
@@ -2496,6 +2772,7 @@ async function openEmpModal(id){
     document.getElementById("emp-gender").value=e.gender||"";
     document.getElementById("emp-birth").value=e.birth_date||"";
     document.getElementById("emp-hire-date").value=e.hire_date||"";
+    document.getElementById("emp-is-team-leader").checked=!!(e.is_team_leader);
     document.getElementById("emp-address").value=e.address||"";
     document.getElementById("emp-pin").value=e.pin||"";
     document.getElementById("emp-dept").value=e.department_id||"";
@@ -2542,6 +2819,7 @@ async function saveEmp(){
     gender:document.getElementById("emp-gender").value||null,
     birth_date:document.getElementById("emp-birth").value||null,
     hire_date:document.getElementById("emp-hire-date").value||null,
+    is_team_leader:document.getElementById("emp-is-team-leader").checked?1:0,
     address:document.getElementById("emp-address").value.trim()||null,
     pin:document.getElementById("emp-pin").value.trim()||null,
     department_id:document.getElementById("emp-dept").value||null,
@@ -2921,20 +3199,25 @@ async function loadVacaciones(){
   const lbl=document.getElementById("vac-filter-label");
   if(lbl){const map={pending:"Pendientes",approved:"Aprobadas",rejected:"Rechazadas"};lbl.textContent=status?(map[status]||status):"Todas las solicitudes";}
   const tbody=document.getElementById("vac-tbody");if(!tbody)return;
-  if(!rows?.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty" style="padding:28px"><p>Sin solicitudes</p></div></td></tr>';return;}
+  if(!rows?.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty" style="padding:28px"><p>Sin solicitudes</p></div></td></tr>';return;}
   const statusBadge={
     pending:'<span class="badge" style="background:#fef3c7;color:#92400e;border:1px solid rgba(217,119,6,.2)">Pendiente</span>',
     approved:'<span class="badge badge-green">Aprobada</span>',
     rejected:'<span class="badge badge-red">Rechazada</span>',
   };
+  const typeBadge={
+    vacation:'<span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid rgba(29,78,216,.15);font-size:11px">Vacaciones</span>',
+    incapacidad:'<span class="badge" style="background:#fff7ed;color:#c2410c;border:1px solid rgba(194,65,12,.15);font-size:11px">Incapacidad</span>',
+    permiso:'<span class="badge" style="background:#f0fdf4;color:#15803d;border:1px solid rgba(21,128,61,.15);font-size:11px">Permiso c/goce</span>',
+  };
   tbody.innerHTML=rows.map(r=>{
     const emp=employees.find(e=>e.id===r.employee_id)||{};
     const startFmt=fmtDateShort(r.start_date),endFmt=fmtDateShort(r.end_date);
-    const sameMonth=r.start_date?.slice(0,7)===r.end_date?.slice(0,7);
     const periodHtml=`<div style="font-weight:600;font-size:13px">${startFmt}</div><div style="font-size:11px;color:var(--muted)">al ${endFmt}</div>`;
     const reviewData=JSON.stringify({id:r.id,name:`${r.name}${r.last_name?' '+r.last_name:''}`,photo:r.photo||null,start:r.start_date,end:r.end_date,days:r.days_count,notes:r.review_notes||''}).replace(/'/g,'&#39;');
     return`<tr>
       <td><div style="display:flex;align-items:center;gap:8px">${avatarHtml(r.photo,r.name,30)}<div><strong>${r.name}${r.last_name?' '+r.last_name:''}</strong><div style="font-size:11px;color:var(--muted)">#${r.employee_number}</div></div></div></td>
+      <td>${typeBadge[r.type||'vacation']||r.type||'—'}</td>
       <td>${periodHtml}</td>
       <td style="text-align:center"><strong style="font-size:16px">${r.days_count}</strong><div style="font-size:10px;color:var(--muted)">días</div></td>
       <td style="font-size:12px;color:var(--muted)">${r.requested_at?.slice(0,10)||'—'}</td>
@@ -2942,9 +3225,9 @@ async function loadVacaciones(){
       <td>
         ${r.status==='pending'?`
           <div class="actions">
-            <button class="btn btn-success btn-xs" onclick='openVacReview(${r.id},"approved","${r.name}${r.last_name?' '+r.last_name:''}","${r.photo||''}","${r.start_date}","${r.end_date}",${r.days_count})'>Aprobar</button>
-            <button class="btn btn-danger btn-xs" onclick='openVacReview(${r.id},"rejected","${r.name}${r.last_name?' '+r.last_name:''}","${r.photo||''}","${r.start_date}","${r.end_date}",${r.days_count})'>Rechazar</button>
-          </div>`:r.status==='approved'?`<button class="btn btn-ghost btn-xs" onclick='openVacReview(${r.id},"rejected","${r.name}${r.last_name?' '+r.last_name:''}","${r.photo||''}","${r.start_date}","${r.end_date}",${r.days_count})'>Cancelar</button>`:''}
+            <button class="btn btn-success btn-xs" onclick='openVacReview(${r.id},"approved","${r.name}${r.last_name?' '+r.last_name:''}","${r.photo||''}","${r.start_date}","${r.end_date}",${r.days_count},${r.prima_vacacional||0},${r.art78_ok?1:0})'>Aprobar</button>
+            <button class="btn btn-danger btn-xs" onclick='openVacReview(${r.id},"rejected","${r.name}${r.last_name?' '+r.last_name:''}","${r.photo||''}","${r.start_date}","${r.end_date}",${r.days_count},${r.prima_vacacional||0},${r.art78_ok?1:0})'>Rechazar</button>
+          </div>`:r.status==='approved'?`<button class="btn btn-ghost btn-xs" onclick='openVacReview(${r.id},"rejected","${r.name}${r.last_name?' '+r.last_name:''}","${r.photo||''}","${r.start_date}","${r.end_date}",${r.days_count},${r.prima_vacacional||0},${r.art78_ok?1:0})'>Cancelar</button>`:''}
       </td>
     </tr>`;}).join("");
   await loadVacSaldos();
@@ -2959,7 +3242,7 @@ function fmtDateShort(iso){
 
 let _vacReviewId=null,_vacReviewStatus=null;
 
-function openVacReview(id,status,name,photo,start,end,days){
+function openVacReview(id,status,name,photo,start,end,days,prima,art78ok){
   _vacReviewId=id;_vacReviewStatus=status;
   const ov=document.getElementById('vac-review-overlay');
   document.getElementById('vac-review-title').textContent=status==='approved'?'Aprobar vacaciones':'Rechazar solicitud';
@@ -2974,6 +3257,11 @@ function openVacReview(id,status,name,photo,start,end,days){
         <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px">días hábiles</div>
       </div>
     </div>`;
+  // Extra: prima vacacional + art78 warning
+  let extraHtml='';
+  if(prima&&prima>0) extraHtml+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--accent-bg);border-radius:8px;margin-bottom:6px;font-size:12px"><span style="color:var(--muted);font-weight:600">💰 Prima vacacional 25% (Art.80 LFT)</span><span style="font-weight:800;color:var(--accent)">$${Number(prima).toFixed(2)}</span></div>`;
+  if(!art78ok&&status==='approved'&&days<12) extraHtml+=`<div style="padding:8px 12px;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;font-size:11px;color:#92400e;font-weight:600">⚠️ Art.78 LFT — El empleado debe tener al menos un bloque continuo de 12 días. Este periodo es de ${days}d.</div>`;
+  document.getElementById('vac-review-extra').innerHTML=extraHtml;
   const nw=document.getElementById('vac-review-notes-wrap');
   nw.style.display=status==='rejected'?'block':'none';
   document.getElementById('vac-review-notes').value='';
@@ -3006,15 +3294,23 @@ async function loadVacSaldos(){
   if(!emps.length){list.innerHTML='<div class="empty" style="padding:20px"><p>Sin empleados</p></div>';return;}
   // fetch all balances
   const bals=await Promise.all(emps.map(e=>api("GET",`/api/vacation/balance/${e.id}?year=${year}`).catch(()=>null)));
+  const today=new Date().toISOString().slice(0,10);
   list.innerHTML=emps.map((e,i)=>{
-    const bal=bals[i]?.balance||{days_granted:0,days_used:0,days_available:0};
+    const d=bals[i]||{};
+    const bal=d.balance||{days_granted:0,days_used:0,days_available:0};
     const pct=bal.days_granted>0?Math.round((bal.days_available/bal.days_granted)*100):0;
     const color=pct>50?'var(--green)':pct>20?'var(--yellow)':'var(--red)';
+    let alertBadge='';
+    if(d.deadline&&bal.days_available>0){
+      if(today>d.deadline) alertBadge='<span title="Art.81 LFT — Plazo vencido" style="font-size:13px">⚠️</span>';
+      else if(today>=d.anniversary) alertBadge='<span title="Art.81 LFT — Plazo próximo" style="font-size:13px">⏰</span>';
+    }
     return`<div style="padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .1s;margin-bottom:2px" onclick="showVacDetail(${e.id},${i})"
       onmouseover="this.style.background='rgba(0,0,0,.04)'" onmouseout="this.style.background=''">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
         ${avatarHtml(e.photo,e.name,24)}
         <span style="font-size:13px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.name}${e.last_name?' '+e.last_name:''}</span>
+        ${alertBadge}
         <span style="font-size:12px;font-weight:700;color:${color}">${bal.days_available}d</span>
       </div>
       <div style="height:3px;border-radius:2px;background:rgba(0,0,0,.07)">
@@ -3037,8 +3333,45 @@ async function showVacDetail(empId,idx){
   nameEl.textContent=emp?`${emp.name}${emp.last_name?' '+emp.last_name:''}`:empId;
   const bal=data.balance||{};
   _vacAjusteBal=bal;
+
+  // Art. 81: deadline alert
+  let deadlineHtml='';
+  if(data.deadline){
+    const today=new Date().toISOString().slice(0,10);
+    const urgent=today>data.deadline&&(bal.days_available||0)>0;
+    const warning=today>=(data.anniversary||'9999')&&today<=data.deadline&&(bal.days_available||0)>0;
+    if(urgent){
+      deadlineHtml=`<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#b91c1c;font-weight:600">
+        ⚠️ Art.81 LFT — Plazo vencido. Vacaciones debieron concederse antes del ${fmtDateShort(data.deadline)}. Tiene ${bal.days_available}d pendientes.
+      </div>`;
+    } else if(warning){
+      deadlineHtml=`<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#92400e;font-weight:600">
+        ⏰ Art.81 LFT — Vacaciones deben concederse antes del ${fmtDateShort(data.deadline)}.
+      </div>`;
+    }
+  }
+
+  // Art. 78: warning if no 12-day block yet
+  let art78Html='';
+  if(!data.art78_ok&&(bal.days_used||0)>0){
+    art78Html=`<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#92400e;font-weight:600">
+      📋 Art.78 LFT — Aún no tiene un bloque continuo de ≥12 días aprobados este año.
+    </div>`;
+  }
+
+  // Prima vacacional (Art. 80)
+  let primaHtml='';
+  if(data.prima_por_dia&&(bal.days_available||0)>0){
+    const primaTotal=(data.prima_por_dia*bal.days_available).toFixed(2);
+    primaHtml=`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--accent-bg);border-radius:8px;margin-bottom:10px;font-size:12px">
+      <span style="color:var(--muted);font-weight:600">Prima vacacional 25% (${bal.days_available}d)</span>
+      <span style="font-weight:800;color:var(--accent)">$${primaTotal}</span>
+    </div>`;
+  }
+
   body.innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+    ${deadlineHtml}${art78Html}
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
       <div style="text-align:center;padding:8px;background:var(--green-bg);border-radius:8px">
         <div style="font-size:22px;font-weight:800;color:var(--green)">${bal.days_granted||0}</div>
         <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase">Ganados</div>
@@ -3052,6 +3385,9 @@ async function showVacDetail(empId,idx){
         <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase">Disponibles</div>
       </div>
     </div>
+    ${primaHtml}
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600">${(()=>{if(!data.hire_date)return'Sin fecha de ingreso registrada';const ms=Date.now()-new Date(data.hire_date+'T12:00:00').getTime();const y=Math.floor(ms/(365.25*24*3600*1000));const m=Math.floor((ms%(365.25*24*3600*1000))/(30.44*24*3600*1000));return`Antigüedad: ${y} año${y===1?'':'s'}${m>0?` ${m} mes${m===1?'':'es'}`:''}  · Art.76 LFT`;})()}</div>
+    <button class="btn btn-ghost btn-xs" style="width:100%;margin-bottom:8px" onclick="generateConstancia(${empId},${year})">📄 Generar constancia (Art. 81)</button>
     ${(data.history||[]).slice(0,5).map(h=>`
       <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
         <span style="flex:1">${h.start_date} → ${h.end_date}</span>
@@ -3060,16 +3396,121 @@ async function showVacDetail(empId,idx){
       </div>`).join("")||'<div style="font-size:12px;color:var(--muted);padding:8px 0">Sin historial</div>'}`;
 }
 
-async function openVacAdminModal(){
-  const empId=prompt("ID de empleado (número):");if(!empId)return;
-  const emp=employees.find(e=>e.employee_number===empId||String(e.id)===empId);
+function generateConstancia(empId, year){
+  const emp=employees.find(e=>e.id===empId);
   if(!emp){alert("Empleado no encontrado");return;}
-  const start=prompt("Fecha inicio (YYYY-MM-DD):");if(!start)return;
-  const end=prompt("Fecha fin (YYYY-MM-DD):");if(!end)return;
-  const days=prompt("Días a tomar:");if(!days)return;
-  const r=await api("POST","/api/vacation/requests",{employee_id:emp.id,start_date:start,end_date:end,days_count:Number(days),notes:""});
-  if(r?.error){alert(r.error);return;}
+  const name=`${emp.name}${emp.last_name?' '+emp.last_name:''}`;
+  const empNum=emp.employee_number||empId;
+  const hireDate=emp.hire_date||'N/D';
+  // Fetch balance data then open print window
+  api("GET",`/api/vacation/balance/${empId}?year=${year}`).then(data=>{
+    const bal=data.balance||{};
+    // Antigüedad real a hoy (no proyectada a fin del año vacacional)
+    let years=0;
+    if(data.hire_date){
+      const ms=Date.now()-new Date(data.hire_date+'T12:00:00').getTime();
+      years=Math.floor(ms/(365.25*24*3600*1000));
+    }
+    const lftDays=bal.days_granted||0;
+    const anniversary=data.anniversary||'N/D';
+    const deadline=data.deadline||'N/D';
+    const primaTotal=data.prima_por_dia&&lftDays>0?`$${(data.prima_por_dia*lftDays).toFixed(2)}`:'N/D';
+    const today=new Date().toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'});
+    const w=window.open('','_blank','width=800,height=700');
+    w.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<title>Constancia Vacaciones — ${name}</title>
+<style>
+  body{font-family:Arial,sans-serif;margin:40px;color:#111;font-size:13px}
+  h1{font-size:18px;text-align:center;margin-bottom:4px}
+  h2{font-size:13px;text-align:center;color:#555;margin-top:0;margin-bottom:28px}
+  table{width:100%;border-collapse:collapse;margin:16px 0}
+  td{padding:7px 10px;border:1px solid #ddd}
+  td:first-child{font-weight:600;width:45%;background:#f9f9f9}
+  .box{border:2px solid #111;padding:14px;margin:20px 0;border-radius:4px}
+  .box h3{margin:0 0 8px 0;font-size:13px;text-transform:uppercase;letter-spacing:.5px}
+  .legal{font-size:11px;color:#555;margin-top:24px;padding-top:12px;border-top:1px solid #ddd}
+  .firma{display:flex;justify-content:space-between;margin-top:60px}
+  .firma div{text-align:center;width:40%}
+  .firma .line{border-top:1px solid #111;margin-bottom:4px}
+  @media print{button{display:none}}
+</style>
+</head><body>
+<button onclick="window.print()" style="position:fixed;top:10px;right:10px;padding:6px 14px;cursor:pointer">🖨️ Imprimir / Guardar PDF</button>
+<h1>CONSTANCIA DE VACACIONES</h1>
+<h2>Artículo 81 — Ley Federal del Trabajo</h2>
+<table>
+  <tr><td>Nombre completo</td><td>${name}</td></tr>
+  <tr><td>Número de empleado</td><td>${empNum}</td></tr>
+  <tr><td>Fecha de ingreso</td><td>${hireDate}</td></tr>
+  <tr><td>Antigüedad</td><td>${years} año${years===1?'':'s'}</td></tr>
+  <tr><td>Año vacacional</td><td>${year}</td></tr>
+  <tr><td>Fecha aniversario (${year})</td><td>${anniversary}</td></tr>
+</table>
+<div class="box">
+  <h3>Derecho vacacional (Art. 76 LFT — reforma 27-12-2022)</h3>
+  <table style="margin:0">
+    <tr><td>Días ganados</td><td>${lftDays} días</td></tr>
+    <tr><td>Días utilizados</td><td>${bal.days_used||0} días</td></tr>
+    <tr><td>Días disponibles</td><td>${bal.days_available||0} días</td></tr>
+    <tr><td>Prima vacacional 25% (Art. 80 LFT)</td><td>${primaTotal}</td></tr>
+  </table>
+</div>
+<div class="box">
+  <h3>Plazo legal (Art. 81 LFT)</h3>
+  <table style="margin:0">
+    <tr><td>Las vacaciones deben concederse dentro de los 6 meses siguientes al cumpleaños del año de servicio.</td><td>Fecha límite: <strong>${deadline}</strong></td></tr>
+  </table>
+</div>
+<p class="legal">
+  El trabajador tiene derecho a disfrutar de al menos 12 días continuos de vacaciones por año (Art. 78 LFT).
+  El empleador deberá entregar al trabajador una constancia que contenga su antigüedad y el período de vacaciones correspondiente con al menos 15 días de anticipación (Art. 81 LFT).
+</p>
+<div class="firma">
+  <div><div class="line"></div><div>Firma del empleado<br><small>${name}</small></div></div>
+  <div><div class="line"></div><div>Firma del empleador / RR.HH.<br><small>${today}</small></div></div>
+</div>
+</body></html>`);
+    w.document.close();
+  });
+}
+
+function openVacAdminModal(){
+  const sel=document.getElementById("vac-new-emp");
+  sel.innerHTML=employees.filter(e=>e.active).map(e=>`<option value="${e.id}">${e.name} ${e.last_name||""}</option>`).join("");
+  document.getElementById("vac-new-start").value="";
+  document.getElementById("vac-new-end").value="";
+  document.getElementById("vac-new-days-label").textContent="";
+  document.getElementById("vac-new-notes").value="";
+  document.getElementById("vac-new-approve").checked=true;
+  document.getElementById("vac-new-type").value="vacation";
+  document.getElementById("m-vac-new").classList.add("open");
+}
+function closeVacNew(){ document.getElementById("m-vac-new").classList.remove("open"); }
+function calcVacNewDays(){
+  const s=document.getElementById("vac-new-start").value;
+  const e=document.getElementById("vac-new-end").value;
+  if(!s||!e){ document.getElementById("vac-new-days-label").textContent=""; return; }
+  const d1=new Date(s+"T12:00:00"), d2=new Date(e+"T12:00:00");
+  const days=Math.round((d2-d1)/(24*3600*1000))+1;
+  document.getElementById("vac-new-days-label").textContent= days>0 ? `${days} días` : "Fecha inválida";
+}
+async function submitVacNew(){
+  const employee_id=+document.getElementById("vac-new-emp").value;
+  const type=document.getElementById("vac-new-type").value;
+  const start_date=document.getElementById("vac-new-start").value;
+  const end_date=document.getElementById("vac-new-end").value;
+  const notes=document.getElementById("vac-new-notes").value;
+  const auto_approve=document.getElementById("vac-new-approve").checked;
+  if(!start_date||!end_date){showToast("Selecciona fechas","error");return;}
+  const d1=new Date(start_date+"T12:00:00"),d2=new Date(end_date+"T12:00:00");
+  const days_count=Math.round((d2-d1)/(24*3600*1000))+1;
+  if(days_count<1){showToast("Fecha fin debe ser posterior a inicio","error");return;}
+  const r=await api("POST","/api/vacation/requests",{employee_id,start_date,end_date,days_count,notes,type});
+  if(r?.error){showToast(r.error,"error");return;}
+  if(auto_approve) await api("PUT",`/api/vacation/requests/${r.id}`,{status:"approved",review_notes:null});
+  closeVacNew();
   await loadVacaciones();
+  showToast(auto_approve?"Solicitud creada y aprobada":"Solicitud creada");
 }
 
 async function openVacAjusteModal(){
@@ -3088,9 +3529,10 @@ function openShiftModal(id){
   document.getElementById("shift-in").value="09:00";
   document.getElementById("shift-out").value="18:00";
   document.getElementById("shift-tol").value="15";
+  document.getElementById("shift-falta").value="60";
+  document.getElementById("shift-retardo-mode").value="retardo-con-falta";
   document.getElementById("shift-color").value="morning";
   document.querySelectorAll(".day-chip").forEach(c=>c.classList.toggle("on",["lun","mar","mie","jue","vie"].includes(c.dataset.day)));
-  document.getElementById("shift-times").style.display="grid";
   document.getElementById("m-shift-title").textContent="Nuevo turno";
   if(id){
     const s=shifts.find(x=>x.id===id);if(!s)return;
@@ -3100,30 +3542,45 @@ function openShiftModal(id){
     document.getElementById("shift-type").value=s.type||"trabajo";
     document.getElementById("shift-in").value=s.check_in_time||"09:00";
     document.getElementById("shift-out").value=s.check_out_time||"18:00";
-    document.getElementById("shift-tol").value=s.tolerance_minutes??15;
-    document.getElementById("shift-falta").value=s.falta_minutes??60;
     document.getElementById("shift-color").value=s.color||"morning";
     document.getElementById("m-shift-title").textContent="Editar turno";
     document.querySelectorAll(".day-chip").forEach(c=>c.classList.toggle("on",days.includes(c.dataset.day)));
-    toggleShiftTimes();
+    // Detect retardo mode from saved values
+    const tol=s.tolerance_minutes, falta=s.falta_minutes;
+    const mode=tol==null?'sin-retardo':falta==null?'retardo-sin-falta':'retardo-con-falta';
+    document.getElementById("shift-retardo-mode").value=mode;
+    document.getElementById("shift-tol").value=tol??15;
+    document.getElementById("shift-falta").value=falta??60;
   }
+  toggleShiftTimes();
+  updateShiftRetardoMode();
   openModal("m-shift");
 }
 function editShift(id){openShiftModal(id);}
 function toggleShiftTimes(){
-  document.getElementById("shift-times").style.display=document.getElementById("shift-type").value==="trabajo"?"grid":"none";
+  const isWork=document.getElementById("shift-type").value==="trabajo";
+  document.getElementById("shift-times").style.display=isWork?"grid":"none";
+  document.getElementById("shift-retardo-wrap").style.display=isWork?"":"none";
+}
+function updateShiftRetardoMode(){
+  const mode=document.getElementById("shift-retardo-mode").value;
+  document.getElementById("shift-tol-wrap").style.display=mode==="sin-retardo"?"none":"grid";
+  document.getElementById("shift-falta-wrap").style.display=mode==="retardo-con-falta"?"":"none";
 }
 async function saveShift(){
   const id=document.getElementById("shift-id").value;
   const days=Array.from(document.querySelectorAll(".day-chip.on")).map(c=>c.dataset.day);
+  const mode=document.getElementById("shift-retardo-mode").value;
+  const tolerance_minutes=mode==='sin-retardo'?null:Number(document.getElementById("shift-tol").value);
+  const falta_minutes=mode==='retardo-con-falta'?Number(document.getElementById("shift-falta").value):null;
   const body={
     name:document.getElementById("shift-name").value.trim(),
     type:document.getElementById("shift-type").value,
     color:document.getElementById("shift-color").value,
     check_in_time:document.getElementById("shift-in").value,
     check_out_time:document.getElementById("shift-out").value,
-    tolerance_minutes:Number(document.getElementById("shift-tol").value),
-    falta_minutes:Number(document.getElementById("shift-falta").value)||60,
+    tolerance_minutes,
+    falta_minutes,
     days,
   };
   if(!body.name)return alert("Nombre requerido");
@@ -3856,27 +4313,100 @@ function initReportFilters(){
   }
 }
 
+function setDatePreset(fromId, toId, preset, autoLoad){
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const today=fmt(now);
+  let from=today, to=today;
+  if(preset==='semana'){
+    const d=new Date(now);d.setDate(d.getDate()-((d.getDay()+6)%7));
+    from=fmt(d);const d2=new Date(d);d2.setDate(d.getDate()+6);to=fmt(d2);
+  } else if(preset==='semana-pasada'){
+    const d=new Date(now);d.setDate(d.getDate()-((d.getDay()+6)%7)-7);
+    from=fmt(d);const d2=new Date(d);d2.setDate(d.getDate()+6);to=fmt(d2);
+  } else if(preset==='mes'){
+    from=`${now.getFullYear()}-${pad(now.getMonth()+1)}-01`;to=today;
+  } else if(preset==='mes-pasado'){
+    const first=new Date(now.getFullYear(),now.getMonth()-1,1);
+    const last=new Date(now.getFullYear(),now.getMonth(),0);
+    from=fmt(first);to=fmt(last);
+  } else if(preset==='quincena'){
+    const day=now.getDate();
+    if(day<=15){from=`${now.getFullYear()}-${pad(now.getMonth()+1)}-01`;to=`${now.getFullYear()}-${pad(now.getMonth()+1)}-15`;}
+    else{from=`${now.getFullYear()}-${pad(now.getMonth()+1)}-16`;to=today;}
+  } else if(preset==='año'){
+    from=`${now.getFullYear()}-01-01`;to=today;
+  }
+  document.getElementById(fromId).value=from;
+  document.getElementById(toId).value=to;
+  // mark active chip
+  document.querySelectorAll(`.rpt-preset[data-target="${fromId}"]`).forEach(b=>{
+    b.classList.toggle('active', b.dataset.preset===preset);
+  });
+  if(autoLoad) autoLoad();
+}
+
 function switchRptTab(tab){
-  const isReg=tab==='registros';
-  document.getElementById('rpt-panel-registros').style.display=isReg?'':'none';
-  document.getElementById('rpt-panel-asistencia').style.display=isReg?'none':'';
-  const tReg=document.getElementById('rpt-tab-registros');
-  const tAtt=document.getElementById('rpt-tab-asistencia');
-  tReg.style.background=isReg?'#2563EB':'transparent';
-  tReg.style.color=isReg?'white':'#8a8a8a';
-  tReg.style.fontWeight=isReg?'700':'600';
-  tAtt.style.background=isReg?'transparent':'#2563EB';
-  tAtt.style.color=isReg?'#8a8a8a':'white';
-  tAtt.style.fontWeight=isReg?'600':'700';
-  if(!isReg){
+  ['registros','asistencia','notas'].forEach(t=>{
+    document.getElementById('rpt-panel-'+t).style.display=t===tab?'':'none';
+    const btn=document.getElementById('rpt-tab-'+t);
+    btn.style.background=t===tab?'#2563EB':'transparent';
+    btn.style.color=t===tab?'white':'#8a8a8a';
+    btn.style.fontWeight=t===tab?'700':'600';
+  });
+  if(tab==='asistencia'){
     const now=new Date();const to=now.toISOString().slice(0,10);
     const fr=new Date(now.getFullYear(),now.getMonth(),1).toISOString().slice(0,10);
     if(!document.getElementById('att-from').value)document.getElementById('att-from').value=fr;
     if(!document.getElementById('att-to').value)document.getElementById('att-to').value=to;
   }
+  if(tab==='notas'){
+    const now=new Date();const to=now.toISOString().slice(0,10);
+    const fr=new Date(now.getFullYear(),now.getMonth(),1).toISOString().slice(0,10);
+    if(!document.getElementById('notes-from').value)document.getElementById('notes-from').value=fr;
+    if(!document.getElementById('notes-to').value)document.getElementById('notes-to').value=to;
+  }
+}
+
+async function loadAbsenceNotesReport(){
+  const from=document.getElementById('notes-from').value;
+  const to=document.getElementById('notes-to').value;
+  if(!from||!to)return alert('Selecciona el rango de fechas');
+  const body=document.getElementById('notes-body');
+  body.innerHTML='<div class="empty" style="margin:32px auto"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>Cargando...</p></div>';
+  try{
+    const r=await fetch(BASE+'/api/absence-notes?from='+from+'&to='+to,{headers:{'x-auth-token':TOKEN}});
+    const notes=await r.json();
+    if(!notes.length){body.innerHTML='<div class="empty" style="margin:48px auto"><p>Sin notas de ausencia en este período</p></div>';return;}
+    const statusLabels={pending:'Pendiente',accepted:'Aceptada',rejected:'Rechazada'};
+    const statusColors={pending:'#f59e0b',accepted:'#16a34a',rejected:'#dc2626'};
+    const rows=notes.map(n=>{
+      const emp=(n.emp_name||'')+(n.emp_last?' '+n.emp_last:'');
+      const by=(n.added_by_name||'—')+(n.added_by_last?' '+n.added_by_last:'');
+      const dt=new Date(n.date+'T12:00:00').toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+      const st=n.status||'pending';
+      const noteJson=encodeURIComponent(JSON.stringify(n));
+      return`<tr data-note-id="${n.id}">
+        <td style="font-weight:600;white-space:nowrap">${dt}</td>
+        <td><div style="display:flex;align-items:center;gap:8px">${avatarHtml(null,emp,28)}<span style="font-weight:600">${emp}</span></div></td>
+        <td style="max-width:320px;white-space:normal;line-height:1.4">${n.note}</td>
+        <td style="color:var(--muted);font-size:12px">${by}</td>
+        <td><span class="note-status-badge" style="font-size:11px;font-weight:700;color:${statusColors[st]}">${statusLabels[st]||st}</span></td>
+        <td><button class="btn btn-ghost btn-sm" onclick="openNoteReview('${noteJson}')">Revisar</button></td>
+      </tr>`;
+    }).join('');
+    body.innerHTML=`<div class="rpt-wrap"><table class="rpt-table">
+      <thead><tr>
+        <th>Fecha</th><th>Empleado</th><th>Nota</th><th>Añadida por</th><th>Estado</th><th></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+  }catch(e){body.innerHTML='<div class="empty" style="margin:32px auto"><p>Error al cargar notas</p></div>';}
 }
 
 let _attData=null;
+let _activeNote=null; // note object currently open in review modal
 async function loadAttendanceReport(){
   const from=document.getElementById('att-from').value;
   const to=document.getElementById('att-to').value;
@@ -3887,9 +4417,14 @@ async function loadAttendanceReport(){
   _attData=null;
   body.innerHTML='<div class="empty" style="margin:32px auto"><svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>Generando reporte...</p></div>';
   try{
-    const data=await api('GET',`/api/attendance-report?from=${from}&to=${to}`);
+    const [data, notesArr]=await Promise.all([
+      api('GET',`/api/attendance-report?from=${from}&to=${to}`),
+      fetch(BASE+'/api/absence-notes?from='+from+'&to='+to,{headers:{'x-auth-token':TOKEN}}).then(r=>r.json()).catch(()=>[])
+    ]);
+    const notesMap={};
+    (notesArr||[]).forEach(n=>{ notesMap[n.employee_id+'_'+n.date]=n; });
     _attData={data,from,to};
-    renderAttendanceReport(data,body);
+    renderAttendanceReport(data,body,notesMap);
     if(data&&data.report&&data.report.length){
       document.getElementById('att-excel-btn').style.display='';
       document.getElementById('att-nomina-btn').style.display='';
@@ -3899,21 +4434,72 @@ async function loadAttendanceReport(){
   }
 }
 
+async function toggleStandby(empId, date, newStatus) {
+  await api('POST', '/api/standby', { employee_id: empId, date, status: newStatus });
+  loadAttendanceReport();
+}
+
+function openNoteReview(noteJson){
+  const n=JSON.parse(decodeURIComponent(noteJson));
+  _activeNote=n;
+  const emp=(n.emp_name||'')+(n.emp_last?' '+n.emp_last:'');
+  const dt=new Date(n.date+'T12:00:00').toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const by=(n.added_by_name||'—')+(n.added_by_last?' '+n.added_by_last:'');
+  document.getElementById('m-note-meta').innerHTML=`<strong style="font-size:14px;color:var(--text)">${emp}</strong> · ${dt}`;
+  document.getElementById('m-note-text').textContent=n.note;
+  document.getElementById('m-note-by').innerHTML=`Nota añadida por: <strong>${by}</strong>`;
+  const statusLabels={pending:'⏳ Pendiente de revisión',accepted:'✓ Justificación aceptada',rejected:'✗ Rechazada — cuenta como falta'};
+  const statusColors={pending:'#f59e0b',accepted:'#16a34a',rejected:'#dc2626'};
+  const st=n.status||'pending';
+  document.getElementById('m-note-status-row').innerHTML=`<span style="font-size:12px;font-weight:700;color:${statusColors[st]}">${statusLabels[st]||st}</span>`;
+  document.getElementById('m-note-accept-btn').style.opacity=st==='accepted'?'0.4':'1';
+  document.getElementById('m-note-reject-btn').style.opacity=st==='rejected'?'0.4':'1';
+  document.getElementById('m-note-review').classList.add('active');
+}
+function closeNoteReview(){ document.getElementById('m-note-review').classList.remove('active'); _activeNote=null; }
+async function updateNoteStatus(status){
+  if(!_activeNote)return;
+  try{
+    await fetch(BASE+'/api/absence-notes/'+_activeNote.id+'/status',{method:'PUT',headers:{'Content-Type':'application/json','x-auth-token':TOKEN},body:JSON.stringify({status})});
+    // Update cell(s) in report table
+    const cellEl=document.querySelector(`.note-cell[data-note-id="${_activeNote.id}"]`);
+    if(cellEl){
+      if(status==='accepted'){cellEl.style.background='#16a34a';cellEl.textContent='J';}
+      else if(status==='rejected'){cellEl.style.background='#dc2626';cellEl.textContent='F';cellEl.style.cursor='default';cellEl.removeAttribute('onclick');}
+    }
+    // Refresh modal state
+    _activeNote.status=status;
+    const statusLabels={pending:'⏳ Pendiente de revisión',accepted:'✓ Justificación aceptada',rejected:'✗ Rechazada — cuenta como falta'};
+    const statusColors={pending:'#f59e0b',accepted:'#16a34a',rejected:'#dc2626'};
+    document.getElementById('m-note-status-row').innerHTML=`<span style="font-size:12px;font-weight:700;color:${statusColors[status]}">${statusLabels[status]}</span>`;
+    document.getElementById('m-note-accept-btn').style.opacity=status==='accepted'?'0.4':'1';
+    document.getElementById('m-note-reject-btn').style.opacity=status==='rejected'?'0.4':'1';
+    // Also update notas tab row if visible
+    const noteRow=document.querySelector(`tr[data-note-id="${_activeNote.id}"]`);
+    if(noteRow){
+      const badge=noteRow.querySelector('.note-status-badge');
+      if(badge){badge.textContent=statusLabels[status];badge.style.color=statusColors[status];}
+    }
+  }catch(e){alert('Error al actualizar: '+e.message);}
+}
+
 function downloadAttendanceExcel(){
   if(!_attData)return;
   const{data,from,to}=_attData;
   const{dates,report}=data;
   const DOW=['D','L','M','X','J','V','S'];
   const ATT_STYLE={
-    a_tiempo:  {bg:'#15803d',fg:'#fff'},
-    retardo:   {bg:'#f59e0b',fg:'#fff'},
-    falta:     {bg:'#dc2626',fg:'#fff'},
-    desviacion:{bg:'#7c3aed',fg:'#fff'},
-    descanso:  {bg:'#e5e7eb',fg:'#6b7280'},
-    vacaciones:{bg:'#bfdbfe',fg:'#1e40af'},
-    no_aplica: {bg:'#f9fafb',fg:'#d1d5db'},
+    a_tiempo:     {bg:'#15803d',fg:'#fff'},
+    retardo:      {bg:'#f59e0b',fg:'#fff'},
+    falta:        {bg:'#dc2626',fg:'#fff'},
+    desviacion:   {bg:'#7c3aed',fg:'#fff'},
+    descanso:     {bg:'#e5e7eb',fg:'#6b7280'},
+    vacaciones:   {bg:'#bfdbfe',fg:'#1e40af'},
+    disponible:   {bg:'#0d9488',fg:'#fff'},
+    no_disponible:{bg:'#dc2626',fg:'#fff'},
+    no_aplica:    {bg:'#f9fafb',fg:'#d1d5db'},
   };
-  const ATT_LABEL={a_tiempo:'A',retardo:'R',falta:'F',desviacion:'D',descanso:'DC',vacaciones:'V',no_aplica:'-'};
+  const ATT_LABEL={a_tiempo:'A',retardo:'R',falta:'F',desviacion:'D',descanso:'DC',vacaciones:'V',disponible:'DB',no_disponible:'NDB',no_aplica:'-'};
   const hd='background:#1e3a8a;color:#fff;font-weight:700;padding:6px 10px;border:1px solid #1e3a8a;font-size:11px';
   const td='border:1px solid #e5e7eb;padding:5px;font-size:11px';
   const dayHds=dates.map(d=>{const dt=new Date(d+'T12:00:00');return`<th style="${hd};text-align:center;min-width:28px">${DOW[dt.getDay()]}<br>${dt.getDate()}</th>`;}).join('');
@@ -3945,20 +4531,22 @@ function downloadAttendanceExcel(){
   const a=document.createElement('a');a.href=url;a.download=`asistencia-${from}-al-${to}.xls`;a.click();URL.revokeObjectURL(url);
 }
 
-function renderAttendanceReport(data,body){
+function renderAttendanceReport(data,body,notesMap={}){
   if(!data||!data.report||!data.report.length){
     body.innerHTML='<div class="empty" style="margin:32px auto"><p>Sin empleados con registros en este período</p></div>';return;
   }
   const {dates,report}=data;
   const DOW=['D','L','M','X','J','V','S'];
   const statusInfo={
-    a_tiempo:  {bg:'#15803d',color:'#fff', icon:'A', label:'A tiempo'},
-    retardo:   {bg:'#f59e0b',color:'#fff', icon:'R', label:'Retardo'},
-    falta:     {bg:'#dc2626',color:'#fff', icon:'F', label:'Falta'},
-    desviacion:{bg:'#7c3aed',color:'#fff', icon:'D', label:'Desviacion'},
-    descanso:  {bg:'#e5e7eb',color:'#6b7280',icon:'DC',label:'Descanso'},
-    vacaciones:{bg:'#bfdbfe',color:'#1e40af',icon:'V', label:'Vacaciones'},
-    no_aplica: {bg:'#f3f4f6',color:'#d1d5db',icon:'-', label:'No aplica'},
+    a_tiempo:     {bg:'#15803d',color:'#fff',   icon:'A',   label:'A tiempo'},
+    retardo:      {bg:'#f59e0b',color:'#fff',   icon:'R',   label:'Retardo'},
+    falta:        {bg:'#dc2626',color:'#fff',   icon:'F',   label:'Falta'},
+    desviacion:   {bg:'#7c3aed',color:'#fff',   icon:'D',   label:'Desviacion'},
+    descanso:     {bg:'#e5e7eb',color:'#6b7280',icon:'DC',  label:'Descanso'},
+    vacaciones:   {bg:'#bfdbfe',color:'#1e40af',icon:'V',   label:'Vacaciones'},
+    disponible:   {bg:'#0d9488',color:'#fff',   icon:'DB',  label:'Disponible'},
+    no_disponible:{bg:'#dc2626',color:'#fff',   icon:'NDB', label:'No disponible'},
+    no_aplica:    {bg:'#f3f4f6',color:'#d1d5db',icon:'-',   label:'No aplica'},
   };
 
   const dateHeaders=dates.map(d=>{
@@ -3977,7 +4565,23 @@ function renderAttendanceReport(data,body){
     const cells=emp.days.map(day=>{
       let st=day.status||'no_aplica';
       if(day.status&&day.deviation)st='desviacion';
+      const note=notesMap[emp.id+'_'+day.date];
+      // Override falta cell when there's a note (unless note was rejected)
+      if(st==='falta'&&note&&note.status!=='rejected'){
+        const accepted=note.status==='accepted';
+        const bg=accepted?'#16a34a':'#f59e0b';
+        const icon=accepted?'J':'FJ';
+        const tip=accepted?'Justificación aceptada: '+note.note:'FJ — clic para revisar: '+note.note;
+        const noteJson=encodeURIComponent(JSON.stringify(note));
+        return `<td class="rpt-day-td"><div title="${tip}" class="rpt-cell note-cell" data-note-id="${note.id}" style="background:${bg};color:#fff;margin:0 auto;cursor:pointer;font-size:9px" onclick="openNoteReview('${noteJson}')">${icon}</div></td>`;
+      }
       const s=statusInfo[st]||statusInfo.no_aplica;
+      // Disponibilidad: celda clickeable para toggle
+      if(st==='disponible'||st==='no_disponible'){
+        const next=st==='disponible'?'no_disponible':'disponible';
+        const tip=st==='disponible'?'Disponible — clic para marcar No disponible':'No disponible — clic para revertir a Disponible';
+        return `<td class="rpt-day-td"><div title="${tip}" class="rpt-cell" style="background:${s.bg};color:${s.color};margin:0 auto;cursor:pointer;font-size:8px" onclick="toggleStandby(${emp.id},'${day.date}','${next}')">${s.icon}</div></td>`;
+      }
       let tip='';
       if(day.checkin_time){tip=`Entrada: ${day.checkin_time}`;}
       if(day.salida_time){tip+=` | Salida: ${day.salida_time}`;}
@@ -4775,6 +5379,9 @@ async function loadConfiguracion(){
   const urlEl=document.getElementById('cfg-url');
   if(el)el.textContent=port;
   if(urlEl)urlEl.textContent=location.origin;
+  loadNominaConfig();
+  const sel=document.getElementById('cfg-payroll-period');
+  if(sel)sel.addEventListener('change',updatePayrollConfigDesc);
 }
 
 async function checkForUpdate(){
@@ -4795,16 +5402,62 @@ async function checkForUpdate(){
       statusEl.style.color='#16a34a';
       statusEl.textContent='✓ Tienes la versión más reciente (v'+current+')';
     } else {
-      const exeAsset=data.assets?.find(a=>a.name.includes('Setup')||a.name.endsWith('.exe'));
-      const dlUrl=exeAsset?.browser_download_url||data.html_url;
       statusEl.style.color='#d97706';
-      statusEl.innerHTML='Nueva versión disponible: <strong>v'+latest+'</strong><br><a href="'+dlUrl+'" target="_blank" style="color:var(--accent);font-weight:700;text-decoration:underline">Descargar actualización →</a>';
+      statusEl.innerHTML=`Nueva versión disponible: <strong>v${latest}</strong><br>
+        <button onclick="installOnServer()" class="btn btn-primary btn-xs" style="margin-top:6px;width:100%">
+          ⬇️ Instalar v${latest} en el servidor
+        </button>`;
     }
   }catch(e){
     statusEl.style.color='var(--danger,#d63b3b)';
     statusEl.textContent='No se pudo verificar. Revisa conexión a internet.';
   }
   btn.disabled=false;
+}
+
+let _updatePollTimer=null;
+async function installOnServer(){
+  const statusEl=document.getElementById('update-status');
+  if(!statusEl)return;
+  statusEl.style.color='var(--muted)';
+  statusEl.innerHTML='⏳ Iniciando descarga en el servidor...';
+  try{
+    const r=await api('POST','/api/system/update');
+    if(r?.error){
+      statusEl.style.color='var(--danger,#d63b3b)';
+      statusEl.textContent='Error: '+r.error;
+      return;
+    }
+    // Poll status every 2 seconds
+    if(_updatePollTimer)clearInterval(_updatePollTimer);
+    _updatePollTimer=setInterval(async()=>{
+      try{
+        const s=await api('GET','/api/system/update-status');
+        if(s.status==='downloading'){
+          statusEl.style.color='var(--muted)';
+          statusEl.innerHTML=`⬇️ Descargando v${s.version}... ${s.progress}%<br>
+            <div style="height:4px;background:var(--border);border-radius:2px;margin-top:4px">
+              <div style="height:4px;background:var(--accent);border-radius:2px;width:${s.progress}%;transition:width .5s"></div>
+            </div>`;
+        } else if(s.status==='installing'){
+          clearInterval(_updatePollTimer);
+          statusEl.style.color='#16a34a';
+          statusEl.innerHTML='✅ Descarga completa. Instalando v'+s.version+'...<br><small>El servidor se reiniciará — reconéctate en ~30 seg.</small>';
+        } else if(s.status==='error'){
+          clearInterval(_updatePollTimer);
+          statusEl.style.color='var(--danger,#d63b3b)';
+          statusEl.textContent='Error: '+(s.error||'desconocido');
+        } else if(s.status==='up-to-date'){
+          clearInterval(_updatePollTimer);
+          statusEl.style.color='#16a34a';
+          statusEl.textContent='✓ Ya tienes la versión más reciente.';
+        }
+      }catch{clearInterval(_updatePollTimer);}
+    },2000);
+  }catch(e){
+    statusEl.style.color='var(--danger,#d63b3b)';
+    statusEl.textContent='Error de conexión: '+e.message;
+  }
 }
 
 async function loadWalletConfig(){
@@ -4981,13 +5634,18 @@ function showWalletMsg(msg,type){
 }
 
 // ── Notificaciones ────────────────────────────────────
-let notifEmployees=[], notifSelected=new Set(), _notifHistory=[];
+let notifEmployees=[], notifSelected=new Set(), _notifHistory=[], _notifTokenSet=new Set();
 
 async function loadNotificaciones(){
   try{
-    const[emps,hist]=await Promise.all([api('GET','/api/employees'),api('GET','/api/notifications')]);
+    const[emps,hist,tokens]=await Promise.all([
+      api('GET','/api/employees'),
+      api('GET','/api/notifications'),
+      api('GET','/api/push-tokens').catch(()=>[])
+    ]);
     notifEmployees=(emps||[]).filter(e=>e.active!==0);
     _notifHistory=hist||[];
+    _notifTokenSet=new Set((tokens||[]).map(t=>t.employee_id));
   }catch{}
   renderNotifCards();
 }
@@ -5001,6 +5659,7 @@ function renderNotifCards(){
     const lastN=_notifHistory.find(n=>{
       try{const ids=JSON.parse(n.employee_ids||'[]');return ids.length===0||ids.includes(e.id);}catch{return false;}
     });
+    const hasToken=_notifTokenSet.has(e.id);
     return`<div id="notif-card-${e.id}" onclick="toggleNotifCard(${e.id},event)"
       style="border-radius:12px;overflow:hidden;cursor:pointer;transition:box-shadow .18s,transform .15s;
              border:${sel?'2px solid #2563EB':'1.5px solid var(--border)'};
@@ -5010,7 +5669,13 @@ function renderNotifCards(){
         ${avatarHtml(e.photo,e.name,38)}
         <div style="flex:1;min-width:0">
           <div style="font-weight:700;font-size:14px;color:var(--text);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.name}${e.last_name?' '+e.last_name:''}</div>
-          <div style="font-size:11px;color:var(--muted);font-family:'Courier New',monospace">#${e.employee_number}</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:2px">
+            <div style="font-size:11px;color:var(--muted);font-family:'Courier New',monospace">#${e.employee_number}</div>
+            <span title="${hasToken?'Dispositivo registrado':'Sin dispositivo registrado'}" style="display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:1px 6px;border-radius:99px;font-weight:600;
+              background:${hasToken?'#dcfce7':'#f3f4f6'};color:${hasToken?'#166534':'#9ca3af'}">
+              ${hasToken?'● App':'○ Sin app'}
+            </span>
+          </div>
         </div>
         <div id="notif-check-${e.id}" style="width:20px;height:20px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;
              border:2px solid ${sel?'#2563EB':'var(--border2)'};background:${sel?'#2563EB':'transparent'}">
@@ -5062,11 +5727,26 @@ async function sendDirectNotif(empId){
   if(!inp)return;
   const body=inp.value.trim();
   if(!body){inp.focus();return;}
+  if(!_notifTokenSet.has(empId)){showToast('Este empleado no tiene la app registrada','error');return;}
   const title=document.getElementById('notif-title').value.trim()||'D-CLOCK';
   try{
     const r=await api('POST','/api/notifications/send',{title,body,employee_ids:[empId]});
-    if(r.ok){inp.value='';await loadNotificaciones();}
-  }catch(e){alert('Error: '+e.message);}
+    if(r?.ok){
+      inp.value='';
+      if(r.sent>0){
+        showToast('Notificación enviada ✓','success');
+      } else if(r.cleaned>0){
+        showToast('Token inválido (DeviceNotRegistered) — se limpió automáticamente. Empleado debe reabrir la app','error');
+      } else if(r.errors?.length){
+        showToast('Error Expo: '+r.errors[0],'error');
+      } else {
+        showToast('0 dispositivos recibieron — revisa que el empleado tenga la app abierta al menos una vez','error');
+      }
+      await loadNotificaciones();
+    } else {
+      showToast(r?.error||'Error al enviar','error');
+    }
+  }catch(e){showToast('Error: '+e.message,'error');}
 }
 
 async function sendMassNotif(){
@@ -5074,17 +5754,28 @@ async function sendMassNotif(){
   const body=document.getElementById('notif-body').value.trim();
   if(!body){document.getElementById('notif-body').focus();return;}
   const employee_ids=notifSelected.size===notifEmployees.length?[]:[...notifSelected];
+  // Advertir si ninguno en la selección tiene token
+  const selIds=employee_ids.length?employee_ids:notifEmployees.map(e=>e.id);
+  const withToken=selIds.filter(id=>_notifTokenSet.has(id));
+  if(withToken.length===0){showToast('Ningún empleado seleccionado tiene la app registrada','error');return;}
   try{
     const r=await api('POST','/api/notifications/send',{title,body,employee_ids});
-    if(r.ok){
+    if(r?.ok){
       document.getElementById('notif-body').value='';
       notifSelected.clear();
       document.getElementById('notif-sel-count').textContent='0';
       document.getElementById('notif-mass-btn').disabled=true;
-      alert(`Enviado a ${r.sent} dispositivo${r.sent!==1?'s':''}`);
+      const msg=r.sent>0
+        ?`Enviado a ${r.sent}/${r.total||r.sent} dispositivo${r.sent!==1?'s':''}`
+        :'Se intentó enviar pero 0 dispositivos lo recibieron';
+      showToast(msg, r.sent>0?'success':'error');
+      if(r.cleaned>0) showToast(`${r.cleaned} token${r.cleaned!==1?'s':''} inválido${r.cleaned!==1?'s':''} limpiado${r.cleaned!==1?'s':''} — esos empleados deben reabrir la app`,'info');
+      if(r.errors?.length) showToast('Errores Expo: '+r.errors.join(', '),'error');
       await loadNotificaciones();
+    } else {
+      showToast(r?.error||'Error al enviar','error');
     }
-  }catch(e){alert('Error: '+e.message);}
+  }catch(e){showToast('Error: '+e.message,'error');}
 }
 
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -5094,7 +5785,8 @@ function goto(name,el){
   el.classList.add("active");
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.getElementById("sec-"+name).classList.add("active");
-  const titles={dashboard:"Dashboard",registros:"Registros de asistencia",reportes:"Reportes de asistencia",empleados:"Empleados",equipos:"Equipos",departamentos:"Departamentos",areas:"Áreas",puestos:"Puestos",horarios:"Horarios",vacaciones:"Vacaciones",notificaciones:"Notificaciones push",geocercas:"Geocercas",credencial:"Credencial digital",configuracion:"Configuración"};
+  const _ct = document.getElementById("content"); if (_ct) _ct.scrollTop = 0;
+  const titles={dashboard:"Dashboard",registros:"Registros de asistencia",reportes:"Reportes de asistencia",empleados:"Empleados",equipos:"Equipos",departamentos:"Departamentos",areas:"Áreas",puestos:"Puestos",horarios:"Horarios",vacaciones:"Vacaciones",notificaciones:"Notificaciones push",geocercas:"Geocercas",credencial:"Credencial digital",configuracion:"Configuración",nomina:"Nómina"};
   document.getElementById("page-title").textContent=titles[name]||name;
   if(name==="registros"){if(recMode==='day')loadRecords();else loadPeriodRecords();}
   if(name==="reportes")initReportFilters();
@@ -5104,7 +5796,17 @@ function goto(name,el){
   if(name==="geocercas"&&geoView==='map')setTimeout(()=>{renderGeoListMap();if(geoListMap)geoListMap.invalidateSize();},150);
   if(name==="credencial")loadWalletConfig();
   if(name==="configuracion")loadConfiguracion();
-  if(name==="equipos")loadTeams();
+  if(name==="equipos"){loadTeams();loadTransfers();}
+  if(name==="nomina"){
+    if(_nominaToken){
+      document.getElementById("nomina-gate").style.display="none";
+      document.getElementById("nomina-content").style.display="block";
+      loadNominaEmployees();
+    } else {
+      document.getElementById("nomina-gate").style.display="block";
+      document.getElementById("nomina-content").style.display="none";
+    }
+  }
 }
 
 
@@ -5134,20 +5836,35 @@ function goto(name,el){
       return;
     }
     grid.innerHTML = filtered.map(t => {
-      const admin = t.admin_name ? (t.admin_name + (t.admin_last_name ? ' ' + t.admin_last_name : '')) : 'Sin responsable';
+      const adminFull = t.admin_name ? (t.admin_name + (t.admin_last_name ? ' ' + t.admin_last_name : '')) : 'Sin responsable';
+      const initials  = t.admin_name
+        ? ((t.admin_name[0] || '') + (t.admin_last_name ? t.admin_last_name[0] : '')).toUpperCase()
+        : '?';
       const pct   = t.member_count > 0 ? Math.round((t.present_today / t.member_count) * 100) : 0;
-      const color = pct >= 80 ? '#22c55e' : pct >= 50 ? '#f59e0b' : pct > 0 ? '#ef4444' : 'var(--border)';
+      const barColor  = pct >= 80 ? '#22c55e' : pct >= 50 ? '#f59e0b' : pct > 0 ? '#ef4444' : 'var(--border)';
+      const pillBg    = pct >= 80 ? '#dcfce7' : pct >= 50 ? '#fef9c3' : pct > 0 ? '#fee2e2' : 'var(--border)';
+      const pillColor = pct >= 80 ? '#16a34a' : pct >= 50 ? '#92400e' : pct > 0 ? '#b91c1c' : 'var(--muted)';
+      const teamInitial = (t.name[0] || '').toUpperCase();
       return `<div class="team-card" onclick="openTeamDetail(${t.id})">
-        <div class="team-card-header">
-          <div class="team-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-          <div style="flex:1"><div class="team-name">${t.name}</div><div class="team-admin">${admin}</div></div>
+        <div class="tc-header">
+          <div class="tc-team-icon">${teamInitial}</div>
+          <div class="tc-title">
+            <div class="tc-name">${t.name}</div>
+            ${t.description ? `<div class="tc-desc">${t.description}</div>` : ''}
+          </div>
         </div>
-        ${t.description ? `<div class="team-desc">${t.description}</div>` : ''}
-        <div class="team-stats">
-          <span>${t.member_count} miembro${t.member_count !== 1 ? 's' : ''}</span>
-          <span style="color:${color};font-weight:700">${t.present_today}/${t.member_count} presentes hoy</span>
+        <div class="tc-leader">
+          <div class="tc-leader-av">${initials}</div>
+          <div>
+            <div class="tc-leader-lbl">Responsable</div>
+            <div class="tc-leader-nm">${adminFull}</div>
+          </div>
         </div>
-        <div class="team-bar-bg"><div class="team-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+        <div class="tc-footer">
+          <span class="tc-members">${t.member_count} miembro${t.member_count !== 1 ? 's' : ''}</span>
+          <span class="tc-att" style="background:${pillBg};color:${pillColor}">${t.present_today}/${t.member_count} presentes</span>
+        </div>
+        <div class="team-bar-bg"><div class="team-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
       </div>`;
     }).join('');
   }
@@ -5300,6 +6017,620 @@ function goto(name,el){
 function openModal(id){document.getElementById(id).classList.add("open");}
 function closeModal(id){document.getElementById(id).classList.remove("open");}
 document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{if(e.target===o)closeModal(o.id);}));
+
+// ── HELPERS ───────────────────────────────────────────
+function getToken() { return TOKEN; }
+async function apiFetch(path, opts={}) {
+  const method = (opts.method || "GET").toUpperCase();
+  let body = undefined;
+  if (opts.body) { try { body = JSON.parse(opts.body); } catch(e) { body = opts.body; } }
+  try { return await api(method, path, body); } catch(e) { return {error: e.message}; }
+}
+function showToast(msg, type="success") {
+  const t = document.createElement("div");
+  t.textContent = msg;
+  t.style.cssText = `position:fixed;bottom:24px;right:24px;background:${type==="error"?"var(--red)":"var(--green)"};color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,.25);transition:opacity .3s`;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity="0";setTimeout(()=>t.remove(),300);},2500);
+}
+
+// ── NÓMINA ────────────────────────────────────────────
+let _nominaToken = sessionStorage.getItem("nomina_token") || "";
+
+async function unlockNomina() {
+  const pwd = document.getElementById("nomina-pwd-input").value;
+  if (!pwd) return;
+  const r = await apiFetch("/api/nomina/unlock", { method:"POST", body:JSON.stringify({password:pwd}) });
+  if (r?.error) {
+    document.getElementById("nomina-gate-error").textContent = r.error;
+    document.getElementById("nomina-gate-error").style.display = "block";
+    return;
+  }
+  _nominaToken = r.token;
+  sessionStorage.setItem("nomina_token", _nominaToken);
+  document.getElementById("nomina-gate").style.display = "none";
+  document.getElementById("nomina-content").style.display = "block";
+  document.getElementById("nomina-gate-error").style.display = "none";
+  loadNominaConfig();
+  loadNominaEmployees();
+}
+
+async function apiNomina(path, opts={}) {
+  const headers = { "Content-Type":"application/json", "x-auth-token": getToken(), "x-nomina-token": _nominaToken };
+  const r = await fetch(path, { ...opts, headers: { ...headers, ...opts.headers } });
+  const data = await r.json();
+  if (r.status === 401 && data?.error?.includes("nómina")) {
+    _nominaToken = ""; sessionStorage.removeItem("nomina_token");
+    document.getElementById("nomina-gate").style.display = "block";
+    document.getElementById("nomina-content").style.display = "none";
+  }
+  return data;
+}
+
+function showNominaTab(tab) {
+  ["salarios","reporte"].forEach(t => {
+    document.getElementById("nom-"+t).style.display = t===tab ? "block" : "none";
+    const btn = document.getElementById("nom-tab-"+t);
+    if (btn) { btn.style.background = t===tab ? "var(--accent-bg)" : ""; btn.style.color = t===tab ? "var(--accent)" : ""; btn.style.fontWeight = t===tab ? "700" : ""; }
+  });
+  const _ct2 = document.getElementById("content");
+  if (_ct2) _ct2.scrollTop = 0;
+  if (tab==="salarios") loadNominaEmployees();
+}
+
+async function loadNominaEmployees() {
+  const rows = await apiNomina("/api/nomina/employees");
+  if (!Array.isArray(rows)) return;
+  const body = document.getElementById("nom-emp-body");
+  body.innerHTML = rows.map(e => `
+    <tr>
+      <td>${e.name} ${e.last_name}<br><small style="color:var(--muted)">${e.employee_number||""}</small></td>
+      <td>${e.department_name||"—"}</td>
+      <td>
+        <input type="number" min="0" step="0.01" value="${e.monthly_salary||0}" style="width:130px" class="inp" id="nom-sal-${e.id}" placeholder="0.00">
+      </td>
+      <td>
+        <select class="inp" id="nom-freq-${e.id}" style="width:130px">
+          <option value="weekly" ${e.payment_freq==="weekly"?"selected":""}>Semanal</option>
+          <option value="biweekly" ${e.payment_freq==="biweekly"?"selected":""}>Quincenal</option>
+          <option value="monthly" ${(e.payment_freq==="monthly"||!e.payment_freq)?"selected":""}>Mensual</option>
+        </select>
+      </td>
+      <td><button class="btn btn-sm btn-primary" onclick="saveNominaSalary(${e.id})">Guardar</button></td>
+    </tr>
+  `).join("");
+}
+
+async function saveNominaSalary(id) {
+  const monthly_salary = parseFloat(document.getElementById("nom-sal-"+id)?.value) || 0;
+  const payment_freq   = document.getElementById("nom-freq-"+id)?.value || "monthly";
+  await apiNomina(`/api/nomina/employees/${id}`, { method:"PUT", body:JSON.stringify({monthly_salary, payment_freq}) });
+  showToast("Salario guardado");
+}
+
+function setNominaPreset(preset) {
+  const now = new Date();
+  const fmt = d => d.toISOString().slice(0,10);
+  let from, to, freq;
+
+  if (_payrollPeriodType === 'friday') {
+    // Períodos anclados a viernes: semana = Lun-Vie, quincena = 2×Lun-Vie
+    const day = now.getDay(); // 0=Dom,1=Lun..5=Vie,6=Sab
+    // "Este viernes" = próximo (o hoy) si Lun-Vie; sábado → viernes pasado
+    const offsetToFri = day === 6 ? -1 : (5 - day);
+    const thisFri = new Date(now); thisFri.setDate(now.getDate() + offsetToFri);
+    const addDays = (d, n) => { const r = new Date(d); r.setDate(d.getDate() + n); return r; };
+
+    if (preset === 'semana') {
+      to = fmt(thisFri); from = fmt(addDays(thisFri, -4)); freq = 'weekly';
+    } else if (preset === 'semana-pasada') {
+      const lastFri = addDays(thisFri, -7);
+      to = fmt(lastFri); from = fmt(addDays(lastFri, -4)); freq = 'weekly';
+    } else if (preset === 'quincena') {
+      to = fmt(thisFri); from = fmt(addDays(thisFri, -13)); freq = 'biweekly';
+    } else if (preset === 'quincena-pasada') {
+      const lastFri = addDays(thisFri, -14);
+      to = fmt(lastFri); from = fmt(addDays(lastFri, -13)); freq = 'biweekly';
+    } else if (preset === 'mes') {
+      to = fmt(thisFri); from = fmt(addDays(thisFri, -27)); freq = 'monthly';
+    } else if (preset === 'mes-pasado') {
+      const lastFri = addDays(thisFri, -28);
+      to = fmt(lastFri); from = fmt(addDays(lastFri, -27)); freq = 'monthly';
+    } else {
+      // todos: mes calendario completo igual que en modo calendar
+      from = fmt(new Date(now.getFullYear(), now.getMonth(), 1));
+      to   = fmt(new Date(now.getFullYear(), now.getMonth()+1, 0));
+      freq = '';
+    }
+  } else {
+    // Modo calendario: semana = Lun-Dom, quincena = 1-15 / 16-fin
+    const dow = now.getDay() === 0 ? 6 : now.getDay() - 1;
+    if (preset === 'semana') {
+      const mon = new Date(now); mon.setDate(now.getDate() - dow);
+      const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+      from = fmt(mon); to = fmt(sun); freq = 'weekly';
+    } else if (preset === 'semana-pasada') {
+      const mon = new Date(now); mon.setDate(now.getDate() - dow - 7);
+      const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+      from = fmt(mon); to = fmt(sun); freq = 'weekly';
+    } else if (preset === 'quincena') {
+      const d = now.getDate();
+      if (d <= 15) {
+        from = fmt(new Date(now.getFullYear(), now.getMonth(), 1));
+        to   = fmt(new Date(now.getFullYear(), now.getMonth(), 15));
+      } else {
+        from = fmt(new Date(now.getFullYear(), now.getMonth(), 16));
+        to   = fmt(new Date(now.getFullYear(), now.getMonth()+1, 0));
+      }
+      freq = 'biweekly';
+    } else if (preset === 'quincena-pasada') {
+      const d = now.getDate();
+      if (d <= 15) {
+        from = fmt(new Date(now.getFullYear(), now.getMonth()-1, 16));
+        to   = fmt(new Date(now.getFullYear(), now.getMonth(), 0));
+      } else {
+        from = fmt(new Date(now.getFullYear(), now.getMonth(), 1));
+        to   = fmt(new Date(now.getFullYear(), now.getMonth(), 15));
+      }
+      freq = 'biweekly';
+    } else if (preset === 'mes') {
+      from = fmt(new Date(now.getFullYear(), now.getMonth(), 1));
+      to   = fmt(new Date(now.getFullYear(), now.getMonth()+1, 0));
+      freq = 'monthly';
+    } else if (preset === 'mes-pasado') {
+      from = fmt(new Date(now.getFullYear(), now.getMonth()-1, 1));
+      to   = fmt(new Date(now.getFullYear(), now.getMonth(), 0));
+      freq = 'monthly';
+    } else {
+      from = fmt(new Date(now.getFullYear(), now.getMonth(), 1));
+      to   = fmt(new Date(now.getFullYear(), now.getMonth()+1, 0));
+      freq = '';
+    }
+  }
+
+  document.getElementById('nom-from').value = from;
+  document.getElementById('nom-to').value   = to;
+  document.getElementById('nom-freq').value  = freq;
+  document.querySelectorAll('.nom-preset').forEach(b => b.classList.toggle('active', b.dataset.preset === preset));
+  loadNominaReport();
+}
+
+let _nomRows = null, _nomDates = [], _nomFreq = '', _nomPayments = {};
+let _payrollPeriodType = 'calendar';
+
+async function loadNominaConfig() {
+  try {
+    const cfg = await api('GET', '/api/config/payroll');
+    if (cfg?.period_type) _payrollPeriodType = cfg.period_type;
+    const sel = document.getElementById('cfg-payroll-period');
+    if (sel) {
+      sel.value = _payrollPeriodType;
+      updatePayrollConfigDesc();
+    }
+  } catch {}
+}
+
+function updatePayrollConfigDesc() {
+  const sel = document.getElementById('cfg-payroll-period');
+  const desc = document.getElementById('cfg-payroll-desc');
+  if (!sel || !desc) return;
+  desc.textContent = sel.value === 'friday'
+    ? 'Semana actual = Lun a Vie de esta semana. Quincena = 2 semanas (Lun-Vie). Mes = 4 semanas (Lun-Vie). Ideal si se paga cada viernes.'
+    : 'Semana actual = Lun a Dom. Quincena = días 1-15 ó 16-fin de mes. Mes = mes completo. Ideal si los ciclos siguen el calendario.';
+}
+
+async function savePayrollConfig() {
+  const sel = document.getElementById('cfg-payroll-period');
+  if (!sel) return;
+  const res = await api('POST', '/api/config/payroll', { period_type: sel.value });
+  if (res?.ok) {
+    _payrollPeriodType = sel.value;
+    showToast('Configuración de nómina guardada');
+  } else showToast('Error al guardar', 'error');
+}
+
+async function loadNominaReport() {
+  const from = document.getElementById("nom-from").value;
+  const to   = document.getElementById("nom-to").value;
+  if (!from||!to) { showToast("Selecciona período","error"); return; }
+  const freq = document.getElementById("nom-freq").value;
+  const wrap = document.getElementById('nom-report-wrap');
+  wrap.innerHTML = '<div class="empty" style="margin:32px auto"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>Cargando...</p></div>';
+  const [nomData, attData, paidData] = await Promise.all([
+    apiNomina(`/api/nomina/report?from=${from}&to=${to}${freq?"&freq="+freq:""}`),
+    api('GET', `/api/attendance-report?from=${from}&to=${to}`).catch(()=>null),
+    apiNomina(`/api/payroll/payments?from=${from}&to=${to}`).catch(()=>[])
+  ]);
+  if (!nomData?.rows) {
+    wrap.innerHTML = '<div class="empty" style="margin:32px auto"><p>Error al cargar</p></div>';
+    if (nomData?.error) showToast(nomData.error, "error");
+    return;
+  }
+  const attMap = {};
+  if (attData?.report) attData.report.forEach(e => { attMap[e.id] = e.days||[]; });
+  const dates   = attData?.dates || [];
+  const today   = new Date().toISOString().slice(0,10);
+  const periodDays = Math.min(dates.length, 30);
+  const rows = nomData.rows.map(r => {
+    const empDays    = attMap[r.id] || [];
+    const faltaCount = empDays.filter(d => (d.status==='falta'||d.status==='no_disponible') && d.date<=today).length;
+    const leaveCount = empDays.filter(d => ['descanso','vacaciones'].includes(d.status) && d.date<=today).length;
+    const workCount  = empDays.filter(d => ['a_tiempo','retardo','desviacion'].includes(d.status) && d.date<=today).length;
+    // ciclos de pago que caben en el período seleccionado
+    const weeksInPeriod  = Math.max(1, Math.floor(dates.length / 7));
+    const quinceInPeriod = Math.max(1, Math.floor(dates.length / 15));
+    const periodBase = r.payment_freq === 'weekly'   ? parseFloat((r.monthly_salary / 4 * weeksInPeriod).toFixed(2))
+                     : r.payment_freq === 'biweekly' ? parseFloat((r.monthly_salary / 2 * quinceInPeriod).toFixed(2))
+                     :                                 parseFloat(r.monthly_salary.toFixed(2));
+    const deduction  = parseFloat((r.daily_salary * faltaCount).toFixed(2));
+    const netSalary  = Math.max(0, parseFloat((periodBase - deduction).toFixed(2)));
+    return { ...r, days: empDays, worked_days: workCount, leave_days: leaveCount,
+             absences: faltaCount, period_salary: periodBase, deductions: deduction, net_salary: netSalary };
+  });
+  const paymentsMap = {};
+  if (Array.isArray(paidData)) paidData.forEach(p => {
+    if (!paymentsMap[p.employee_id]) paymentsMap[p.employee_id] = [];
+    paymentsMap[p.employee_id].push(p);
+  });
+  _nomRows = rows; _nomDates = dates; _nomFreq = freq; _nomPayments = paymentsMap;
+  renderNominaReport(rows, dates, freq, paymentsMap, from, to);
+  const _ct = document.getElementById("content");
+  if (_ct) _ct.scrollTop = 0;
+}
+
+// Siempre genera N slots fijos según frecuencia (semanal=4, quincenal=2, mensual=1)
+// dividiendo el período en partes iguales — sin depender del número exacto de días
+function getPayCycles(from, to, freq) {
+  const d1 = new Date(from + 'T12:00:00');
+  const d2 = new Date(to   + 'T12:00:00');
+  const fmt = d => d.toISOString().slice(0,10);
+  const n = freq === 'weekly' ? 4 : freq === 'biweekly' ? 2 : 1;
+  const totalMs = d2.getTime() - d1.getTime();
+  return Array.from({length: n}, (_, i) => {
+    const sf = new Date(d1.getTime() + Math.round(totalMs * i / n));
+    const st = i === n - 1 ? new Date(d2) : new Date(d1.getTime() + Math.round(totalMs * (i + 1) / n) - 86400000);
+    return { from: fmt(sf), to: fmt(st) };
+  });
+}
+
+// Matching por posición: el 1er pago (ordenado por fecha) cubre el 1er slot, etc.
+// Evita cualquier ambigüedad de overlap de fechas
+function matchCyclePayments(payments, cycles) {
+  const sorted = [...(payments||[])].sort((a,b) => a.period_from.localeCompare(b.period_from));
+  return cycles.map((cycle, i) => ({ cycle, payment: sorted[i] || null }));
+}
+
+// Calcula neto de un slot: base = mensual/N, daily = mensual*12/365.25
+function calcCycleNet(r, cycleFrom, cycleTo, today) {
+  const n = r.payment_freq === 'weekly' ? 4 : r.payment_freq === 'biweekly' ? 2 : 1;
+  const base = (r.monthly_salary||0) / n;
+  const dailyRate = (r.monthly_salary||0) * 12 / 365.25;
+  const faltas = (r.days||[]).filter(d =>
+    (d.status==='falta'||d.status==='no_disponible') && d.date>=cycleFrom && d.date<=cycleTo && d.date<=today
+  ).length;
+  return Math.max(0, parseFloat((base - dailyRate * faltas).toFixed(2)));
+}
+
+function renderNominaReport(rows, dates, freq, paymentsMap, from, to) {
+  paymentsMap = paymentsMap || {};
+  const wrap = document.getElementById('nom-report-wrap');
+  if (!rows.length) {
+    wrap.innerHTML = '<div class="empty" style="margin:32px auto"><p>Sin resultados en el período</p></div>';
+    document.getElementById("nom-report-summary").style.display = "none";
+    return;
+  }
+  const AS = {
+    a_tiempo:     {bg:'#dcfce7',fg:'#166534'},
+    retardo:      {bg:'#fef9c3',fg:'#92400e'},
+    falta:        {bg:'#fee2e2',fg:'#991b1b'},
+    descanso:     {bg:'#f3f4f6',fg:'#6b7280'},
+    vacaciones:   {bg:'#dbeafe',fg:'#1e40af'},
+    desviacion:   {bg:'#ede9fe',fg:'#6d28d9'},
+    disponible:   {bg:'#ccfbf1',fg:'#0f766e'},
+    no_disponible:{bg:'#fee2e2',fg:'#991b1b'},
+    no_aplica:    {bg:'transparent',fg:'#d1d5db'},
+  };
+  const AI = {a_tiempo:'A',retardo:'R',falta:'F',descanso:'DC',vacaciones:'V',desviacion:'D',disponible:'DB',no_disponible:'NDB',no_aplica:'-'};
+  const PAID = new Set(['a_tiempo','retardo','descanso','vacaciones','desviacion','disponible']);
+  const FL = {weekly:'Sem',biweekly:'Quin',monthly:'Mens'};
+  const H  = 'background:#1e3a8a;color:#fff;font-weight:700;padding:5px 4px;border:1px solid #1e3a8a;font-size:11px;text-align:center';
+  const HS = H+';position:sticky;left:0;z-index:2';
+  const T  = 'border:1px solid #e5e7eb;padding:4px 6px;font-size:11px;white-space:nowrap';
+  const TS = T+';position:sticky;left:0;background:var(--bg);z-index:1;font-weight:600';
+  const TCOLS = 4 + dates.length + 7;
+  const BTNPAY  = 'font-size:10px;padding:2px 8px;border-radius:3px;cursor:pointer;border:none;background:#059669;color:#fff;font-weight:600';
+  const BTNPAY2 = 'font-size:10px;padding:2px 8px;border-radius:3px;cursor:pointer;border:none;background:#d97706;color:#fff;font-weight:600;margin-top:2px';
+  const BTNUNDO = 'font-size:9px;padding:1px 5px;border-radius:3px;cursor:pointer;border:1px solid #d1fae5;background:transparent;color:#065f46;margin-top:1px';
+  const dateHeads = dates.map(d => {
+    const dt = new Date(d+'T12:00:00');
+    return `<th style="${H};min-width:36px" title="${d}">${dt.getDate().toString().padStart(2,'0')}<br><span style="font-weight:400;font-size:9px;opacity:.8">${['D','L','M','X','J','V','S'][dt.getDay()]}</span></th>`;
+  });
+  const _today = new Date().toISOString().slice(0,10);
+
+  // Pre-calcular neto pendiente (no pagado) por empleado
+  const pendingMap = {};
+  rows.forEach(r => {
+    const cyc = getPayCycles(from, to, r.payment_freq);
+    const mat = matchCyclePayments(paymentsMap[r.id]||[], cyc);
+    pendingMap[r.id] = parseFloat(mat.reduce((sum,cm,i) => cm.payment ? sum : sum + calcCycleNet(r, cyc[i].from, cyc[i].to, _today), 0).toFixed(2));
+  });
+
+  const rowHtml = r => {
+    const empPayments = paymentsMap[r.id] || [];
+    const cycles = getPayCycles(from, to, r.payment_freq);
+    const cycleMatches = matchCyclePayments(empPayments, cycles);
+    const paidCount = cycleMatches.filter(cm => cm.payment).length;
+    const totalCycles = cycles.length;
+    const allPaid = paidCount === totalCycles;
+    const nonePaid = paidCount === 0;
+    const rowBg = allPaid ? 'background:#f0fdf4' : (paidCount > 0 ? 'background:#fffbeb' : '');
+
+    const cells = dates.map(d => {
+      const day    = r.days.find(x=>x.date===d);
+      const rawSt  = day?.status||'no_aplica';
+      const knownSt = rawSt in AS ? rawSt : 'no_aplica';
+      const st     = (knownSt==='falta' && d>_today) ? 'no_aplica' : knownSt;
+      const s      = AS[st]||AS.no_aplica;
+      const pay    = PAID.has(st) ? Math.round(r.daily_salary||0) : 0;
+      const payStr = st==='no_aplica' ? '' : (pay>0?'$'+pay:'$0');
+      return `<td style="background:${s.bg};color:${s.fg};text-align:center;padding:3px 2px;border:1px solid #e5e7eb;min-width:36px"><div style="font-weight:700;font-size:11px;line-height:1.3">${AI[st]||'-'}</div><div style="font-size:8px;opacity:.9">${payStr}</div></td>`;
+    });
+
+    // Construir celda Estado basada en ciclos
+    let statusTd;
+    if (allPaid) {
+      const undoBtns = cycleMatches.map(cm =>
+        `<button onclick="unmarkPaid(${cm.payment.id})" style="${BTNUNDO}" title="Quitar pago ${cm.cycle.from}–${cm.cycle.to}">↩ ${cm.cycle.from.slice(5)}</button>`
+      ).join(' ');
+      statusTd = `<td style="${T};text-align:center;background:#dcfce7;color:#166534;min-width:110px">
+        <div style="font-weight:700;font-size:11px">✓ Pagado</div>
+        <div style="font-size:9px;opacity:.75">${totalCycles > 1 ? totalCycles+' ciclos' : cycleMatches[0]?.payment?.payment_date||''}</div>
+        <div style="margin-top:2px">${undoBtns}</div>
+      </td>`;
+    } else if (paidCount > 0) {
+      // Parcialmente pagado — mostrar qué ciclos faltan y cuánto queda
+      const pendingAmt = pendingMap[r.id]||0;
+      const unpaidCycles = cycleMatches.filter(cm => !cm.payment).map(cm => cm.cycle);
+      const unpaidPayload = JSON.stringify(unpaidCycles.map(c => c.from+'|'+c.to));
+      const undoBtns = cycleMatches.filter(cm => cm.payment).map(cm =>
+        `<button onclick="unmarkPaid(${cm.payment.id})" style="${BTNUNDO}" title="Quitar ${cm.cycle.from}–${cm.cycle.to}">↩ ${cm.cycle.from.slice(5)}</button>`
+      ).join(' ');
+      statusTd = `<td style="${T};text-align:center;background:#fef9c3;color:#92400e;min-width:110px">
+        <div style="font-weight:700;font-size:11px">${paidCount}/${totalCycles} pagados</div>
+        <div style="font-size:9px;margin-top:1px">Pendiente: $${pendingAmt.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+        <div style="margin-top:2px">${undoBtns}</div>
+        <button onclick="markCycles(${r.id},'${r.payment_freq}',${unpaidPayload})" style="${BTNPAY2}">Pagar $${pendingAmt.toLocaleString('es-MX',{minimumFractionDigits:2})}</button>
+      </td>`;
+    } else {
+      const pendingAmt = pendingMap[r.id]||0;
+      statusTd = `<td style="${T};text-align:center;min-width:90px">
+        <button onclick="markAsPaid([${r.id}],'${from}','${to}','${r.payment_freq}')" style="${BTNPAY}">Pagar $${pendingAmt.toLocaleString('es-MX',{minimumFractionDigits:2})}</button>
+      </td>`;
+    }
+
+    return `<tr style="${rowBg}">
+      <td style="${TS};min-width:150px">${r.name} ${r.last_name}</td>
+      <td style="${T};color:var(--muted)">${r.department_name||'—'}</td>
+      <td style="${T};text-align:center">${FL[r.payment_freq]||r.payment_freq}</td>
+      <td style="${T};text-align:right">$${(r.daily_salary||0).toFixed(2)}</td>
+      ${cells.join('')}
+      <td style="${T};text-align:center;font-weight:700;color:#059669">${r.worked_days}</td>
+      <td style="${T};text-align:center;${r.absences>0?'color:var(--red);font-weight:700':''}">${r.absences>0?'⚠ ':''}${r.absences}</td>
+      <td style="${T};text-align:center;color:#059669">${r.leave_days>0?'✓ '+r.leave_days:'—'}</td>
+      <td style="${T};text-align:right">$${(r.period_salary||0).toLocaleString('es-MX',{minimumFractionDigits:2})}</td>
+      <td style="${T};text-align:right;color:var(--red)">${r.deductions>0?'-$'+r.deductions.toLocaleString('es-MX',{minimumFractionDigits:2}):'—'}</td>
+      <td style="${T};text-align:right;font-weight:700;color:var(--green)">$${(r.net_salary||0).toLocaleString('es-MX',{minimumFractionDigits:2})}</td>
+      ${statusTd}
+    </tr>`;
+  };
+
+  // Cuenta cuántos empleados de un grupo tienen TODOS sus ciclos pagados
+  const fullyPaidCount = grpRows => grpRows.filter(r => {
+    const cycles = getPayCycles(from, to, r.payment_freq);
+    const matches = matchCyclePayments(paymentsMap[r.id]||[], cycles);
+    return matches.every(cm => cm.payment);
+  }).length;
+
+  const secHdr = (label, color, n, sub, grpRows) => {
+    const pc = fullyPaidCount(grpRows);
+    const freqKey = grpRows[0]?.payment_freq||'';
+    const unpaidIds = grpRows.filter(r => {
+      const cycles = getPayCycles(from, to, r.payment_freq);
+      return !matchCyclePayments(paymentsMap[r.id]||[], cycles).every(cm => cm.payment);
+    }).map(r => r.id);
+    const payBtn = unpaidIds.length > 0
+      ? `<button onclick="markAsPaid(${JSON.stringify(unpaidIds)},'${from}','${to}','${freqKey}')" style="font-size:10px;padding:2px 10px;border-radius:3px;cursor:pointer;border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.15);color:#fff;font-weight:600;margin-left:10px">Marcar todos pagados (${unpaidIds.length})</button>`
+      : `<span style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:3px;margin-left:10px">✓ Todos pagados</span>`;
+    return `<tr><td colspan="${TCOLS}" style="background:${color};color:#fff;font-weight:700;padding:7px 14px;font-size:12px">${label} &nbsp;·&nbsp; ${n} empleado${n!==1?'s':''} &nbsp;·&nbsp; Subtotal: $${sub.toLocaleString('es-MX',{minimumFractionDigits:2})} &nbsp;·&nbsp; ${pc}/${n} pagados ${payBtn}</td></tr>`;
+  };
+
+  let bodyHtml = '', totalPending = 0;
+  if (!freq) {
+    const grp = {weekly:[],biweekly:[],monthly:[]};
+    rows.forEach(r => { (grp[r.payment_freq]||grp.monthly).push(r); });
+    [{key:'weekly',label:'Nómina Semanal',color:'#1e40af'},
+     {key:'biweekly',label:'Nómina Quincenal',color:'#065f46'},
+     {key:'monthly',label:'Nómina Mensual',color:'#7c3aed'}
+    ].forEach(({key,label,color}) => {
+      const g = grp[key]; if (!g.length) return;
+      const sub = g.reduce((s,r)=>s+(pendingMap[r.id]||0),0); totalPending += sub;
+      bodyHtml += secHdr(label,color,g.length,sub,g) + g.map(rowHtml).join('');
+      bodyHtml += `<tr style="background:rgba(0,0,0,.04)"><td colspan="${4+dates.length+3}" style="text-align:right;font-size:11px;font-weight:700;color:var(--muted);padding:5px 10px;border:1px solid #e5e7eb">Pendiente ${label}:</td><td colspan="4" style="text-align:right;font-weight:700;color:var(--green);padding:5px 8px;border:1px solid #e5e7eb">$${sub.toLocaleString('es-MX',{minimumFractionDigits:2})}</td></tr>`;
+    });
+  } else {
+    rows.forEach(r => totalPending += pendingMap[r.id]||0);
+    bodyHtml = rows.map(rowHtml).join('');
+  }
+  bodyHtml += `<tr style="background:var(--accent-bg)"><td colspan="${4+dates.length+3}" style="text-align:right;font-weight:700;font-size:12px;padding:8px 12px;border:1px solid var(--border);color:var(--accent)">TOTAL PENDIENTE:</td><td colspan="4" style="text-align:right;font-weight:800;font-size:14px;color:var(--accent);padding:8px 10px;border:1px solid var(--border)">$${totalPending.toLocaleString('es-MX',{minimumFractionDigits:2})}</td></tr>`;
+  const thead = `<tr><th style="${HS};min-width:150px">Empleado</th><th style="${H}">Área</th><th style="${H}">Frec.</th><th style="${H}">$/día</th>${dateHeads.join('')}<th style="${H}">Trab.</th><th style="${H}">Faltas</th><th style="${H}">Vac.</th><th style="${H}">Sal.período</th><th style="${H}">Deduc.</th><th style="${H}">Neto</th><th style="${H}">Estado</th></tr>`;
+  wrap.innerHTML = `<div style="overflow-x:auto;max-width:100%"><table class="table" style="min-width:max-content;border-collapse:collapse"><thead>${thead}</thead><tbody id="nom-report-body">${bodyHtml}</tbody></table></div>`;
+  document.getElementById("nom-total-net").textContent = "$"+totalPending.toLocaleString("es-MX",{minimumFractionDigits:2});
+  document.getElementById("nom-report-summary").style.display = "block";
+}
+
+// Pagar empleados: crea un registro por ciclo no cubierto dentro de [from, to]
+async function markAsPaid(empIds, from, to, payFreq) {
+  const payments = [];
+  for (const id of empIds) {
+    const row = (_nomRows||[]).find(r => r.id === id);
+    const freq = payFreq || row?.payment_freq || 'monthly';
+    const cycles = getPayCycles(from, to, freq);
+    const existing = _nomPayments[id] || [];
+    const matches = matchCyclePayments(existing, cycles);
+    const today = new Date().toISOString().slice(0,10);
+    for (const cm of matches) {
+      if (!cm.payment) {
+        const cycleNet = row ? calcCycleNet(row, cm.cycle.from, cm.cycle.to, today) : 0;
+        payments.push({ employee_id: id, period_from: cm.cycle.from, period_to: cm.cycle.to, amount: cycleNet, payment_freq: freq });
+      }
+    }
+  }
+  if (!payments.length) { showToast('Sin ciclos pendientes','info'); return; }
+  const res = await apiNomina('/api/payroll/payments', { method:'POST', body: JSON.stringify({ payments }) });
+  if (res?.ok) loadNominaReport();
+  else showToast('Error al registrar pago','error');
+}
+
+// Pagar ciclos específicos (desde botón "Pagar restantes")
+async function markCycles(empId, payFreq, cycleList) {
+  const row = (_nomRows||[]).find(r => r.id === empId);
+  const today = new Date().toISOString().slice(0,10);
+  const payments = cycleList.map(cycleStr => {
+    const [cf, ct] = cycleStr.split('|');
+    const amount = row ? calcCycleNet(row, cf, ct, today) : 0;
+    return { employee_id: empId, period_from: cf, period_to: ct, amount, payment_freq: payFreq };
+  });
+  const res = await apiNomina('/api/payroll/payments', { method:'POST', body: JSON.stringify({ payments }) });
+  if (res?.ok) loadNominaReport();
+  else showToast('Error al registrar pago','error');
+}
+
+async function unmarkPaid(paymentId) {
+  const res = await apiNomina(`/api/payroll/payments/${paymentId}`, { method:'DELETE' });
+  if (res?.ok) loadNominaReport();
+  else showToast('Error al quitar pago','error');
+}
+
+function exportNominaExcel() {
+  if (!_nomRows?.length) { showToast("Genera el reporte primero","error"); return; }
+  const from = document.getElementById("nom-from").value;
+  const to   = document.getElementById("nom-to").value;
+  const FL = {weekly:'Semanal',biweekly:'Quincenal',monthly:'Mensual'};
+  const AI = {a_tiempo:'A',retardo:'R',falta:'F',descanso:'DC',vacaciones:'V',desviacion:'D',no_aplica:'-'};
+  let html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel'>
+  <head><meta charset='UTF-8'><style>
+    th{background:#1D4ED8;color:#fff;font-weight:bold;border:1px solid #93c5fd;padding:8px}
+    td{border:1px solid #ddd;padding:6px}
+    tr:nth-child(even) td{background:#EFF6FF}
+    .red td{background:#FEE2E2}
+    .sec td{background:#1e3a8a;color:#fff;font-weight:bold}
+  </style></head><body>
+  <h3>Reporte de Nómina ${from} al ${to}</h3>
+  <table><tr>
+    <th>Empleado</th><th>Área</th><th>Frec.</th><th>$/día</th>
+    ${_nomDates.map(d=>`<th>${d.slice(5)}</th>`).join('')}
+    <th>Trabajados</th><th>Faltas</th><th>Vac.</th><th>Sal.período</th><th>Deducciones</th><th>Neto</th>
+  </tr>`;
+  const grpOrder = _nomFreq ? null : ['weekly','biweekly','monthly'];
+  const grpLabel = {weekly:'Nómina Semanal',biweekly:'Nómina Quincenal',monthly:'Nómina Mensual'};
+  const TCOLS = 4 + _nomDates.length + 6;
+  const writeRows = rows => rows.forEach(r => {
+    const dayCells = _nomDates.map(d => {
+      const day = r.days.find(x=>x.date===d);
+      return `<td>${AI[day?.status||'no_aplica']||'-'}</td>`;
+    });
+    html += `<tr class="${r.absences>0?'red':''}">
+      <td>${r.name} ${r.last_name}</td><td>${r.department_name||'—'}</td>
+      <td>${FL[r.payment_freq]||r.payment_freq}</td><td>$${(r.daily_salary||0).toFixed(2)}</td>
+      ${dayCells.join('')}
+      <td>${r.worked_days}</td><td>${r.absences}</td><td>${r.leave_days||0}</td>
+      <td>$${(r.period_salary||0).toLocaleString('es-MX',{minimumFractionDigits:2})}</td>
+      <td>$${(r.deductions||0).toLocaleString('es-MX',{minimumFractionDigits:2})}</td>
+      <td>$${(r.net_salary||0).toLocaleString('es-MX',{minimumFractionDigits:2})}</td>
+    </tr>`;
+  });
+  if (grpOrder) {
+    const grp = {weekly:[],biweekly:[],monthly:[]};
+    _nomRows.forEach(r => { (grp[r.payment_freq]||grp.monthly).push(r); });
+    grpOrder.forEach(k => {
+      if (!grp[k].length) return;
+      const sub = grp[k].reduce((s,r)=>s+(r.net_salary||0),0);
+      html += `<tr class="sec"><td colspan="${TCOLS}">${grpLabel[k]} — ${grp[k].length} empleados — Subtotal: $${sub.toLocaleString('es-MX',{minimumFractionDigits:2})}</td></tr>`;
+      writeRows(grp[k]);
+    });
+  } else { writeRows(_nomRows); }
+  const total = _nomRows.reduce((s,r)=>s+(r.net_salary||0),0);
+  html += `<tr><td colspan="${TCOLS}" style="text-align:right;font-weight:bold">TOTAL: $${total.toLocaleString('es-MX',{minimumFractionDigits:2})}</td></tr>`;
+  html += `</table></body></html>`;
+  const blob = new Blob([html], {type:"application/vnd.ms-excel"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `nomina-${from}-${to}.xls`;
+  a.click();
+}
+
+// ── TRANSFERS ─────────────────────────────────────────
+async function loadTransfers() {
+  const rows = await apiFetch("/api/transfers");
+  if (!Array.isArray(rows)) return;
+  const statusLabel = { pending:"Pendiente", confirmed:"Confirmada", rejected:"Rechazada", forced:"Forzada (admin)" };
+  const statusColor = { pending:"var(--amber)", confirmed:"var(--green)", rejected:"var(--red)", forced:"var(--accent)" };
+  document.getElementById("transfers-body").innerHTML = rows.map(t => `
+    <tr>
+      <td>${t.emp_name} ${t.emp_last}</td>
+      <td>${t.from_team_name||"—"}</td>
+      <td>${t.to_team_name}</td>
+      <td>${t.req_by_name?t.req_by_name+" "+t.req_by_last:"Admin"}</td>
+      <td style="color:${statusColor[t.status]||"inherit"};font-weight:600">${statusLabel[t.status]||t.status}</td>
+      <td>${t.requested_at?.slice(0,10)||"—"}</td>
+      <td>
+        ${t.status==="pending"?`
+          <button class="btn btn-sm" style="background:var(--green-bg,#dcfce7);color:var(--green)" onclick="actionTransfer(${t.id},'confirm')">Confirmar</button>
+          <button class="btn btn-sm" style="background:var(--red-bg,#fee2e2);color:var(--red)" onclick="actionTransfer(${t.id},'reject')">Rechazar</button>
+        `:"—"}
+      </td>
+    </tr>
+  `).join("") || `<tr><td colspan="7" style="text-align:center;color:var(--muted)">Sin transferencias</td></tr>`;
+}
+
+async function actionTransfer(id, action) {
+  await apiFetch(`/api/transfers/${id}/${action}`, { method:"PUT" });
+  loadTransfers();
+  showToast(action==="confirm"?"Transferencia confirmada":"Transferencia rechazada");
+}
+
+let _transferTeams = [], _transferEmployees = [];
+
+async function openTransferModal() {
+  const modal = document.getElementById("transfer-modal");
+  modal.classList.add("open");
+  const [emps, teams] = await Promise.all([
+    apiFetch("/api/employees"),
+    apiFetch("/api/teams"),
+  ]);
+  _transferEmployees = emps||[];
+  _transferTeams = teams||[];
+  const empSel = document.getElementById("tr-employee");
+  const teamSel = document.getElementById("tr-to-team");
+  empSel.innerHTML = `<option value="">Selecciona empleado...</option>` + _transferEmployees.filter(e=>e.active).map(e=>`<option value="${e.id}">${e.name} ${e.last_name}</option>`).join("");
+  teamSel.innerHTML = `<option value="">Selecciona equipo destino...</option>` + _transferTeams.map(t=>`<option value="${t.id}">${t.name}</option>`).join("");
+}
+
+function closeTransferModal() {
+  document.getElementById("transfer-modal").classList.remove("open");
+}
+
+async function submitTransfer() {
+  const employee_id = document.getElementById("tr-employee").value;
+  const to_team_id  = document.getElementById("tr-to-team").value;
+  const notes       = document.getElementById("tr-notes").value;
+  const force       = document.getElementById("tr-force").checked;
+  if (!employee_id||!to_team_id) { showToast("Selecciona empleado y equipo destino","error"); return; }
+  await apiFetch("/api/transfers", { method:"POST", body:JSON.stringify({employee_id:+employee_id, to_team_id:+to_team_id, notes, force}) });
+  closeTransferModal();
+  loadTransfers();
+  showToast(force?"Transferencia aplicada":"Solicitud enviada");
+}
 </script>
 </body>
 </html>
