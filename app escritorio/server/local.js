@@ -2,6 +2,7 @@ const express    = require("express");
 const path       = require("path");
 const fs         = require("fs");
 const bcrypt     = require("bcryptjs");
+const crypto     = require("crypto");
 const { LOCAL_PORT } = require("../config");
 const DB         = require("./db");
 
@@ -11,6 +12,11 @@ let dataDir        = null;
 let sseClients     = new Set();
 
 app.use(express.json({ limit: "10mb" })); // allow base64 image uploads
+// Serve index.html with no-cache so browser always picks up new version after update
+app.get("/", (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 app.use(express.static(path.join(__dirname, "public")));
 // Serve app icon at /assets/icon.png
 app.use("/assets", express.static(path.join(__dirname, "..", "assets")));
@@ -18,7 +24,7 @@ app.use("/assets", express.static(path.join(__dirname, "..", "assets")));
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type,x-auth-token,x-device-id");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type,x-auth-token,x-device-id,x-nomina-token,x-api-key");
   if (req.method === "OPTIONS") return res.sendStatus(200);
   next();
 });
@@ -43,6 +49,313 @@ function nowMX() {
 app.get("/",           (req, res) => res.redirect("/api/status"));
 const APP_VERSION = require('../package.json').version;
 app.get("/api/status", (req, res) => res.json({ app: "D-CLOCK", version: APP_VERSION, status: "active", timestamp: new Date().toISOString() }));
+
+// ── Auto-update (triggered desde panel web) ───────────
+app.post("/api/system/update", auth, async (req, res) => {
+  if (typeof global.triggerUpdate !== "function") {
+    return res.status(503).json({ error: "Auto-updater no disponible (modo desarrollo)" });
+  }
+  const result = await global.triggerUpdate();
+  res.json(result);
+});
+
+app.get("/api/system/update-status", auth, (req, res) => {
+  res.json(global.updateState || { status: "idle", progress: 0, version: null, error: null });
+});
+
+// ── Nómina ────────────────────────────────────────────
+app.post("/api/nomina/unlock", auth, (req, res) => {
+  const { password } = req.body;
+  const hash = DB.getDb().prepare("SELECT value FROM config WHERE key='nomina_password_hash'").get()?.value;
+  if (!hash || !bcrypt.compareSync(password, hash)) {
+    return res.status(401).json({ error: "Contraseña incorrecta" });
+  }
+  const token = crypto.randomBytes(24).toString("hex");
+  DB.getDb().prepare("INSERT OR REPLACE INTO config VALUES ('nomina_session',?)").run(token);
+  res.json({ token });
+});
+
+function nominaAuth(req, res, next) {
+  const token = req.headers["x-nomina-token"];
+  if (!token) return res.status(401).json({ error: "Se requiere acceso a nómina" });
+  const stored = DB.getDb().prepare("SELECT value FROM config WHERE key='nomina_session'").get()?.value;
+  if (token !== stored) return res.status(401).json({ error: "Token de nómina inválido" });
+  next();
+}
+
+app.post("/api/nomina/reset-password", auth, (req, res) => {
+  const plain = DB.resetNominaPassword();
+  // Invalidate existing nomina sessions
+  DB.getDb().prepare("DELETE FROM config WHERE key='nomina_session'").run();
+  res.json({ ok: true, password: plain });
+});
+
+app.get("/api/nomina/password", auth, (req, res) => {
+  res.json({ password: DB.getNominaPassword() });
+});
+
+app.get("/api/nomina/employees", auth, nominaAuth, (req, res) => {
+  const db = DB.getDb();
+  const rows = db.prepare(`
+    SELECT e.id, e.employee_number, e.name, e.last_name, e.department_id,
+           d.name as department_name,
+           COALESCE(pc.monthly_salary, 0) as monthly_salary,
+           COALESCE(pc.payment_freq, 'monthly') as payment_freq
+    FROM employees e
+    LEFT JOIN departments d ON e.department_id = d.id
+    LEFT JOIN payroll_config pc ON pc.employee_id = e.id
+    WHERE e.active = 1
+    ORDER BY e.name, e.last_name
+  `).all();
+  res.json(rows);
+});
+
+app.put("/api/nomina/employees/:id", auth, nominaAuth, (req, res) => {
+  const { monthly_salary, payment_freq } = req.body;
+  const db = DB.getDb();
+  db.prepare(`INSERT INTO payroll_config (employee_id, monthly_salary, payment_freq, updated_at)
+    VALUES (?, ?, ?, datetime('now','localtime'))
+    ON CONFLICT(employee_id) DO UPDATE SET monthly_salary=excluded.monthly_salary, payment_freq=excluded.payment_freq, updated_at=excluded.updated_at
+  `).run(req.params.id, monthly_salary || 0, payment_freq || 'monthly');
+  res.json({ ok: true });
+});
+
+app.get("/api/nomina/report", auth, nominaAuth, (req, res) => {
+  const { from, to, freq } = req.query;
+  if (!from || !to) return res.status(400).json({ error: "from y to requeridos" });
+  const db = DB.getDb();
+  let empQuery = `
+    SELECT e.id, e.employee_number, e.name, e.last_name,
+           d.name as department_name,
+           COALESCE(pc.monthly_salary, 0) as monthly_salary,
+           COALESCE(pc.payment_freq, 'monthly') as payment_freq
+    FROM employees e
+    LEFT JOIN departments d ON e.department_id = d.id
+    LEFT JOIN payroll_config pc ON pc.employee_id = e.id
+    WHERE e.active = 1`;
+  if (freq) { empQuery += ` AND COALESCE(pc.payment_freq,'monthly')=?`; }
+  empQuery += ` ORDER BY e.name, e.last_name`;
+  const employees = freq ? db.prepare(empQuery).all(freq) : db.prepare(empQuery).all();
+
+  // Paid-absent from approved vacation_requests (days in period, excl. worked days)
+  const vacPaidStmt = db.prepare(`
+    SELECT COALESCE(SUM(
+      CAST(MIN(julianday(?), julianday(end_date)) - MAX(julianday(?), julianday(start_date)) + 1 AS INTEGER)
+    ), 0) as n
+    FROM vacation_requests
+    WHERE employee_id=? AND status='approved' AND start_date<=? AND end_date>=?
+  `);
+  // Paid-absent from schedule assignments (descanso/incapacidad/vacaciones) that had no check-in
+  const schedPaidStmt = db.prepare(`
+    SELECT COUNT(DISTINCT sa.date) as n
+    FROM schedule_assignments sa
+    JOIN schedules s ON sa.schedule_id=s.id
+    WHERE sa.employee_id=? AND sa.date BETWEEN ? AND ?
+    AND s.type IN ('descanso','incapacidad','vacaciones')
+    AND NOT EXISTS (
+      SELECT 1 FROM check_ins ci
+      WHERE ci.employee_id=sa.employee_id AND date(ci.timestamp)=sa.date
+    )
+  `);
+
+  const rows = employees.map(emp => {
+    // Total calendar days in period — must be defined first
+    const d1 = new Date(from + 'T12:00:00');
+    const d2 = new Date(to + 'T12:00:00');
+    const totalDays = Math.round((d2 - d1) / (24 * 3600 * 1000)) + 1;
+
+    // Days with at least one check-in
+    const workedDays = db.prepare(`
+      SELECT COUNT(DISTINCT date(timestamp)) as n FROM check_ins
+      WHERE employee_id=? AND date(timestamp) BETWEEN ? AND ?
+    `).get(emp.id, from, to)?.n || 0;
+
+    // Paid absent days: vacation_requests + schedule (descanso/incapacidad/vacaciones)
+    const vacDays  = vacPaidStmt.get(to, from, emp.id, to, from)?.n || 0;
+    const schedDays = schedPaidStmt.get(emp.id, from, to)?.n || 0;
+    // Cap at actual absent days to prevent double-counting
+    const paidLeaveDays = Math.min(vacDays + schedDays, totalDays - workedDays);
+
+    // Effective paid days = worked + approved leave (capped at totalDays)
+    const paidDays = Math.min(workedDays + paidLeaveDays, totalDays);
+    const absences = totalDays - paidDays;
+
+    const dailySalary = parseFloat((emp.monthly_salary / 30).toFixed(2));
+    let periodBase;
+    if (emp.payment_freq === 'weekly')         periodBase = parseFloat((emp.monthly_salary / 4).toFixed(2));
+    else if (emp.payment_freq === 'biweekly')  periodBase = parseFloat((emp.monthly_salary / 2).toFixed(2));
+    else                                        periodBase = parseFloat((dailySalary * totalDays).toFixed(2));
+    const earnedSalary = totalDays > 0 ? parseFloat((periodBase * paidDays / totalDays).toFixed(2)) : 0;
+    const periodSalary = periodBase;
+    const deductions = parseFloat((periodSalary - earnedSalary).toFixed(2));
+
+    return {
+      ...emp,
+      worked_days: workedDays,
+      leave_days: paidLeaveDays,
+      total_days: totalDays,
+      absences,
+      daily_salary: parseFloat(dailySalary.toFixed(2)),
+      period_salary: periodSalary,
+      earned_salary: earnedSalary,
+      deductions,
+      net_salary: earnedSalary,
+    };
+  });
+  res.json({ from, to, rows, total_net: rows.reduce((s, r) => s + r.net_salary, 0) });
+});
+
+// ── Payroll payments ──────────────────────────────────
+app.get("/api/payroll/payments", auth, nominaAuth, (req, res) => {
+  const { from, to } = req.query;
+  if (!from || !to) return res.status(400).json({ error: "from y to requeridos" });
+  const rows = DB.getDb().prepare(
+    "SELECT pp.*, e.name, e.last_name FROM payroll_payments pp JOIN employees e ON e.id=pp.employee_id WHERE pp.period_from <= ? AND pp.period_to >= ? ORDER BY pp.payment_date ASC"
+  ).all(to, from);
+  res.json(rows);
+});
+
+app.post("/api/payroll/payments", auth, nominaAuth, (req, res) => {
+  const { payments } = req.body;
+  if (!Array.isArray(payments) || !payments.length) return res.status(400).json({ error: "payments[] requerido" });
+  const today = new Date().toISOString().slice(0, 10);
+  const db = DB.getDb();
+  const stmt = db.prepare("INSERT INTO payroll_payments (employee_id,period_from,period_to,payment_date,amount,payment_freq) VALUES (?,?,?,?,?,?)");
+  const ids = [];
+  db.transaction(() => {
+    for (const p of payments) {
+      const exists = db.prepare("SELECT id FROM payroll_payments WHERE employee_id=? AND period_from=? AND period_to=?").get(p.employee_id, p.period_from, p.period_to);
+      if (!exists) {
+        const r = stmt.run(p.employee_id, p.period_from, p.period_to, today, p.amount || 0, p.payment_freq || null);
+        ids.push(r.lastInsertRowid);
+      }
+    }
+  })();
+  res.json({ ok: true, inserted: ids.length });
+});
+
+app.delete("/api/payroll/payments/:id", auth, nominaAuth, (req, res) => {
+  DB.getDb().prepare("DELETE FROM payroll_payments WHERE id=?").run(req.params.id);
+  res.json({ ok: true });
+});
+
+app.post("/api/standby", auth, (req, res) => {
+  const { employee_id, date, status, notes } = req.body;
+  if (!employee_id || !date) return res.status(400).json({ error: "employee_id y date requeridos" });
+  const db = DB.getDb();
+  if (status === 'disponible') {
+    db.prepare("DELETE FROM standby_records WHERE employee_id=? AND date=?").run(employee_id, date);
+  } else {
+    db.prepare("INSERT OR REPLACE INTO standby_records (employee_id,date,status,notes) VALUES (?,?,?,?)").run(employee_id, date, 'no_disponible', notes || null);
+  }
+  res.json({ ok: true });
+});
+
+app.get("/api/config/payroll", auth, (req, res) => {
+  const period_type = DB.getDb().prepare("SELECT value FROM config WHERE key='payroll_period_type'").get()?.value || 'calendar';
+  res.json({ period_type });
+});
+
+app.post("/api/config/payroll", auth, (req, res) => {
+  const { period_type } = req.body;
+  if (!['calendar', 'friday'].includes(period_type)) return res.status(400).json({ error: 'Tipo inválido' });
+  DB.getDb().prepare("INSERT OR REPLACE INTO config VALUES ('payroll_period_type',?)").run(period_type);
+  res.json({ ok: true });
+});
+
+// ── Team transfers ────────────────────────────────────
+app.get("/api/transfers", auth, (req, res) => {
+  const { status, employee_id } = req.query;
+  let sql = `SELECT t.*, e.name as emp_name, e.last_name as emp_last,
+    ft.name as from_team_name, tt.name as to_team_name,
+    rb.name as req_by_name, rb.last_name as req_by_last
+    FROM team_transfers t
+    JOIN employees e ON t.employee_id = e.id
+    LEFT JOIN teams ft ON t.from_team_id = ft.id
+    JOIN teams tt ON t.to_team_id = tt.id
+    LEFT JOIN employees rb ON t.requested_by = rb.id
+    WHERE 1=1`;
+  const params = [];
+  if (status) { sql += " AND t.status=?"; params.push(status); }
+  if (employee_id) { sql += " AND t.employee_id=?"; params.push(employee_id); }
+  sql += " ORDER BY t.requested_at DESC LIMIT 100";
+  res.json(DB.getDb().prepare(sql).all(...params));
+});
+
+app.post("/api/transfers", auth, (req, res) => {
+  const { employee_id, to_team_id, notes, force } = req.body;
+  const db = DB.getDb();
+  if (!db.prepare("SELECT id FROM employees WHERE id=?").get(employee_id))
+    return res.status(404).json({ error: "Empleado no encontrado" });
+
+  const fromTeam = db.prepare("SELECT team_id FROM team_members WHERE employee_id=? LIMIT 1").get(employee_id);
+  const from_team_id = fromTeam?.team_id || null;
+  const status = force ? 'forced' : 'pending';
+
+  const r = db.prepare(`INSERT INTO team_transfers (employee_id, from_team_id, to_team_id, requested_by, status, notes)
+    VALUES (?,?,?,?,?,?)`).run(employee_id, from_team_id, to_team_id, req.body.requested_by || null, status, notes || null);
+
+  if (force) {
+    if (from_team_id) db.prepare("DELETE FROM team_members WHERE employee_id=? AND team_id=?").run(employee_id, from_team_id);
+    db.prepare("INSERT OR IGNORE INTO team_members (team_id, employee_id) VALUES (?,?)").run(to_team_id, employee_id);
+    db.prepare("UPDATE team_transfers SET resolved_at=datetime('now','localtime') WHERE id=?").run(r.lastInsertRowid);
+  }
+  res.json({ id: r.lastInsertRowid, status });
+});
+
+app.put("/api/transfers/:id/:action", auth, (req, res) => {
+  const { action } = req.params;
+  const db = DB.getDb();
+  const t = db.prepare("SELECT * FROM team_transfers WHERE id=?").get(req.params.id);
+  if (!t) return res.status(404).json({ error: "Transferencia no encontrada" });
+  if (action === 'confirm') {
+    db.prepare("UPDATE team_transfers SET status='confirmed', confirmed_by=?, resolved_at=datetime('now','localtime') WHERE id=?")
+      .run(req.body.confirmed_by || null, t.id);
+    if (t.from_team_id) db.prepare("DELETE FROM team_members WHERE employee_id=? AND team_id=?").run(t.employee_id, t.from_team_id);
+    db.prepare("INSERT OR IGNORE INTO team_members (team_id, employee_id) VALUES (?,?)").run(t.to_team_id, t.employee_id);
+  } else if (action === 'reject') {
+    db.prepare("UPDATE team_transfers SET status='rejected', resolved_at=datetime('now','localtime') WHERE id=?").run(t.id);
+  }
+  res.json({ ok: true });
+});
+
+// ── Absence notes ─────────────────────────────────────
+app.get("/api/absence-notes", auth, (req, res) => {
+  const { employee_id, date, from, to } = req.query;
+  let sql = `SELECT n.*, e.name as emp_name, e.last_name as emp_last,
+    a.name as added_by_name, a.last_name as added_by_last
+    FROM absence_notes n
+    JOIN employees e ON n.employee_id = e.id
+    LEFT JOIN employees a ON n.added_by = a.id
+    WHERE 1=1`;
+  const params = [];
+  if (employee_id) { sql += " AND n.employee_id=?"; params.push(employee_id); }
+  if (date) { sql += " AND n.date=?"; params.push(date); }
+  if (from && to) { sql += " AND n.date BETWEEN ? AND ?"; params.push(from, to); }
+  sql += " ORDER BY n.date DESC, n.created_at DESC LIMIT 200";
+  res.json(DB.getDb().prepare(sql).all(...params));
+});
+
+app.post("/api/absence-notes", auth, (req, res) => {
+  const { employee_id, date, note, added_by } = req.body;
+  if (!employee_id || !date || !note) return res.status(400).json({ error: "employee_id, date y note requeridos" });
+  const r = DB.getDb().prepare("INSERT INTO absence_notes (employee_id,date,note,added_by) VALUES (?,?,?,?)")
+    .run(employee_id, date, note, added_by || null);
+  res.json({ id: r.lastInsertRowid });
+});
+
+app.put("/api/absence-notes/:id/status", auth, (req, res) => {
+  const { status } = req.body;
+  if (!['pending','accepted','rejected'].includes(status))
+    return res.status(400).json({ error: "status inválido" });
+  DB.getDb().prepare("UPDATE absence_notes SET status=? WHERE id=?").run(status, req.params.id);
+  res.json({ ok: true });
+});
+
+app.delete("/api/absence-notes/:id", auth, (req, res) => {
+  DB.getDb().prepare("DELETE FROM absence_notes WHERE id=?").run(req.params.id);
+  res.json({ ok: true });
+});
 
 // ── Info pública (para app móvil) ─────────────────────
 app.get("/api/info", (req, res) => {
@@ -132,8 +445,10 @@ function detectShift(checkinTimestamp, allSchedules) {
 }
 
 function calcAttendanceStatus(delta, tolerance, faltaMins) {
-  if (delta <= (tolerance || 15)) return 'a_tiempo';
-  if (delta <= (faltaMins || 60)) return 'retardo';
+  if (tolerance == null) return 'a_tiempo';        // sin retardo: cualquier check-in = presente
+  if (delta <= tolerance) return 'a_tiempo';
+  if (faltaMins == null) return 'retardo';          // retardo sin falta: nunca convierte a falta
+  if (delta <= faltaMins) return 'retardo';
   return 'falta';
 }
 
@@ -356,9 +671,11 @@ app.get("/api/schedules", auth, (req, res) => {
   res.json(DB.getDb().prepare("SELECT * FROM schedules ORDER BY name").all());
 });
 app.post("/api/schedules", auth, (req, res) => {
-  const { name, type, color, check_in_time, check_out_time, days, tolerance_minutes } = req.body;
+  const { name, type, color, check_in_time, check_out_time, days, tolerance_minutes, falta_minutes } = req.body;
+  const tol   = tolerance_minutes === undefined ? 15 : (tolerance_minutes === null ? null : Number(tolerance_minutes));
+  const falta = falta_minutes     === undefined ? 60 : (falta_minutes     === null ? null : Number(falta_minutes));
   const r = DB.getDb().prepare(
-    "INSERT INTO schedules (name,type,color,check_in_time,check_out_time,days,tolerance_minutes) VALUES (?,?,?,?,?,?,?)"
+    "INSERT INTO schedules (name,type,color,check_in_time,check_out_time,days,tolerance_minutes,falta_minutes) VALUES (?,?,?,?,?,?,?,?)"
   ).run(
     name,
     type  || "trabajo",
@@ -366,15 +683,18 @@ app.post("/api/schedules", auth, (req, res) => {
     check_in_time  || "09:00",
     check_out_time || "18:00",
     JSON.stringify(days || ["lun","mar","mie","jue","vie"]),
-    tolerance_minutes ?? 15
+    tol,
+    falta
   );
   res.json({ id: r.lastInsertRowid });
 });
 app.put("/api/schedules/:id", auth, (req, res) => {
-  const { name, type, color, check_in_time, check_out_time, days, tolerance_minutes } = req.body;
+  const { name, type, color, check_in_time, check_out_time, days, tolerance_minutes, falta_minutes } = req.body;
+  const tol   = tolerance_minutes === null ? null : Number(tolerance_minutes);
+  const falta = falta_minutes     === null ? null : Number(falta_minutes);
   DB.getDb().prepare(
-    "UPDATE schedules SET name=?,type=?,color=?,check_in_time=?,check_out_time=?,days=?,tolerance_minutes=? WHERE id=?"
-  ).run(name, type||"trabajo", color||"morning", check_in_time, check_out_time, JSON.stringify(days), tolerance_minutes, req.params.id);
+    "UPDATE schedules SET name=?,type=?,color=?,check_in_time=?,check_out_time=?,days=?,tolerance_minutes=?,falta_minutes=? WHERE id=?"
+  ).run(name, type||"trabajo", color||"morning", check_in_time, check_out_time, JSON.stringify(days), tol, falta, req.params.id);
   res.json({ ok: true });
 });
 app.delete("/api/schedules/:id", auth, (req, res) => {
@@ -442,12 +762,12 @@ app.get("/api/employees", auth, (req, res) => {
   res.json(rows.map(({ face_descriptor, ...r }) => ({ ...r, has_face: !!face_descriptor })));
 });
 app.post("/api/employees", auth, (req, res) => {
-  const { employee_number, name, last_name, email, phone, nss, curp, rfc, gender, birth_date, hire_date, address, department_id, area_id, job_title_id, schedule_id, geofence_id, pin, photo, is_admin } = req.body;
+  const { employee_number, name, last_name, email, phone, nss, curp, rfc, gender, birth_date, hire_date, address, department_id, area_id, job_title_id, schedule_id, geofence_id, pin, photo, is_admin, daily_salary, is_team_leader } = req.body;
   if (!employee_number || !name) return res.status(400).json({ error: "Número y nombre requeridos" });
   try {
     const r = DB.getDb().prepare(
-      "INSERT INTO employees (employee_number,name,last_name,email,phone,nss,curp,rfc,gender,birth_date,hire_date,address,department_id,area_id,job_title_id,schedule_id,geofence_id,pin,photo,is_admin) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-    ).run(employee_number, name, last_name||null, email||null, phone||null, nss||null, curp||null, rfc||null, gender||null, birth_date||null, hire_date||null, address||null, department_id||null, area_id||null, job_title_id||null, schedule_id||null, geofence_id||null, pin||null, photo||null, is_admin?1:0);
+      "INSERT INTO employees (employee_number,name,last_name,email,phone,nss,curp,rfc,gender,birth_date,hire_date,address,department_id,area_id,job_title_id,schedule_id,geofence_id,pin,photo,is_admin,daily_salary,is_team_leader) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+    ).run(employee_number, name, last_name||null, email||null, phone||null, nss||null, curp||null, rfc||null, gender||null, birth_date||null, hire_date||null, address||null, department_id||null, area_id||null, job_title_id||null, schedule_id||null, geofence_id||null, pin||null, photo||null, is_admin?1:0, daily_salary||null, is_team_leader?1:0);
     res.json({ id: r.lastInsertRowid });
   } catch { res.status(400).json({ error: "El número de empleado ya existe" }); }
 });
@@ -457,10 +777,10 @@ app.get("/api/employees/:id", auth, (req, res) => {
   res.json(emp);
 });
 app.put("/api/employees/:id", auth, (req, res) => {
-  const { employee_number, name, last_name, email, phone, nss, curp, rfc, gender, birth_date, hire_date, address, department_id, area_id, job_title_id, schedule_id, geofence_id, pin, photo, active, is_admin } = req.body;
+  const { employee_number, name, last_name, email, phone, nss, curp, rfc, gender, birth_date, hire_date, address, department_id, area_id, job_title_id, schedule_id, geofence_id, pin, photo, active, is_admin, daily_salary, is_team_leader } = req.body;
   DB.getDb().prepare(
-    "UPDATE employees SET employee_number=?,name=?,last_name=?,email=?,phone=?,nss=?,curp=?,rfc=?,gender=?,birth_date=?,hire_date=?,address=?,department_id=?,area_id=?,job_title_id=?,schedule_id=?,geofence_id=?,pin=?,photo=?,active=?,is_admin=? WHERE id=?"
-  ).run(employee_number, name, last_name||null, email||null, phone||null, nss||null, curp||null, rfc||null, gender||null, birth_date||null, hire_date||null, address||null, department_id||null, area_id||null, job_title_id||null, schedule_id||null, geofence_id||null, pin||null, photo||null, active?1:0, is_admin?1:0, req.params.id);
+    "UPDATE employees SET employee_number=?,name=?,last_name=?,email=?,phone=?,nss=?,curp=?,rfc=?,gender=?,birth_date=?,hire_date=?,address=?,department_id=?,area_id=?,job_title_id=?,schedule_id=?,geofence_id=?,pin=?,photo=?,active=?,is_admin=?,daily_salary=?,is_team_leader=? WHERE id=?"
+  ).run(employee_number, name, last_name||null, email||null, phone||null, nss||null, curp||null, rfc||null, gender||null, birth_date||null, hire_date||null, address||null, department_id||null, area_id||null, job_title_id||null, schedule_id||null, geofence_id||null, pin||null, photo||null, active?1:0, is_admin?1:0, daily_salary||null, is_team_leader?1:0, req.params.id);
   res.json({ ok: true });
 });
 app.patch("/api/employees/:id", auth, (req, res) => {
@@ -702,8 +1022,11 @@ app.get("/api/attendance-report", auth, (req, res) => {
     FROM check_ins WHERE type='salida' AND date(timestamp)>=? AND date(timestamp)<=?
     ORDER BY timestamp DESC
   `).all(from, to);
+  const standbys = db.prepare("SELECT * FROM standby_records WHERE date >= ? AND date <= ?").all(from, to);
   const overrideMap = {};
   for (const o of overrides) overrideMap[`${o.employee_id}_${o.date}`] = o;
+  const standbyMap = {};
+  for (const s of standbys) standbyMap[`${s.employee_id}_${s.date}`] = s;
   const checkinMap = {};
   for (const ci of checkins) { const k=`${ci.employee_id}_${ci.date}`; if(!checkinMap[k])checkinMap[k]=ci; }
   const checkoutMap = {};
@@ -719,8 +1042,17 @@ app.get("/api/attendance-report", auth, (req, res) => {
       }
       const ci = checkinMap[`${emp.id}_${date}`];
       let status = 'no_aplica', detectedShiftName = null, deviation = false;
+      // disponibilidad: no requiere checada, default = disponible (solo en días del horario)
+      if (expected.sched_type === 'disponibilidad') {
+        let shouldStandby = false;
+        if (expected.days) { try { shouldStandby = JSON.parse(expected.days).includes(dow); } catch {} }
+        if (shouldStandby) {
+          const rec = standbyMap[`${emp.id}_${date}`];
+          status = rec ? rec.status : 'disponible';
+        }
+        // días fuera del campo 'days' quedan como no_aplica
       // override explícito de tipo no-trabajo (descanso, vacaciones, incapacidad)
-      if (override && override.sched_type !== 'trabajo') {
+      } else if (override && override.sched_type !== 'trabajo') {
         status = override.sched_type || 'no_aplica';
       } else if (shouldWork) {
         if (!ci) { status = 'falta'; }
@@ -806,9 +1138,11 @@ function calcVacationBalance(db, employeeId, year) {
   const emp = db.prepare("SELECT hire_date FROM employees WHERE id=?").get(employeeId);
   let lft_days = 0;
   if (emp?.hire_date) {
-    const hired  = new Date(emp.hire_date + 'T12:00:00');
-    const refDate = new Date(year + '-12-31T12:00:00');
-    const years  = Math.floor((refDate - hired) / (365.25 * 24 * 3600 * 1000));
+    const hired    = new Date(emp.hire_date + 'T12:00:00');
+    const yearEnd  = new Date(year + '-12-31T12:00:00');
+    // Cap at today: don't count years not yet completed
+    const refDate  = yearEnd < new Date() ? yearEnd : new Date();
+    const years    = Math.floor((refDate - hired) / (365.25 * 24 * 3600 * 1000));
     lft_days = lftDaysForYears(years);
   }
   let bal = db.prepare("SELECT * FROM vacation_balances WHERE employee_id=? AND year=?").get(employeeId, year);
@@ -816,8 +1150,10 @@ function calcVacationBalance(db, employeeId, year) {
     db.prepare("INSERT INTO vacation_balances (employee_id,year,days_granted,days_used) VALUES (?,?,?,0)")
       .run(employeeId, year, lft_days);
     bal = db.prepare("SELECT * FROM vacation_balances WHERE employee_id=? AND year=?").get(employeeId, year);
-  } else if (lft_days > 0 && bal.days_granted < lft_days) {
-    // Registro existe pero LFT exige más días (ley reformada o hire_date tardío) — actualizar al mínimo legal
+  } else if (lft_days >= 0 && bal.days_granted !== lft_days && (
+      bal.days_granted < lft_days ||                           // LFT exige más → dar más
+      (bal.days_granted > lft_days && bal.days_used === 0)    // calculado de más (bug año-fin) y sin días usados → corregir
+    )) {
     db.prepare("UPDATE vacation_balances SET days_granted=? WHERE employee_id=? AND year=?")
       .run(lft_days, employeeId, year);
     bal = db.prepare("SELECT * FROM vacation_balances WHERE employee_id=? AND year=?").get(employeeId, year);
@@ -827,22 +1163,35 @@ function calcVacationBalance(db, employeeId, year) {
 
 app.get("/api/vacation/requests", auth, (req, res) => {
   const { status, employee_id } = req.query;
-  let sql = `SELECT vr.*, e.name, e.last_name, e.employee_number, e.photo
-             FROM vacation_requests vr JOIN employees e ON vr.employee_id=e.id WHERE 1=1`;
+  let sql = `SELECT vr.*, e.name, e.last_name, e.employee_number, e.photo, e.hire_date,
+             COALESCE(e.daily_salary, pc.monthly_salary/30.0) as daily_salary
+             FROM vacation_requests vr JOIN employees e ON vr.employee_id=e.id
+             LEFT JOIN payroll_config pc ON pc.employee_id=e.id WHERE 1=1`;
   const params = [];
   if (status) { sql += " AND vr.status=?"; params.push(status); }
   if (employee_id) { sql += " AND vr.employee_id=?"; params.push(employee_id); }
   sql += " ORDER BY vr.requested_at DESC";
-  res.json(DB.getDb().prepare(sql).all(...params));
+  const rows = DB.getDb().prepare(sql).all(...params);
+  // Attach prima_vacacional and art78_ok for each request
+  const db = DB.getDb();
+  rows.forEach(r => {
+    r.prima_vacacional = r.daily_salary ? Math.round(r.daily_salary * r.days_count * 0.25 * 100) / 100 : null;
+    // Art. 78: check if employee has any approved block of >= 12 days in this year
+    const reqYear = new Date(r.start_date).getFullYear();
+    const big = db.prepare(`SELECT COUNT(*) as c FROM vacation_requests WHERE employee_id=? AND status='approved' AND days_count>=12 AND strftime('%Y',start_date)=?`).get(r.employee_id, String(reqYear));
+    r.art78_ok = big.c > 0;
+  });
+  res.json(rows);
 });
 
 app.post("/api/vacation/requests", auth, (req, res) => {
-  const { employee_id, start_date, end_date, days_count, notes } = req.body;
+  const { employee_id, start_date, end_date, days_count, notes, type } = req.body;
   if (!employee_id || !start_date || !end_date || !days_count)
     return res.status(400).json({ error: "Datos incompletos" });
+  const validType = ['vacation','incapacidad','permiso'].includes(type) ? type : 'vacation';
   const r = DB.getDb().prepare(
-    "INSERT INTO vacation_requests (employee_id,start_date,end_date,days_count,notes) VALUES (?,?,?,?,?)"
-  ).run(employee_id, start_date, end_date, days_count, notes||null);
+    "INSERT INTO vacation_requests (employee_id,start_date,end_date,days_count,notes,type) VALUES (?,?,?,?,?,?)"
+  ).run(employee_id, start_date, end_date, days_count, notes||null, validType);
   res.json({ id: r.lastInsertRowid, ok: true });
 });
 
@@ -896,7 +1245,31 @@ app.get("/api/vacation/balance/:empId", auth, (req, res) => {
   const history = db.prepare(
     "SELECT * FROM vacation_requests WHERE employee_id=? ORDER BY requested_at DESC LIMIT 50"
   ).all(req.params.empId);
-  res.json({ balance: bal, history });
+  const emp = db.prepare(`SELECT e.hire_date, e.daily_salary, e.name, e.last_name, e.employee_number,
+    COALESCE(e.daily_salary, pc.monthly_salary/30.0) as effective_daily_salary
+    FROM employees e LEFT JOIN payroll_config pc ON pc.employee_id=e.id WHERE e.id=?`).get(req.params.empId);
+
+  // Art. 81: deadline = anniversary in `year` + 6 months
+  let deadline = null, years_of_service = 0, anniversary = null;
+  if (emp?.hire_date) {
+    const hired = new Date(emp.hire_date + 'T12:00:00');
+    const anniv = new Date(year, hired.getMonth(), hired.getDate());
+    anniversary = anniv.toISOString().slice(0, 10);
+    deadline = new Date(anniv); deadline.setMonth(deadline.getMonth() + 6);
+    deadline = deadline.toISOString().slice(0, 10);
+    const yearEnd = new Date(year + '-12-31T12:00:00');
+    const ref = yearEnd < new Date() ? yearEnd : new Date();
+    years_of_service = Math.floor((ref - hired) / (365.25 * 24 * 3600 * 1000));
+  }
+  // Art. 78: has any approved block >= 12 days this year?
+  const big12 = db.prepare(`SELECT COUNT(*) as c FROM vacation_requests WHERE employee_id=? AND status='approved' AND days_count>=12 AND strftime('%Y',start_date)=?`).get(req.params.empId, String(year));
+  const art78_ok = big12.c > 0;
+
+  // Prima vacacional (Art. 80) — use daily_salary or monthly_salary/30 from nómina
+  const eff = emp?.effective_daily_salary || null;
+  const prima_por_dia = eff ? Math.round(eff * 0.25 * 100) / 100 : null;
+
+  res.json({ balance: bal, history, hire_date: emp?.hire_date || null, daily_salary: eff, years_of_service, anniversary, deadline, art78_ok, prima_por_dia });
 });
 
 app.post("/api/vacation/balance/:empId", auth, (req, res) => {
@@ -957,6 +1330,11 @@ app.get("/api/notifications", auth, (req, res) => {
   res.json(rows);
 });
 
+app.get("/api/push-tokens", auth, (req, res) => {
+  const rows = DB.getDb().prepare("SELECT employee_id, platform, updated_at FROM push_tokens").all();
+  res.json(rows);
+});
+
 app.post("/api/notifications/send", auth, async (req, res) => {
   const { title, body, employee_ids } = req.body;
   if (!title || !body) return res.status(400).json({ error: "Título y mensaje requeridos" });
@@ -973,19 +1351,37 @@ app.post("/api/notifications/send", auth, async (req, res) => {
   const notifId = db.prepare("INSERT INTO notifications (title,body,employee_ids,sent_count) VALUES (?,?,?,0)")
     .run(title, body, JSON.stringify(employee_ids || [])).lastInsertRowid;
 
-  if (tokens.length === 0) return res.json({ ok: true, sent: 0, id: notifId });
+  if (tokens.length === 0) return res.json({ ok: true, sent: 0, no_tokens: true, id: notifId });
 
   try {
-    const messages = tokens.map(t => ({ to: t.token, title, body, sound: "default", data: { type: "admin_notification" } }));
-    const response = await fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json", "Accept-Encoding": "gzip, deflate" },
-      body: JSON.stringify(messages),
-    });
-    const result = await response.json();
-    const sent = Array.isArray(result.data) ? result.data.filter(r => r.status === "ok").length : tokens.length;
+    // Expo API limits 100 messages per request — chunk if needed
+    const CHUNK = 100;
+    const allResults = [];
+    for (let i = 0; i < tokens.length; i += CHUNK) {
+      const chunk = tokens.slice(i, i + CHUNK);
+      const messages = chunk.map(t => ({ to: t.token, title, body, sound: "default", data: { type: "admin_notification" } }));
+      const response = await fetch("https://exp.host/--/api/v2/push/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(messages),
+      });
+      const result = await response.json();
+      if (Array.isArray(result.data)) {
+        result.data.forEach((r, j) => allResults.push({ ...r, employee_id: chunk[j].employee_id }));
+      }
+    }
+    // Auto-clean tokens Expo rejected as DeviceNotRegistered
+    const invalidIds = allResults
+      .filter(r => r.status === "error" && r.details?.error === "DeviceNotRegistered")
+      .map(r => r.employee_id).filter(Boolean);
+    if (invalidIds.length > 0) {
+      const ph = invalidIds.map(() => "?").join(",");
+      db.prepare(`DELETE FROM push_tokens WHERE employee_id IN (${ph})`).run(...invalidIds);
+    }
+    const sent = allResults.filter(r => r.status === "ok").length;
+    const errors = allResults.filter(r => r.status === "error").map(r => r.details?.error || r.message || "error");
     db.prepare("UPDATE notifications SET sent_count=? WHERE id=?").run(sent, notifId);
-    res.json({ ok: true, sent, id: notifId });
+    res.json({ ok: true, sent, total: tokens.length, cleaned: invalidIds.length, errors: errors.length ? errors.slice(0,5) : undefined, id: notifId });
   } catch (e) {
     res.status(500).json({ error: "Error al enviar: " + e.message });
   }
@@ -1730,6 +2126,89 @@ app.get("/api/mobile/my-team/history", (req, res) => {
   res.json(result);
 });
 
+// ── Mobile: teams list (for transfer requests) ────────
+app.get("/api/mobile/teams", (req, res) => {
+  const rows = DB.getDb().prepare("SELECT id, name FROM teams ORDER BY name").all();
+  res.json(rows);
+});
+
+// ── Mobile: absence notes ─────────────────────────────
+app.get("/api/mobile/absence-notes", (req, res) => {
+  const { employee_id, date } = req.query;
+  if (!employee_id || !date) return res.status(400).json({ error: "employee_id y date requeridos" });
+  const db2 = DB.getDb();
+  // Only team admins can query absence notes
+  const team = db2.prepare("SELECT 1 FROM teams WHERE admin_id=?").get(employee_id);
+  if (!team) return res.status(403).json({ error: "Sin permisos" });
+  const notes = db2.prepare(`
+    SELECT n.*, e.name as emp_name, e.last_name as emp_last
+    FROM absence_notes n JOIN employees e ON n.employee_id=e.id
+    WHERE n.added_by=? AND n.date=?
+    ORDER BY n.created_at DESC
+  `).all(employee_id, date);
+  res.json(notes);
+});
+
+app.post("/api/mobile/absence-note", (req, res) => {
+  const { employee_id, member_id, date, note } = req.body;
+  if (!employee_id || !member_id || !date || !note) return res.status(400).json({ error: "Datos incompletos" });
+  const db2 = DB.getDb();
+  // Validate team admin
+  const team = db2.prepare("SELECT 1 FROM teams WHERE admin_id=? AND id IN (SELECT team_id FROM team_members WHERE employee_id=?)").get(employee_id, member_id);
+  if (!team) return res.status(403).json({ error: "Sin permisos para este empleado" });
+  const r = db2.prepare("INSERT INTO absence_notes (employee_id,date,note,added_by) VALUES (?,?,?,?)").run(member_id, date, note, employee_id);
+  res.json({ ok: true, id: r.lastInsertRowid });
+});
+
+app.delete("/api/mobile/absence-note/:id", (req, res) => {
+  const { employee_id } = req.body;
+  if (!employee_id) return res.status(400).json({ error: "employee_id requerido" });
+  DB.getDb().prepare("DELETE FROM absence_notes WHERE id=? AND added_by=?").run(req.params.id, employee_id);
+  res.json({ ok: true });
+});
+
+// ── Mobile: transfer requests ─────────────────────────
+app.get("/api/mobile/transfers", (req, res) => {
+  const { employee_id } = req.query;
+  if (!employee_id) return res.status(400).json({ error: "employee_id requerido" });
+  const db2 = DB.getDb();
+  const myTeam = db2.prepare("SELECT id FROM teams WHERE admin_id=?").get(employee_id);
+  const rows = db2.prepare(`
+    SELECT t.*, e.name as emp_name, e.last_name as emp_last,
+      ft.name as from_team_name, tt.name as to_team_name
+    FROM team_transfers t
+    JOIN employees e ON t.employee_id=e.id
+    LEFT JOIN teams ft ON t.from_team_id=ft.id
+    JOIN teams tt ON t.to_team_id=tt.id
+    WHERE t.requested_by=? OR (t.to_team_id=? AND t.status='pending')
+    ORDER BY t.requested_at DESC LIMIT 50
+  `).all(employee_id, myTeam?.id || 0);
+  res.json(rows);
+});
+
+app.post("/api/mobile/transfer-request", (req, res) => {
+  const { employee_id, member_id, to_team_id, notes } = req.body;
+  if (!employee_id || !member_id || !to_team_id) return res.status(400).json({ error: "Datos incompletos" });
+  const db2 = DB.getDb();
+  const isMember = db2.prepare("SELECT 1 FROM team_members tm JOIN teams t ON tm.team_id=t.id WHERE t.admin_id=? AND tm.employee_id=?").get(employee_id, member_id);
+  if (!isMember) return res.status(403).json({ error: "Sin permisos para este empleado" });
+  const fromTeam = db2.prepare("SELECT team_id FROM team_members WHERE employee_id=? LIMIT 1").get(member_id);
+  const r = db2.prepare("INSERT INTO team_transfers (employee_id,from_team_id,to_team_id,requested_by,status,notes) VALUES (?,?,?,?,?,?)").run(member_id, fromTeam?.team_id || null, to_team_id, employee_id, 'pending', notes || null);
+  res.json({ ok: true, id: r.lastInsertRowid });
+});
+
+app.put("/api/mobile/transfers/:id/confirm", (req, res) => {
+  const { employee_id } = req.body;
+  if (!employee_id) return res.status(400).json({ error: "employee_id requerido" });
+  const db2 = DB.getDb();
+  const t = db2.prepare("SELECT * FROM team_transfers WHERE id=?").get(req.params.id);
+  if (!t || t.status !== 'pending') return res.status(400).json({ error: "Transferencia no disponible" });
+  db2.prepare("UPDATE team_transfers SET status='confirmed', confirmed_by=?, resolved_at=datetime('now','localtime') WHERE id=?").run(employee_id, t.id);
+  if (t.from_team_id) db2.prepare("DELETE FROM team_members WHERE employee_id=? AND team_id=?").run(t.employee_id, t.from_team_id);
+  db2.prepare("INSERT OR IGNORE INTO team_members (team_id,employee_id) VALUES (?,?)").run(t.to_team_id, t.employee_id);
+  res.json({ ok: true });
+});
+
 // ── Server lifecycle ──────────────────────────────────
 function configure(dir) { dataDir = dir; }
 
@@ -1758,11 +2237,117 @@ function start() {
 function stop() {
   return new Promise((resolve) => {
     if (!serverInstance) { resolve(); return; }
+    serverInstance.closeAllConnections?.(); // force-close keep-alive connections (Node 18+)
     serverInstance.close(() => { serverInstance = null; resolve(); });
   });
 }
 
-function getPort()          { return LOCAL_PORT; }
-function getAdminPassword() { return DB.getDb()?.prepare("SELECT value FROM config WHERE key='admin_password'").get()?.value; }
+// ── API Externa (/ext/v1/) ────────────────────────────
+function getOrCreateApiKey() {
+  const db = DB.getDb();
+  let row = db.prepare("SELECT value FROM config WHERE key='external_api_key'").get();
+  if (!row) {
+    const key = 'dck_' + crypto.randomBytes(24).toString('hex');
+    db.prepare("INSERT INTO config(key,value) VALUES('external_api_key',?)").run(key);
+    return key;
+  }
+  return row.value;
+}
 
-module.exports = { configure, start, stop, getPort, getAdminPassword };
+function extAuth(req, res, next) {
+  const key = req.headers['x-api-key'] || req.query.api_key;
+  const stored = DB.getDb()?.prepare("SELECT value FROM config WHERE key='external_api_key'").get()?.value;
+  if (!stored || key !== stored) return res.status(401).json({ error: 'API key inválida' });
+  next();
+}
+
+// Gestión de API key (solo admin interno)
+app.get('/api/config/external-api-key', auth, (req, res) => {
+  res.json({ api_key: getOrCreateApiKey() });
+});
+app.post('/api/config/external-api-key/regenerate', auth, (req, res) => {
+  const db = DB.getDb();
+  const key = 'dck_' + crypto.randomBytes(24).toString('hex');
+  db.prepare("INSERT INTO config(key,value) VALUES('external_api_key',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").run(key);
+  res.json({ api_key: key });
+});
+
+// GET /ext/v1/info
+app.get('/ext/v1/info', extAuth, (req, res) => {
+  const db = DB.getDb();
+  const company = db.prepare("SELECT value FROM config WHERE key='company_name'").get()?.value || 'D-CLOCK';
+  res.json({ app: 'D-CLOCK', version: APP_VERSION, company, timestamp: new Date().toISOString() });
+});
+
+// GET /ext/v1/employees[?active=1]
+app.get('/ext/v1/employees', extAuth, (req, res) => {
+  const db = DB.getDb();
+  const onlyActive = req.query.active !== '0';
+  const rows = db.prepare(`
+    SELECT e.id, e.employee_number, e.name, e.last_name, e.email, e.phone,
+           e.gender, e.birth_date, e.hire_date, e.nss, e.curp, e.rfc,
+           e.active, e.is_admin,
+           d.name AS department, a.name AS area, j.name AS job_title,
+           s.name AS schedule
+    FROM employees e
+    LEFT JOIN departments d ON e.department_id = d.id
+    LEFT JOIN areas       a ON e.area_id       = a.id
+    LEFT JOIN job_titles  j ON e.job_title_id  = j.id
+    LEFT JOIN schedules   s ON e.schedule_id   = s.id
+    ${onlyActive ? 'WHERE e.active=1' : ''}
+    ORDER BY e.name
+  `).all();
+  res.json({ total: rows.length, employees: rows });
+});
+
+// GET /ext/v1/attendance?from=YYYY-MM-DD&to=YYYY-MM-DD
+app.get('/ext/v1/attendance', extAuth, (req, res) => {
+  const { from, to } = req.query;
+  if (!from || !to) return res.status(400).json({ error: 'Parámetros from y to requeridos (YYYY-MM-DD)' });
+  const db = DB.getDb();
+  const checkins = db.prepare(`
+    SELECT ci.employee_id, ci.type, ci.timestamp, ci.latitude, ci.longitude,
+           date(ci.timestamp,'localtime') AS date,
+           e.employee_number, e.name, e.last_name,
+           d.name AS department, j.name AS job_title
+    FROM check_ins ci
+    JOIN employees e ON ci.employee_id = e.id
+    LEFT JOIN departments d ON e.department_id = d.id
+    LEFT JOIN job_titles  j ON e.job_title_id  = j.id
+    WHERE date(ci.timestamp,'localtime') BETWEEN ? AND ?
+    ORDER BY ci.timestamp
+  `).all(from, to);
+
+  // Agrupar por empleado + día con entrada/salida
+  const map = {};
+  for (const r of checkins) {
+    const k = `${r.employee_id}_${r.date}`;
+    if (!map[k]) map[k] = {
+      employee_id: r.employee_id, employee_number: r.employee_number,
+      name: r.name, last_name: r.last_name,
+      department: r.department, job_title: r.job_title,
+      date: r.date, check_in: null, check_out: null
+    };
+    if (r.type === 'entrada' && !map[k].check_in)   map[k].check_in  = r.timestamp;
+    if (r.type === 'salida')                         map[k].check_out = r.timestamp;
+  }
+  const records = Object.values(map);
+  res.json({ from, to, total: records.length, records });
+});
+
+function getPort()          { return LOCAL_PORT; }
+function getAdminPassword()  { return DB.getDb()?.prepare("SELECT value FROM config WHERE key='admin_password'").get()?.value; }
+function getNominaPassword() { return DB.getNominaPassword(); }
+function resetNominaPassword() { return DB.resetNominaPassword(); }
+function getStats() {
+  const db = DB.getDb();
+  if (!db) return { employees: 0, todayRecords: 0, devices: 0 };
+  const today = new Date().toLocaleDateString('en-CA');
+  return {
+    employees:    db.prepare("SELECT COUNT(*) as n FROM employees WHERE active=1").get()?.n || 0,
+    todayRecords: db.prepare("SELECT COUNT(*) as n FROM check_ins WHERE date(timestamp)=?").get(today)?.n || 0,
+    devices:      db.prepare("SELECT COUNT(*) as n FROM push_tokens").get()?.n || 0,
+  };
+}
+
+module.exports = { configure, start, stop, getPort, getAdminPassword, getStats, getNominaPassword, resetNominaPassword };

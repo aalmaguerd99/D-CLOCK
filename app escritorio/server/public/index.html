@@ -1637,6 +1637,43 @@ input[type=range]{width:100%;accent-color:var(--accent)}
               </div>
             </div>
 
+            <!-- API Externa -->
+            <div class="card" style="grid-column:1/-1">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">API Externa</div>
+                  <div class="card-sub">Conecta otros sistemas a D-CLOCK (asistencia y empleados). La nómina no se expone.</div>
+                </div>
+              </div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+                  <div style="flex:1;min-width:220px">
+                    <label class="label">URL base</label>
+                    <div style="display:flex;gap:6px">
+                      <input id="ext-api-url" class="inp" readonly style="font-family:monospace;font-size:12px;flex:1;background:var(--bg)">
+                      <button class="btn btn-sm" style="white-space:nowrap" onclick="navigator.clipboard.writeText(document.getElementById('ext-api-url').value).then(()=>showToast('URL copiada'))">Copiar</button>
+                    </div>
+                  </div>
+                  <div style="flex:2;min-width:280px">
+                    <label class="label">API Key</label>
+                    <div style="display:flex;gap:6px">
+                      <input id="ext-api-key" class="inp" readonly style="font-family:monospace;font-size:12px;flex:1;background:var(--bg)" type="password">
+                      <button class="btn btn-sm" onclick="toggleExtApiKey(this)" style="white-space:nowrap">Mostrar</button>
+                      <button class="btn btn-sm" style="white-space:nowrap" onclick="navigator.clipboard.writeText(document.getElementById('ext-api-key').value).then(()=>showToast('API Key copiada'))">Copiar</button>
+                      <button class="btn btn-danger btn-sm" style="white-space:nowrap" onclick="regenerateExtApiKey()">Regenerar</button>
+                    </div>
+                  </div>
+                </div>
+                <div style="background:var(--bg);border-radius:8px;padding:12px;font-size:11px;font-family:monospace;color:var(--muted);line-height:2">
+                  <strong style="color:var(--text);font-size:12px">Endpoints disponibles:</strong><br>
+                  GET <span id="ext-api-url-eg" style="color:var(--accent)">{url}</span>/ext/v1/info &nbsp;→ Información del sistema<br>
+                  GET <span class="ext-url-eg" style="color:var(--accent)">{url}</span>/ext/v1/employees &nbsp;→ Lista de empleados<br>
+                  GET <span class="ext-url-eg" style="color:var(--accent)">{url}</span>/ext/v1/attendance?from=YYYY-MM-DD&amp;to=YYYY-MM-DD &nbsp;→ Asistencia por rango<br>
+                  <br><strong style="color:var(--text)">Header requerido:</strong> <span style="color:var(--accent)">X-API-Key: {tu-api-key}</span>
+                </div>
+              </div>
+            </div>
+
             <!-- Reporte config (full width) -->
             <div class="card" style="grid-column:1/-1">
               <div class="card-header">
@@ -5382,6 +5419,38 @@ async function loadConfiguracion(){
   loadNominaConfig();
   const sel=document.getElementById('cfg-payroll-period');
   if(sel)sel.addEventListener('change',updatePayrollConfigDesc);
+  loadExternalApiKey();
+}
+
+async function loadExternalApiKey(){
+  try{
+    const r=await api('GET','/api/config/external-api-key');
+    const urlBase=location.origin;
+    const urlEl=document.getElementById('ext-api-url');
+    const keyEl=document.getElementById('ext-api-key');
+    const egEl=document.getElementById('ext-api-url-eg');
+    if(urlEl)urlEl.value=urlBase;
+    if(keyEl)keyEl.value=r.api_key||'';
+    if(egEl)egEl.textContent=urlBase;
+    document.querySelectorAll('.ext-url-eg').forEach(e=>e.textContent=urlBase);
+  }catch(e){}
+}
+
+function toggleExtApiKey(btn){
+  const inp=document.getElementById('ext-api-key');
+  if(!inp)return;
+  if(inp.type==='password'){inp.type='text';btn.textContent='Ocultar';}
+  else{inp.type='password';btn.textContent='Mostrar';}
+}
+
+async function regenerateExtApiKey(){
+  if(!confirm('¿Regenerar la API Key? La clave anterior dejará de funcionar en todos los sistemas conectados.'))return;
+  try{
+    const r=await api('POST','/api/config/external-api-key/regenerate');
+    const keyEl=document.getElementById('ext-api-key');
+    if(keyEl){keyEl.value=r.api_key;keyEl.type='text';}
+    showToast('API Key regenerada. Actualiza tus sistemas externos.');
+  }catch(e){showToast('Error al regenerar: '+e.message);}
 }
 
 async function checkForUpdate(){
