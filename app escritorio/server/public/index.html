@@ -4539,16 +4539,22 @@ async function downloadAttendanceExcel(){
     no_disponible:{bg:'#fecaca',fg:'#991b1b',lbl:'NDB'},
     no_aplica:    {bg:'#ffffff',fg:'#e5e7eb',lbl:''},
   };
-  let hasCompanyLogo=false,companyName='';
-  try{const i=await api('GET','/api/info');companyName=i?.company_name||'';hasCompanyLogo=!!(i?.logo);}catch{}
+  let companyName='';
+  try{const i=await api('GET','/api/info');companyName=i?.company_name||'';}catch{}
+  const[dclockB64,companyB64]=await Promise.all([
+    fetchImgBase64('http://127.0.0.1:7474/logo/dclock'),
+    fetchImgBase64('http://127.0.0.1:7474/logo/company'),
+  ]);
 
   const totalEmp=report.length;
   const totalFaltas=report.reduce((s,e)=>s+(e.summary?.falt||0),0);
   const totalHrsAll=report.reduce((s,e)=>s+(e.summary?.totalHrs||0),0);
 
-  const dclockImg=`<img src="http://127.0.0.1:7474/logo/dclock" height="52" style="display:block;margin-bottom:6px" alt="D-CLOCK">`;
-  const coRight=hasCompanyLogo
-    ?`<img src="http://127.0.0.1:7474/logo/company" height="52" style="display:block;margin-bottom:4px;margin-left:auto" alt="${companyName}"><div style="color:#334155;font-size:10pt;font-weight:700;text-align:right">${companyName}</div>`
+  const dclockImg=dclockB64
+    ?`<img src="cid:dclock@d99tech" height="52" style="display:block;margin-bottom:6px" alt="D-CLOCK">`
+    :`<div style="color:#1d4ed8;font-size:24pt;font-weight:900;font-family:Arial Black,Arial,sans-serif;letter-spacing:-1pt;line-height:1">D&#8209;CLOCK</div>`;
+  const coRight=companyB64
+    ?`<img src="cid:company@d99tech" height="52" style="display:block;margin-bottom:4px;margin-left:auto" alt="${companyName}"><div style="color:#334155;font-size:10pt;font-weight:700;text-align:right">${companyName}</div>`
     :(companyName?`<div style="color:#0f172a;font-size:13pt;font-weight:800;text-align:right">${companyName}</div>`:'');
 
   const dayHds=dates.map(d=>{
@@ -4628,9 +4634,13 @@ async function downloadAttendanceExcel(){
   Hrs=Horas trabajadas en el per&iacute;odo &nbsp;&middot;&nbsp; Generado con <b>D&#8209;CLOCK</b> &mdash; D99&#8209;TECH
 </div>
 </body></html>`;
-  const blob=new Blob(['﻿'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=`D-CLOCK_Asistencia_${from}_${to}.xls`;a.click();URL.revokeObjectURL(url);
+  const mhtml=buildMhtml(html,[
+    {cid:'dclock@d99tech',  b64:dclockB64,  mime:'image/png'},
+    {cid:'company@d99tech', b64:companyB64, mime:'image/png'},
+  ]);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([mhtml],{type:'application/vnd.ms-excel'}));
+  a.download=`D-CLOCK_Asistencia_${from}_${to}.xls`;a.click();
 }
 
 function renderAttendanceReport(data,body,notesMap={}){
@@ -6633,6 +6643,31 @@ async function unmarkPaid(paymentId) {
   else showToast('Error al quitar pago','error');
 }
 
+// Convierte URL local a base64 puro (sin prefijo data:)
+async function fetchImgBase64(url) {
+  try {
+    const r = await fetch(url); if (!r.ok) return null;
+    const buf = await r.arrayBuffer();
+    let b=''; const u=new Uint8Array(buf);
+    for (let i=0;i<u.length;i++) b+=String.fromCharCode(u[i]);
+    return btoa(b);
+  } catch { return null; }
+}
+// Genera MHTML con imágenes embebidas (CID) — funciona en Excel
+function buildMhtml(htmlContent, images) {
+  const bnd = 'MHTML_DCLOCK_EXCEL';
+  let out = 'MIME-Version: 1.0\r\n'
+    + `Content-Type: multipart/related; type="text/html"; boundary="${bnd}"\r\n\r\n`
+    + `--${bnd}\r\nContent-Type: text/html; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n`
+    + htmlContent + '\r\n';
+  for (const {cid, b64, mime} of images) {
+    if (!b64) continue;
+    out += `--${bnd}\r\nContent-Type: ${mime||'image/png'}\r\nContent-Transfer-Encoding: base64\r\nContent-ID: <${cid}>\r\n\r\n`
+      + (b64.match(/.{1,76}/g)||[]).join('\r\n') + '\r\n';
+  }
+  return out + `--${bnd}--`;
+}
+
 async function exportNominaExcel() {
   if (!_nomRows?.length) { showToast("Genera el reporte primero","error"); return; }
   const from    = document.getElementById("nom-from").value;
@@ -6669,9 +6704,12 @@ async function exportNominaExcel() {
   const totalFaltas    = _nomRows.reduce((s,r)=>s+(r.absences||0),0);
   const totalEmpleados = _nomRows.length;
 
-  // Nombre empresa y si tiene logo (imágenes servidas como binary desde el servidor)
-  let hasCompanyLogo = false, companyName = '';
-  try { const info = await api('GET','/api/info'); companyName=info?.company_name||''; hasCompanyLogo=!!(info?.logo); } catch {}
+  let companyName = '';
+  try { const info = await api('GET','/api/info'); companyName=info?.company_name||''; } catch {}
+  const [dclockB64, companyB64] = await Promise.all([
+    fetchImgBase64('http://127.0.0.1:7474/logo/dclock'),
+    fetchImgBase64('http://127.0.0.1:7474/logo/company'),
+  ]);
 
   // Columnas dinámicas
   const PRE  = 6;  // #, ID, Nombre, Área, Frec, $/día
@@ -6696,7 +6734,7 @@ async function exportNominaExcel() {
     .period-val{color:#0f172a;font-size:14pt;font-weight:800}
     .gen-lbl{color:#64748b;font-size:8pt;margin-top:6px}
     .kpi{width:100%;border-collapse:collapse;margin-bottom:2px}
-    .kpi td{padding:14px 20px;text-align:center;border-right:2px solid #e2e8f0;background:#f1f5f9}
+    .kpi td{padding:14px 20px;text-align:center;border-right:2px solid #e2e8f0;background:#ffffff;border-top:4px solid #cbd5e1}
     .kpi-num{color:#0f172a;font-size:16pt;font-weight:900;font-family:Arial Black,Arial,sans-serif}
     .kpi-lbl{color:#64748b;font-size:7.5pt;text-transform:uppercase;letter-spacing:1.5pt;margin-top:4px}
     .kpi-total{background:#1d4ed8 !important;border-left:4px solid #60a5fa !important}
@@ -6731,9 +6769,11 @@ async function exportNominaExcel() {
     .foot{color:#94a3b8;font-size:8pt;margin-top:12px;border-top:2px solid #e2e8f0;padding-top:10px;line-height:1.8}
   `;
 
-  const dclockImg = `<img src="http://127.0.0.1:7474/logo/dclock" height="56" style="display:block;margin-bottom:6px" alt="D-CLOCK">`;
-  const companyRight = hasCompanyLogo
-    ? `<img src="http://127.0.0.1:7474/logo/company" height="56" style="display:block;margin-bottom:4px;margin-left:auto" alt="${companyName}"><div style="color:#334155;font-size:10pt;font-weight:700;text-align:right">${companyName}</div>`
+  const dclockImg = dclockB64
+    ? `<img src="cid:dclock@d99tech" height="56" style="display:block;margin-bottom:6px" alt="D-CLOCK">`
+    : `<div style="color:#1d4ed8;font-size:26pt;font-weight:900;font-family:Arial Black,Arial,sans-serif;letter-spacing:-1pt;line-height:1">D&#8209;CLOCK</div>`;
+  const companyRight = companyB64
+    ? `<img src="cid:company@d99tech" height="56" style="display:block;margin-bottom:4px;margin-left:auto" alt="${companyName}"><div style="color:#334155;font-size:10pt;font-weight:700;text-align:right">${companyName}</div>`
     : (companyName ? `<div style="color:#0f172a;font-size:13pt;font-weight:800;text-align:right">${companyName}</div>` : '');
 
   let html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel'>
@@ -6862,7 +6902,7 @@ async function exportNominaExcel() {
     <td colspan="${TCOLS-3}" style="text-align:right;color:#94a3b8;font-size:10pt;letter-spacing:1pt">
       TOTAL NETO DEL PER&Iacute;ODO
     </td>
-    <td colspan="3" style="text-align:right;color:#38bdf8;font-size:18pt;font-weight:900;font-family:Arial Black,Arial,sans-serif">
+    <td colspan="3" style="text-align:right;color:#047857;font-size:18pt;font-weight:900;font-family:Arial Black,Arial,sans-serif">
       ${fmtMXN(grandTotal)}
     </td>
   </tr>
@@ -6878,9 +6918,12 @@ async function exportNominaExcel() {
 
 </body></html>`;
 
-  const blob = new Blob(['﻿'+html], {type:"application/vnd.ms-excel;charset=utf-8"});
+  const mhtml = buildMhtml(html, [
+    {cid:'dclock@d99tech',  b64:dclockB64,  mime:'image/png'},
+    {cid:'company@d99tech', b64:companyB64, mime:'image/png'},
+  ]);
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
+  a.href = URL.createObjectURL(new Blob([mhtml], {type:'application/vnd.ms-excel'}));
   a.download = `D-CLOCK_Nomina_${from}_${to}.xls`;
   a.click();
 }
