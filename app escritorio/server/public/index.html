@@ -6387,11 +6387,15 @@ function calcCycleNet(r, cycleFrom, cycleTo, today) {
     allDays.filter(d => d.status==='falta'||d.status==='no_disponible').map(d => d.date)
   );
   const cycDays = allDays.filter(d => d.date>=cycleFrom && d.date<=cycleTo && d.date<=today);
-  const faltas = cycDays.filter(d => faltaSet.has(d.date)).length;
-  // Art.69: descansos perdidos por falta contigua
+  // no_aplica (día sin horario asignado) cuenta como falta para descuento
+  const faltas = cycDays.filter(d => faltaSet.has(d.date) || d.status==='no_aplica').length;
+  // Art.69 LFT: descanso se pierde si hay falta el día antes o después
   const descansosLost = cycDays.filter(d =>
     d.status==='descanso' && (faltaSet.has(_shiftDate(d.date,-1)) || faltaSet.has(_shiftDate(d.date,1)))
   ).length;
+  // Sin ningún día trabajado y con faltas → pago cero
+  const worked = cycDays.filter(d => ['a_tiempo','retardo','vacaciones','desviacion'].includes(d.status)).length;
+  if (worked === 0 && faltas >= 1) return 0;
   return Math.max(0, parseFloat((base - dailyRate * (faltas + descansosLost)).toFixed(2)));
 }
 
