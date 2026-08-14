@@ -365,6 +365,13 @@ app.get("/api/info", (req, res) => {
   res.json({ company_name, logo, version: APP_VERSION });
 });
 
+app.get("/api/logo/app", (req, res) => {
+  try {
+    const data = fs.readFileSync(path.join(__dirname, '../assets/icon.png'));
+    res.json({ base64: 'data:image/png;base64,' + data.toString('base64') });
+  } catch { res.json({ base64: null }); }
+});
+
 // ── Auth móvil (empleado: número + PIN) ───────────────
 app.post("/api/mobile/auth", (req, res) => {
   const { employee_number, pin } = req.body;
