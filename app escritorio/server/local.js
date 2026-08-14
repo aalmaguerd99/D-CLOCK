@@ -1037,8 +1037,10 @@ app.get("/api/attendance-report", auth, (req, res) => {
       const override = overrideMap[`${emp.id}_${date}`];
       const expected = override || emp;
       let shouldWork = false;
-      if (expected.sched_type==='trabajo' && expected.days) {
-        try { shouldWork = JSON.parse(expected.days).includes(dow); } catch {}
+      if (expected.sched_type==='trabajo') {
+        // Override explícito de fecha → el admin eligió este horario para ESE día específico
+        if (override) { shouldWork = true; }
+        else if (expected.days) { try { shouldWork = JSON.parse(expected.days).includes(dow); } catch {} }
       }
       const ci = checkinMap[`${emp.id}_${date}`];
       let status = 'no_aplica', detectedShiftName = null, deviation = false;
