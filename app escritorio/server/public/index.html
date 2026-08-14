@@ -1761,6 +1761,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
                     <option value="">Todas</option>
                     <option value="weekly">Semanal</option>
                     <option value="biweekly">Quincenal</option>
+                    <option value="sem_quin">Sem + Quincenal</option>
                     <option value="monthly">Mensual</option>
                   </select>
                 </div>
@@ -6304,10 +6305,11 @@ async function loadNominaReport() {
   const to   = document.getElementById("nom-to").value;
   if (!from||!to) { showToast("Selecciona período","error"); return; }
   const freq = document.getElementById("nom-freq").value;
+  const apiFreq = freq === 'sem_quin' ? '' : freq;
   const wrap = document.getElementById('nom-report-wrap');
   wrap.innerHTML = '<div class="empty" style="margin:32px auto"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>Cargando...</p></div>';
   const [nomData, attData, paidData] = await Promise.all([
-    apiNomina(`/api/nomina/report?from=${from}&to=${to}${freq?"&freq="+freq:""}`),
+    apiNomina(`/api/nomina/report?from=${from}&to=${to}${apiFreq?"&freq="+apiFreq:""}`),
     api('GET', `/api/attendance-report?from=${from}&to=${to}`).catch(()=>null),
     apiNomina(`/api/payroll/payments?from=${from}&to=${to}`).catch(()=>[])
   ]);
@@ -6337,13 +6339,15 @@ async function loadNominaReport() {
     return { ...r, days: empDays, worked_days: workCount, leave_days: leaveCount,
              absences: faltaCount, period_salary: periodBase, deductions: deduction, net_salary: netSalary };
   });
+  const filteredRows = freq === 'sem_quin' ? rows.filter(r => r.payment_freq !== 'monthly') : rows;
   const paymentsMap = {};
   if (Array.isArray(paidData)) paidData.forEach(p => {
     if (!paymentsMap[p.employee_id]) paymentsMap[p.employee_id] = [];
     paymentsMap[p.employee_id].push(p);
   });
-  _nomRows = rows; _nomDates = dates; _nomFreq = freq; _nomPayments = paymentsMap;
-  renderNominaReport(rows, dates, freq, paymentsMap, from, to);
+  const displayFreq = freq === 'sem_quin' ? '' : freq;
+  _nomRows = filteredRows; _nomDates = dates; _nomFreq = displayFreq; _nomPayments = paymentsMap;
+  renderNominaReport(filteredRows, dates, displayFreq, paymentsMap, from, to);
   const _ct = document.getElementById("content");
   if (_ct) _ct.scrollTop = 0;
 }
@@ -6572,8 +6576,8 @@ function exportNominaExcel() {
   const to   = document.getElementById("nom-to").value;
   const FL        = {weekly:'Semanal',biweekly:'Quincenal',monthly:'Mensual'};
   const grpLabel  = {weekly:'NÓMINA SEMANAL',biweekly:'NÓMINA QUINCENAL',monthly:'NÓMINA MENSUAL'};
-  const grpColor  = {weekly:'#1e40af',biweekly:'#0369a1',monthly:'#0f766e'};
-  const grpLight  = {weekly:'#dbeafe',biweekly:'#e0f2fe',monthly:'#ccfbf1'};
+  const grpColor  = {weekly:'#1d4ed8',biweekly:'#047857',monthly:'#7c3aed'};
+  const grpLight  = {weekly:'#eff6ff',biweekly:'#ecfdf5',monthly:'#f5f3ff'};
   const _today    = new Date().toISOString().slice(0,10);
   const fmtMXN    = n => '$' + (n||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
 
@@ -6607,44 +6611,49 @@ function exportNominaExcel() {
     body{font-family:Calibri,Arial,sans-serif;margin:0;padding:16px;background:#f1f5f9}
     table{border-spacing:0}
     .hdr{width:100%;border-collapse:collapse;margin-bottom:2px}
-    .hdr td{padding:18px 24px;vertical-align:middle;background:#0f172a}
-    .brand{color:#f8fafc;font-size:26pt;font-weight:900;letter-spacing:-0.5pt;font-family:Arial Black,Arial,sans-serif;line-height:1}
-    .brand-sub{color:#38bdf8;font-size:9pt;letter-spacing:3pt;margin-top:4px;text-transform:uppercase}
+    .hdr td{padding:20px 26px;vertical-align:middle;background:#0f172a}
+    .brand{color:#fff;font-size:28pt;font-weight:900;letter-spacing:-1pt;font-family:Arial Black,Arial,sans-serif;line-height:1}
+    .brand span{color:#38bdf8}
+    .brand-sub{color:#7dd3fc;font-size:8.5pt;letter-spacing:3pt;margin-top:5px;text-transform:uppercase}
     .period-lbl{color:#64748b;font-size:8pt;text-transform:uppercase;letter-spacing:1pt}
-    .period-val{color:#e2e8f0;font-size:13pt;font-weight:700}
+    .period-val{color:#e2e8f0;font-size:14pt;font-weight:800}
     .gen-lbl{color:#475569;font-size:8pt;margin-top:6px}
     .kpi{width:100%;border-collapse:collapse;margin-bottom:2px}
-    .kpi td{padding:12px 18px;text-align:center;border-right:1px solid #334155;background:#1e293b}
-    .kpi-num{color:#f8fafc;font-size:15pt;font-weight:900;font-family:Arial Black,Arial,sans-serif}
-    .kpi-lbl{color:#94a3b8;font-size:7.5pt;text-transform:uppercase;letter-spacing:1pt;margin-top:3px}
-    .kpi-total{background:#0284c7 !important}
-    .kpi-total .kpi-num{color:#fff;font-size:19pt}
-    .kpi-total .kpi-lbl{color:#bae6fd}
+    .kpi td{padding:14px 20px;text-align:center;border-right:2px solid #1e293b;background:#1e293b}
+    .kpi-num{color:#f8fafc;font-size:16pt;font-weight:900;font-family:Arial Black,Arial,sans-serif}
+    .kpi-lbl{color:#94a3b8;font-size:7.5pt;text-transform:uppercase;letter-spacing:1.5pt;margin-top:4px}
+    .kpi-total{background:#1d4ed8 !important;border-left:4px solid #60a5fa !important}
+    .kpi-total .kpi-num{color:#fff;font-size:20pt}
+    .kpi-total .kpi-lbl{color:#bfdbfe}
+    .kpi-alerta{background:#991b1b !important}
     .kpi-alerta .kpi-num{color:#fca5a5}
-    .kpi-alerta .kpi-lbl{color:#fca5a5}
-    .kpi-alerta{background:#7f1d1d !important}
+    .kpi-alerta .kpi-lbl{color:#fecaca}
+    .kpi-ok{background:#065f46 !important}
+    .kpi-ok .kpi-num{color:#a7f3d0}
+    .kpi-ok .kpi-lbl{color:#6ee7b7}
     .freq{width:100%;border-collapse:collapse;margin-bottom:10px}
-    .freq td{padding:10px 18px;text-align:center;border-right:1px solid #e2e8f0}
-    .freq-num{font-size:13pt;font-weight:700;font-family:Arial Black,Arial,sans-serif}
-    .freq-lbl{font-size:7.5pt;text-transform:uppercase;letter-spacing:1pt;margin-top:2px}
-    .freq-cnt{font-size:7.5pt;color:#94a3b8;margin-top:1px}
+    .freq td{padding:12px 20px;text-align:center;border-right:3px solid #f1f5f9;border-bottom:3px solid #f1f5f9}
+    .freq-num{font-size:14pt;font-weight:900;font-family:Arial Black,Arial,sans-serif}
+    .freq-lbl{font-size:8pt;text-transform:uppercase;letter-spacing:1.5pt;margin-top:3px;font-weight:700}
+    .freq-cnt{font-size:7.5pt;color:#64748b;margin-top:2px}
     .nom{width:100%;border-collapse:collapse}
-    .nom thead th{padding:9px 10px;border:1px solid #1e40af;font-size:9pt;white-space:nowrap;text-align:center;vertical-align:middle;background:#1e3a8a;color:#fff}
+    .nom thead th{padding:10px 12px;border:1px solid #1e3a8a;font-size:9pt;white-space:nowrap;text-align:center;vertical-align:middle;background:#1e3a8a;color:#fff;font-weight:700;letter-spacing:0.3pt}
     .nom th.thl{text-align:left}
-    .nom td{padding:6px 10px;border:1px solid #e2e8f0;font-size:10pt;vertical-align:middle}
+    .nom td{padding:7px 12px;border:1px solid #e2e8f0;font-size:10pt;vertical-align:middle}
     .ev td{background:#f8fafc}
     .od td{background:#fff}
-    .fa td{background:#fff7ed}
-    .ce td{background:#fef2f2}
+    .fa td{background:#fffbeb;border-left:3px solid #f59e0b}
+    .ce td{background:#fff1f2;border-left:3px solid #f43f5e}
     .r{text-align:right}.c{text-align:center}
-    .nm{font-weight:600;color:#0f172a}
-    .net{font-weight:700;color:#15803d;font-size:10.5pt}
-    .ded{color:#dc2626}
-    .flt{color:#dc2626;font-weight:700}
-    .sec td{padding:10px 14px;font-size:10.5pt;font-weight:800;color:#fff;border-bottom:2px solid rgba(255,255,255,0.2);letter-spacing:0.5pt}
-    .sub td{padding:8px 12px;font-weight:700;font-size:9.5pt}
-    .tot td{background:#0f172a;color:#f8fafc;font-weight:800;font-size:12pt;padding:12px 14px;border:none}
-    .foot{color:#94a3b8;font-size:8pt;margin-top:10px;border-top:1px solid #e2e8f0;padding-top:8px;line-height:1.7}
+    .nm{font-weight:700;color:#0f172a;font-size:10.5pt}
+    .net{font-weight:800;color:#059669;font-size:11pt;min-width:120px}
+    .ded{color:#e11d48;font-weight:600}
+    .flt{color:#dc2626;font-weight:800}
+    .badge{font-size:8.5pt;font-weight:700;white-space:nowrap;padding:5px 10px;text-align:center;min-width:100px}
+    .sec td{padding:11px 16px;font-size:11pt;font-weight:800;color:#fff;border-bottom:3px solid rgba(255,255,255,0.25);letter-spacing:0.5pt}
+    .sub td{padding:9px 14px;font-weight:700;font-size:10pt}
+    .tot td{background:#0f172a;color:#f8fafc;font-weight:800;font-size:12pt;padding:14px 16px;border:none}
+    .foot{color:#94a3b8;font-size:8pt;margin-top:12px;border-top:2px solid #e2e8f0;padding-top:10px;line-height:1.8}
   `;
 
   let html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel'>
@@ -6664,19 +6673,20 @@ function exportNominaExcel() {
 
 <table class="kpi"><tr>
   <td><div class="kpi-num">${totalEmpleados}</div><div class="kpi-lbl">Total Empleados</div></td>
-  <td><div class="kpi-num">${totalPagados} / ${totalEmpleados}</div><div class="kpi-lbl">Con Pago Registrado</div></td>
+  <td class="kpi-ok"><div class="kpi-num">${totalPagados} / ${totalEmpleados}</div><div class="kpi-lbl">Con Pago Registrado</div></td>
   <td class="kpi-alerta"><div class="kpi-num">${totalFaltas}</div><div class="kpi-lbl">Faltas en Per&iacute;odo</div></td>
   <td class="kpi-total" colspan="2"><div class="kpi-num">${fmtMXN(grandTotal)}</div><div class="kpi-lbl">Total Neto a Pagar</div></td>
 </tr></table>`;
 
   // Barra de frecuencias
   const vf = ['weekly','biweekly','monthly'].filter(k=>grp[k].length>0);
-  const fbg = {weekly:'#eff6ff',biweekly:'#ecfeff',monthly:'#f0fdf4'};
-  const ffg = {weekly:'#1e40af',biweekly:'#0369a1',monthly:'#15803d'};
+  const fbg = {weekly:'#dbeafe',biweekly:'#d1fae5',monthly:'#ede9fe'};
+  const ffg = {weekly:'#1d4ed8',biweekly:'#047857',monthly:'#7c3aed'};
+  const fbo = {weekly:'#1d4ed8',biweekly:'#047857',monthly:'#7c3aed'};
   if (vf.length > 1) {
     html += `<table class="freq"><tr>`;
     vf.forEach(k => {
-      html += `<td style="background:${fbg[k]}">
+      html += `<td style="background:${fbg[k]};border-top:4px solid ${fbo[k]}">
         <div class="freq-num" style="color:${ffg[k]}">${fmtMXN(subTotals[k])}</div>
         <div class="freq-lbl" style="color:${ffg[k]}">${FL[k]}</div>
         <div class="freq-cnt">${grp[k].length} empleado${grp[k].length!==1?'s':''}</div>
@@ -6686,20 +6696,20 @@ function exportNominaExcel() {
   } else { html += `<div style="height:10px"></div>`; }
 
   html += `<table class="nom"><thead><tr>
-    <th style="width:28px">#</th>
-    <th class="thl">ID</th>
-    <th class="thl" style="min-width:160px">Nombre Completo</th>
-    <th class="thl">&#193;rea</th>
-    <th>Frec.</th>
-    <th>Sal. Mensual</th>
-    <th>&#36;/d&iacute;a</th>
-    <th>Trab.</th>
-    <th>Faltas</th>
-    <th>Desc.&#8595;</th>
-    <th>Sal. Per&iacute;odo</th>
-    <th>Deducciones</th>
-    <th style="font-size:11pt">NETO</th>
-    <th>Estado Pago</th>
+    <th style="width:32px">#</th>
+    <th class="thl" style="width:70px">ID</th>
+    <th class="thl" style="min-width:175px">Nombre Completo</th>
+    <th class="thl" style="min-width:100px">&#193;rea</th>
+    <th style="width:75px">Frec.</th>
+    <th style="width:110px">Sal. Mensual</th>
+    <th style="width:90px">&#36;/d&iacute;a</th>
+    <th style="width:55px">Trab.</th>
+    <th style="width:55px">Faltas</th>
+    <th style="width:50px">Desc.</th>
+    <th style="width:120px">Sal. Per&iacute;odo</th>
+    <th style="width:130px">Deducciones</th>
+    <th style="width:135px;font-size:11pt;background:#064e3b;border-color:#047857">NETO</th>
+    <th style="width:120px">Estado Pago</th>
   </tr></thead><tbody>`;
 
   let rowIdx = 0;
@@ -6726,8 +6736,8 @@ function exportNominaExcel() {
         <td class="c" style="color:${r.leave_days>0?'#0369a1':'#94a3b8'}">${r.leave_days||0}</td>
         <td class="r" style="color:#475569">${fmtMXN(r.period_salary)}</td>
         <td class="r ded">${r.deductions>0?'&ndash;'+fmtMXN(r.deductions):'&mdash;'}</td>
-        <td class="r net" style="${net===0?'color:#dc2626':''}">${fmtMXN(net)}</td>
-        <td class="c" style="background:${badge.bg};color:${badge.fg};font-weight:700;font-size:8.5pt;white-space:nowrap;padding:5px 8px">${badge.label}</td>
+        <td class="r net" style="background:${net===0?'#fff1f2':'#f0fdf4'};color:${net===0?'#e11d48':'#047857'};border-left:3px solid ${net===0?'#f43f5e':'#10b981'}">${fmtMXN(net)}</td>
+        <td class="badge" style="background:${badge.bg};color:${badge.fg}">${badge.label}</td>
       </tr>`;
     });
     html += `<tr class="sub" style="background:${gl};border-top:2px solid ${gc}">
