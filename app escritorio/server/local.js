@@ -372,6 +372,28 @@ app.get("/api/logo/app", (req, res) => {
   } catch { res.json({ base64: null }); }
 });
 
+// Sirve logos como imagen binaria (para Excel que no renderiza data URIs)
+app.get("/logo/dclock", (req, res) => {
+  try {
+    const data = fs.readFileSync(path.join(__dirname, '../assets/icon.png'));
+    res.setHeader('Content-Type','image/png');
+    res.setHeader('Access-Control-Allow-Origin','*');
+    res.send(data);
+  } catch { res.status(404).end(); }
+});
+
+app.get("/logo/company", (req, res) => {
+  try {
+    const raw = DB.getDb().prepare("SELECT value FROM config WHERE key='company_logo'").get()?.value;
+    if (!raw) return res.status(404).end();
+    const m = raw.match(/^data:(image\/[a-z+]+);base64,(.+)$/);
+    if (!m) return res.status(404).end();
+    res.setHeader('Content-Type', m[1]);
+    res.setHeader('Access-Control-Allow-Origin','*');
+    res.send(Buffer.from(m[2], 'base64'));
+  } catch { res.status(404).end(); }
+});
+
 // ── Auth móvil (empleado: número + PIN) ───────────────
 app.post("/api/mobile/auth", (req, res) => {
   const { employee_number, pin } = req.body;
