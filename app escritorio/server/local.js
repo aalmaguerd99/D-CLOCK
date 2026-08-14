@@ -181,9 +181,11 @@ app.get("/api/nomina/report", auth, nominaAuth, (req, res) => {
     const absences = totalDays - paidDays;
 
     const dailySalary = parseFloat((emp.monthly_salary / 30).toFixed(2));
-    // Art.89 LFT: daily = mensual/30; base fija por frecuencia (7/15/30 días)
-    const periodDays = emp.payment_freq === 'weekly' ? 7 : emp.payment_freq === 'biweekly' ? 15 : 30;
-    const periodBase = parseFloat((dailySalary * periodDays).toFixed(2));
+    // Art.89 LFT: daily = mensual/30; base período = mensual/4 (semanal) o mensual/2 (quincenal)
+    let periodBase;
+    if (emp.payment_freq === 'weekly')        periodBase = parseFloat((emp.monthly_salary / 4).toFixed(2));
+    else if (emp.payment_freq === 'biweekly') periodBase = parseFloat((emp.monthly_salary / 2).toFixed(2));
+    else                                       periodBase = parseFloat(emp.monthly_salary.toFixed(2));
     const earnedSalary = Math.max(0, parseFloat((periodBase - dailySalary * absences).toFixed(2)));
     const periodSalary = periodBase;
     const deductions = parseFloat((periodSalary - earnedSalary).toFixed(2));

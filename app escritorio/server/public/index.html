@@ -6443,12 +6443,12 @@ function _shiftDate(dateStr, days) {
   return d.toISOString().slice(0,10);
 }
 
-// Art.89 LFT: daily = mensual/30; base = daily × 7/15/30 según frecuencia
+// Art.89 LFT: daily = mensual/30 (para descuentos). Base período = mensual/4 semanal, mensual/2 quincenal
 // Art.69 LFT: descanso se pierde si hay falta el día ANTES o el día DESPUÉS
 function calcCycleNet(r, cycleFrom, cycleTo, today) {
   const dailyRate = (r.monthly_salary||0) / 30;
-  const periodDays = r.payment_freq === 'weekly' ? 7 : r.payment_freq === 'biweekly' ? 15 : 30;
-  const base = dailyRate * periodDays;
+  const n = r.payment_freq === 'weekly' ? 4 : r.payment_freq === 'biweekly' ? 2 : 1;
+  const base = (r.monthly_salary||0) / n;
   const allDays = r.days||[];
   const faltaSet = new Set(
     allDays.filter(d => d.status==='falta'||d.status==='no_disponible').map(d => d.date)
@@ -6567,7 +6567,7 @@ function renderNominaReport(rows, dates, freq, paymentsMap, from, to) {
     bodyHtml = rows.map(rowHtml).join('');
   }
   bodyHtml += `<tr style="background:var(--accent-bg)"><td colspan="${4+dates.length+2}" style="text-align:right;font-weight:700;font-size:12px;padding:8px 12px;border:1px solid var(--border);color:var(--accent)">TOTAL NETO:</td><td colspan="3" style="text-align:right;font-weight:800;font-size:14px;color:var(--accent);padding:8px 10px;border:1px solid var(--border)">$${totalNet.toLocaleString('es-MX',{minimumFractionDigits:2})}</td></tr>`;
-  const thead = `<tr><th style="${HS};min-width:150px">Empleado</th><th style="${H}">Área</th><th style="${H}">Frec.</th><th style="${H}">$/día</th>${dateHeads.join('')}<th style="${H}">Trab.</th><th style="${H}">Faltas</th><th style="${H}">Vac.</th><th style="${H}">Sal.período</th><th style="${H}">Deduc.</th><th style="${H}">Neto</th></tr>`;
+  const thead = `<tr><th style="${HS};min-width:150px">Empleado</th><th style="${H}">Área</th><th style="${H}">Frec.</th><th style="${H}">$/día</th>${dateHeads.join('')}<th style="${H}">Trab.</th><th style="${H}">Faltas</th><th style="${H}">Desc.</th><th style="${H}">Sal.período</th><th style="${H}">Deduc.</th><th style="${H}">Neto</th></tr>`;
   wrap.innerHTML = `<div style="overflow-x:auto;max-width:100%"><table class="table" style="min-width:max-content;border-collapse:collapse"><thead>${thead}</thead><tbody id="nom-report-body">${bodyHtml}</tbody></table></div>`;
   document.getElementById("nom-total-net").textContent = "$"+totalNet.toLocaleString("es-MX",{minimumFractionDigits:2});
   const summaryEl = document.getElementById("nom-report-summary");
@@ -6790,7 +6790,7 @@ async function exportNominaExcel() {
     ${dateHeadCols}
     <th style="width:48px">Trab.</th>
     <th style="width:48px">Faltas</th>
-    <th style="width:42px">Vac.</th>
+    <th style="width:42px">Desc.</th>
     <th style="width:110px">Sal. Per&iacute;odo</th>
     <th style="width:120px">Deducciones</th>
     <th style="width:130px;background:#064e3b;border-color:#047857">NETO</th>

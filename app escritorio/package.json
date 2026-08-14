@@ -1,6 +1,6 @@
 {
   "name": "dclock-desktop",
-  "version": "1.5.87",
+  "version": "1.5.88",
   "description": "D-CLOCK — Sistema de Checador Empresarial",
   "main": "main.js",
   "scripts": {
