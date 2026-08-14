@@ -1771,7 +1771,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
                 </button>
               </div>
               <div id="nom-report-summary" style="display:none;background:var(--accent-bg);border:1px solid var(--accent);border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:14px;display:none;gap:14px;align-items:center;flex-wrap:wrap">
-                <span>Total pendiente: <strong id="nom-total-net" style="font-size:18px;color:var(--accent)"></strong></span>
+                <span>Total neto: <strong id="nom-total-net" style="font-size:18px;color:var(--accent)"></strong></span>
                 <button id="btn-pay-sem-quin" style="display:none;font-size:12px;padding:5px 14px;border-radius:6px;cursor:pointer;border:none;background:#1e40af;color:#fff;font-weight:700" onclick="payNonMonthly()">Pagar Semanal + Quincenal</button>
               </div>
               <div id="nom-report-wrap">
@@ -6387,13 +6387,12 @@ function calcCycleNet(r, cycleFrom, cycleTo, today) {
     allDays.filter(d => d.status==='falta'||d.status==='no_disponible').map(d => d.date)
   );
   const cycDays = allDays.filter(d => d.date>=cycleFrom && d.date<=cycleTo && d.date<=today);
-  // no_aplica (día sin horario asignado) cuenta como falta para descuento
-  const faltas = cycDays.filter(d => faltaSet.has(d.date) || d.status==='no_aplica').length;
+  const faltas = cycDays.filter(d => faltaSet.has(d.date)).length;
   // Art.69 LFT: descanso se pierde si hay falta el día antes o después
   const descansosLost = cycDays.filter(d =>
     d.status==='descanso' && (faltaSet.has(_shiftDate(d.date,-1)) || faltaSet.has(_shiftDate(d.date,1)))
   ).length;
-  // Sin ningún día trabajado y con faltas → pago cero
+  // Sin ningún día trabajado y con faltas reales → pago cero
   const worked = cycDays.filter(d => ['a_tiempo','retardo','vacaciones','desviacion'].includes(d.status)).length;
   if (worked === 0 && faltas >= 1) return 0;
   return Math.max(0, parseFloat((base - dailyRate * (faltas + descansosLost)).toFixed(2)));
@@ -6437,21 +6436,20 @@ function renderNominaReport(rows, dates, freq, paymentsMap, from, to) {
 
   // Pre-calcular neto pendiente (no pagado) por empleado
   const pendingMap = {};
+  // displayNetMap: neto del período seleccionado usando la misma lógica que calcCycleNet
+  const displayNetMap = {};
   rows.forEach(r => {
     const cyc = getPayCycles(from, to, r.payment_freq);
     const mat = matchCyclePayments(paymentsMap[r.id]||[], cyc);
     pendingMap[r.id] = parseFloat(mat.reduce((sum,cm,i) => cm.payment ? sum : sum + calcCycleNet(r, cyc[i].from, cyc[i].to, _today), 0).toFixed(2));
+    // Neto del período = calcCycleNet con el período completo (1 slot base)
+    displayNetMap[r.id] = calcCycleNet(r, from, to, _today);
   });
 
   const rowHtml = r => {
-    const empPayments = paymentsMap[r.id] || [];
-    const cycles = getPayCycles(from, to, r.payment_freq);
-    const cycleMatches = matchCyclePayments(empPayments, cycles);
-    const paidCount = cycleMatches.filter(cm => cm.payment).length;
-    const totalCycles = cycles.length;
-    const allPaid = paidCount === totalCycles;
-    const nonePaid = paidCount === 0;
-    const rowBg = allPaid ? 'background:#f0fdf4' : (paidCount > 0 ? 'background:#fffbeb' : '');
+    const net    = displayNetMap[r.id] ?? (r.net_salary||0);
+    const deduc  = Math.max(0, parseFloat(((r.period_salary||0) - net).toFixed(2)));
+    const rowBg  = net === 0 && r.absences > 0 ? 'background:#fff5f5' : '';
 
     const cells = dates.map(d => {
       const day    = r.days.find(x=>x.date===d);
@@ -6464,38 +6462,6 @@ function renderNominaReport(rows, dates, freq, paymentsMap, from, to) {
       return `<td style="background:${s.bg};color:${s.fg};text-align:center;padding:3px 2px;border:1px solid #e5e7eb;min-width:36px"><div style="font-weight:700;font-size:11px;line-height:1.3">${AI[st]||'-'}</div><div style="font-size:8px;opacity:.9">${payStr}</div></td>`;
     });
 
-    // Construir celda Estado basada en ciclos
-    let statusTd;
-    if (allPaid) {
-      const undoBtns = cycleMatches.map(cm =>
-        `<button onclick="unmarkPaid(${cm.payment.id})" style="${BTNUNDO}" title="Quitar pago ${cm.cycle.from}–${cm.cycle.to}">↩ ${cm.cycle.from.slice(5)}</button>`
-      ).join(' ');
-      statusTd = `<td style="${T};text-align:center;background:#dcfce7;color:#166534;min-width:110px">
-        <div style="font-weight:700;font-size:11px">✓ Pagado</div>
-        <div style="font-size:9px;opacity:.75">${totalCycles > 1 ? totalCycles+' ciclos' : cycleMatches[0]?.payment?.payment_date||''}</div>
-        <div style="margin-top:2px">${undoBtns}</div>
-      </td>`;
-    } else if (paidCount > 0) {
-      // Parcialmente pagado — mostrar qué ciclos faltan y cuánto queda
-      const pendingAmt = pendingMap[r.id]||0;
-      const unpaidCycles = cycleMatches.filter(cm => !cm.payment).map(cm => cm.cycle);
-      const unpaidPayload = JSON.stringify(unpaidCycles.map(c => c.from+'|'+c.to));
-      const undoBtns = cycleMatches.filter(cm => cm.payment).map(cm =>
-        `<button onclick="unmarkPaid(${cm.payment.id})" style="${BTNUNDO}" title="Quitar ${cm.cycle.from}–${cm.cycle.to}">↩ ${cm.cycle.from.slice(5)}</button>`
-      ).join(' ');
-      statusTd = `<td style="${T};text-align:center;background:#fef9c3;color:#92400e;min-width:110px">
-        <div style="font-weight:700;font-size:11px">${paidCount}/${totalCycles} pagados</div>
-        <div style="font-size:9px;margin-top:1px">Pendiente: $${pendingAmt.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
-        <div style="margin-top:2px">${undoBtns}</div>
-        <button onclick="markCycles(${r.id},'${r.payment_freq}',${unpaidPayload})" style="${BTNPAY2}">Pagar $${pendingAmt.toLocaleString('es-MX',{minimumFractionDigits:2})}</button>
-      </td>`;
-    } else {
-      const pendingAmt = pendingMap[r.id]||0;
-      statusTd = `<td style="${T};text-align:center;min-width:90px">
-        <button onclick="markAsPaid([${r.id}],'${from}','${to}','${r.payment_freq}')" style="${BTNPAY}">Pagar $${pendingAmt.toLocaleString('es-MX',{minimumFractionDigits:2})}</button>
-      </td>`;
-    }
-
     return `<tr style="${rowBg}">
       <td style="${TS};min-width:150px">${r.name} ${r.last_name}</td>
       <td style="${T};color:var(--muted)">${r.department_name||'—'}</td>
@@ -6506,33 +6472,15 @@ function renderNominaReport(rows, dates, freq, paymentsMap, from, to) {
       <td style="${T};text-align:center;${r.absences>0?'color:var(--red);font-weight:700':''}">${r.absences>0?'⚠ ':''}${r.absences}</td>
       <td style="${T};text-align:center;color:#059669">${r.leave_days>0?'✓ '+r.leave_days:'—'}</td>
       <td style="${T};text-align:right">$${(r.period_salary||0).toLocaleString('es-MX',{minimumFractionDigits:2})}</td>
-      <td style="${T};text-align:right;color:var(--red)">${r.deductions>0?'-$'+r.deductions.toLocaleString('es-MX',{minimumFractionDigits:2}):'—'}</td>
-      <td style="${T};text-align:right;font-weight:700;color:var(--green)">$${(r.net_salary||0).toLocaleString('es-MX',{minimumFractionDigits:2})}</td>
-      ${statusTd}
+      <td style="${T};text-align:right;color:var(--red)">${deduc>0?'-$'+deduc.toLocaleString('es-MX',{minimumFractionDigits:2}):'—'}</td>
+      <td style="${T};text-align:right;font-weight:700;${net===0&&r.absences>0?'color:var(--red)':'color:var(--green)'}">$${net.toLocaleString('es-MX',{minimumFractionDigits:2})}</td>
     </tr>`;
   };
 
-  // Cuenta cuántos empleados de un grupo tienen TODOS sus ciclos pagados
-  const fullyPaidCount = grpRows => grpRows.filter(r => {
-    const cycles = getPayCycles(from, to, r.payment_freq);
-    const matches = matchCyclePayments(paymentsMap[r.id]||[], cycles);
-    return matches.every(cm => cm.payment);
-  }).length;
+  const secHdr = (label, color, n, sub) =>
+    `<tr><td colspan="${4+dates.length+3}" style="background:${color};color:#fff;font-weight:700;padding:7px 14px;font-size:12px">${label} &nbsp;·&nbsp; ${n} empleado${n!==1?'s':''} &nbsp;·&nbsp; Total neto: $${sub.toLocaleString('es-MX',{minimumFractionDigits:2})}</td></tr>`;
 
-  const secHdr = (label, color, n, sub, grpRows) => {
-    const pc = fullyPaidCount(grpRows);
-    const freqKey = grpRows[0]?.payment_freq||'';
-    const unpaidIds = grpRows.filter(r => {
-      const cycles = getPayCycles(from, to, r.payment_freq);
-      return !matchCyclePayments(paymentsMap[r.id]||[], cycles).every(cm => cm.payment);
-    }).map(r => r.id);
-    const payBtn = unpaidIds.length > 0
-      ? `<button onclick="markAsPaid(${JSON.stringify(unpaidIds)},'${from}','${to}','${freqKey}')" style="font-size:10px;padding:2px 10px;border-radius:3px;cursor:pointer;border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.15);color:#fff;font-weight:600;margin-left:10px">Marcar todos pagados (${unpaidIds.length})</button>`
-      : `<span style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:3px;margin-left:10px">✓ Todos pagados</span>`;
-    return `<tr><td colspan="${TCOLS}" style="background:${color};color:#fff;font-weight:700;padding:7px 14px;font-size:12px">${label} &nbsp;·&nbsp; ${n} empleado${n!==1?'s':''} &nbsp;·&nbsp; Subtotal: $${sub.toLocaleString('es-MX',{minimumFractionDigits:2})} &nbsp;·&nbsp; ${pc}/${n} pagados ${payBtn}</td></tr>`;
-  };
-
-  let bodyHtml = '', totalPending = 0;
+  let bodyHtml = '', totalNet = 0;
   if (!freq) {
     const grp = {weekly:[],biweekly:[],monthly:[]};
     rows.forEach(r => { (grp[r.payment_freq]||grp.monthly).push(r); });
@@ -6541,26 +6489,24 @@ function renderNominaReport(rows, dates, freq, paymentsMap, from, to) {
      {key:'monthly',label:'Nómina Mensual',color:'#7c3aed'}
     ].forEach(({key,label,color}) => {
       const g = grp[key]; if (!g.length) return;
-      const sub = g.reduce((s,r)=>s+(pendingMap[r.id]||0),0); totalPending += sub;
-      bodyHtml += secHdr(label,color,g.length,sub,g) + g.map(rowHtml).join('');
-      bodyHtml += `<tr style="background:rgba(0,0,0,.04)"><td colspan="${4+dates.length+3}" style="text-align:right;font-size:11px;font-weight:700;color:var(--muted);padding:5px 10px;border:1px solid #e5e7eb">Pendiente ${label}:</td><td colspan="4" style="text-align:right;font-weight:700;color:var(--green);padding:5px 8px;border:1px solid #e5e7eb">$${sub.toLocaleString('es-MX',{minimumFractionDigits:2})}</td></tr>`;
+      const sub = parseFloat(g.reduce((s,r)=>s+(displayNetMap[r.id]??r.net_salary??0),0).toFixed(2));
+      totalNet += sub;
+      bodyHtml += secHdr(label,color,g.length,sub) + g.map(rowHtml).join('');
+      bodyHtml += `<tr style="background:rgba(0,0,0,.04)"><td colspan="${4+dates.length+2}" style="text-align:right;font-size:11px;font-weight:700;color:var(--muted);padding:5px 10px;border:1px solid #e5e7eb">Total ${label}:</td><td colspan="3" style="text-align:right;font-weight:700;color:var(--green);padding:5px 8px;border:1px solid #e5e7eb">$${sub.toLocaleString('es-MX',{minimumFractionDigits:2})}</td></tr>`;
     });
   } else {
-    rows.forEach(r => totalPending += pendingMap[r.id]||0);
+    rows.forEach(r => { totalNet += displayNetMap[r.id]??r.net_salary??0; });
+    totalNet = parseFloat(totalNet.toFixed(2));
     bodyHtml = rows.map(rowHtml).join('');
   }
-  bodyHtml += `<tr style="background:var(--accent-bg)"><td colspan="${4+dates.length+3}" style="text-align:right;font-weight:700;font-size:12px;padding:8px 12px;border:1px solid var(--border);color:var(--accent)">TOTAL PENDIENTE:</td><td colspan="4" style="text-align:right;font-weight:800;font-size:14px;color:var(--accent);padding:8px 10px;border:1px solid var(--border)">$${totalPending.toLocaleString('es-MX',{minimumFractionDigits:2})}</td></tr>`;
-  const thead = `<tr><th style="${HS};min-width:150px">Empleado</th><th style="${H}">Área</th><th style="${H}">Frec.</th><th style="${H}">$/día</th>${dateHeads.join('')}<th style="${H}">Trab.</th><th style="${H}">Faltas</th><th style="${H}">Vac.</th><th style="${H}">Sal.período</th><th style="${H}">Deduc.</th><th style="${H}">Neto</th><th style="${H}">Estado</th></tr>`;
+  bodyHtml += `<tr style="background:var(--accent-bg)"><td colspan="${4+dates.length+2}" style="text-align:right;font-weight:700;font-size:12px;padding:8px 12px;border:1px solid var(--border);color:var(--accent)">TOTAL NETO:</td><td colspan="3" style="text-align:right;font-weight:800;font-size:14px;color:var(--accent);padding:8px 10px;border:1px solid var(--border)">$${totalNet.toLocaleString('es-MX',{minimumFractionDigits:2})}</td></tr>`;
+  const thead = `<tr><th style="${HS};min-width:150px">Empleado</th><th style="${H}">Área</th><th style="${H}">Frec.</th><th style="${H}">$/día</th>${dateHeads.join('')}<th style="${H}">Trab.</th><th style="${H}">Faltas</th><th style="${H}">Vac.</th><th style="${H}">Sal.período</th><th style="${H}">Deduc.</th><th style="${H}">Neto</th></tr>`;
   wrap.innerHTML = `<div style="overflow-x:auto;max-width:100%"><table class="table" style="min-width:max-content;border-collapse:collapse"><thead>${thead}</thead><tbody id="nom-report-body">${bodyHtml}</tbody></table></div>`;
-  document.getElementById("nom-total-net").textContent = "$"+totalPending.toLocaleString("es-MX",{minimumFractionDigits:2});
+  document.getElementById("nom-total-net").textContent = "$"+totalNet.toLocaleString("es-MX",{minimumFractionDigits:2});
   const summaryEl = document.getElementById("nom-report-summary");
   summaryEl.style.display = "flex";
-  // Mostrar botón combo solo cuando se ven "Todas" las frecuencias
   const btnSQ = document.getElementById("btn-pay-sem-quin");
-  if (btnSQ) {
-    const hasMixed = !freq && rows.some(r=>r.payment_freq!=='monthly') && rows.some(r=>r.payment_freq==='monthly');
-    btnSQ.style.display = hasMixed ? 'inline-block' : 'none';
-  }
+  if (btnSQ) btnSQ.style.display = 'none';
 }
 
 // Pagar solo semanal + quincenal (excluye mensual) — para días de quincena
@@ -6624,104 +6570,214 @@ function exportNominaExcel() {
   if (!_nomRows?.length) { showToast("Genera el reporte primero","error"); return; }
   const from = document.getElementById("nom-from").value;
   const to   = document.getElementById("nom-to").value;
-  const FL   = {weekly:'Semanal',biweekly:'Quincenal',monthly:'Mensual'};
-  const grpLabel = {weekly:'NÓMINA SEMANAL',biweekly:'NÓMINA QUINCENAL',monthly:'NÓMINA MENSUAL'};
-  const _today = new Date().toISOString().slice(0,10);
+  const FL        = {weekly:'Semanal',biweekly:'Quincenal',monthly:'Mensual'};
+  const grpLabel  = {weekly:'NÓMINA SEMANAL',biweekly:'NÓMINA QUINCENAL',monthly:'NÓMINA MENSUAL'};
+  const grpColor  = {weekly:'#1e40af',biweekly:'#0369a1',monthly:'#0f766e'};
+  const grpLight  = {weekly:'#dbeafe',biweekly:'#e0f2fe',monthly:'#ccfbf1'};
+  const _today    = new Date().toISOString().slice(0,10);
+  const fmtMXN    = n => '$' + (n||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
 
-  const fmtMXN = n => '$' + (n||0).toLocaleString('es-MX',{minimumFractionDigits:2});
+  const grp = {weekly:[],biweekly:[],monthly:[]};
+  _nomRows.forEach(r => (grp[r.payment_freq]||grp.monthly).push(r));
+  const subTotals  = {
+    weekly:   grp.weekly.reduce((s,r)=>s+(r.net_salary||0),0),
+    biweekly: grp.biweekly.reduce((s,r)=>s+(r.net_salary||0),0),
+    monthly:  grp.monthly.reduce((s,r)=>s+(r.net_salary||0),0),
+  };
+  const grandTotal     = _nomRows.reduce((s,r)=>s+(r.net_salary||0),0);
+  const totalFaltas    = _nomRows.reduce((s,r)=>s+(r.absences||0),0);
+  const totalEmpleados = _nomRows.length;
+  const totalPagados   = _nomRows.filter(r => {
+    const cyc = getPayCycles(from,to,r.payment_freq);
+    return matchCyclePayments((_nomPayments||{})[r.id]||[],cyc).every(cm=>cm.payment);
+  }).length;
 
-  // Calcular estado de ciclos por empleado
-  const getCycleStatus = r => {
+  const getCycleBadge = r => {
     const cyc = getPayCycles(from, to, r.payment_freq);
     const mat = matchCyclePayments((_nomPayments||{})[r.id]||[], cyc);
     const paid = mat.filter(cm=>cm.payment).length;
-    if (paid === cyc.length) return 'Pagado';
-    if (paid > 0) return `${paid}/${cyc.length} pagados`;
-    return 'Pendiente';
+    if (paid === cyc.length) return {label:'✔ Pagado',   bg:'#16a34a',fg:'#fff'};
+    if (paid > 0)            return {label:`${paid}/${cyc.length} Pagados`,bg:'#d97706',fg:'#fff'};
+    return                          {label:'Pendiente',  bg:'#dc2626',fg:'#fff'};
   };
 
-  let html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel'>
-<head><meta charset='UTF-8'><style>
-  body{font-family:Arial,sans-serif;font-size:11pt}
-  h2{color:#1e3a8a;margin-bottom:4px}
-  p.sub{color:#6b7280;font-size:10pt;margin-top:0}
-  table{border-collapse:collapse;width:100%;margin-top:10px}
-  th{background:#1e3a8a;color:#fff;font-weight:700;padding:7px 10px;border:1px solid #1e40af;font-size:10pt;white-space:nowrap}
-  td{padding:6px 10px;border:1px solid #e5e7eb;font-size:10pt;vertical-align:middle}
-  tr.even td{background:#f0f9ff}
-  tr.faltas td{background:#fff7ed}
-  tr.sec td{background:#1e3a8a;color:#fff;font-weight:700;font-size:11pt;padding:8px 10px;border:1px solid #1e40af}
-  tr.subtotal td{background:#eff6ff;font-weight:700;text-align:right;border-top:2px solid #1e40af}
-  tr.total td{background:#1e3a8a;color:#fff;font-weight:800;font-size:12pt;text-align:right}
-  .right{text-align:right}
-  .center{text-align:center}
-  .green{color:#15803d;font-weight:700}
-  .red{color:#b91c1c;font-weight:700}
-  .orange{color:#c2410c;font-weight:700}
-  .paid{color:#15803d}.pending{color:#b91c1c}.partial{color:#c2410c}
-</style></head><body>
-<h2>Reporte de Nómina</h2>
-<p class="sub">Período: ${from} al ${to} &nbsp;|&nbsp; Generado: ${_today}</p>
-<table>
-<tr>
-  <th>#</th><th>N° Empleado</th><th>Nombre completo</th><th>Área / Dept.</th>
-  <th class="center">Frec.</th><th class="right">Sal. mensual</th><th class="right">$/día</th>
-  <th class="center">Trab.</th><th class="center">Faltas</th><th class="center">Desc.</th>
-  <th class="right">Sal. período</th><th class="right">Deducciones</th><th class="right">Neto</th>
-  <th class="center">Estado pago</th>
-</tr>`;
-
-  let rowIdx = 0, grandTotal = 0;
   const TCOLS = 14;
 
-  const writeRows = (rows, groupKey) => {
+  const css = `
+    body{font-family:Calibri,Arial,sans-serif;margin:0;padding:16px;background:#f1f5f9}
+    table{border-spacing:0}
+    .hdr{width:100%;border-collapse:collapse;margin-bottom:2px}
+    .hdr td{padding:18px 24px;vertical-align:middle;background:#0f172a}
+    .brand{color:#f8fafc;font-size:26pt;font-weight:900;letter-spacing:-0.5pt;font-family:Arial Black,Arial,sans-serif;line-height:1}
+    .brand-sub{color:#38bdf8;font-size:9pt;letter-spacing:3pt;margin-top:4px;text-transform:uppercase}
+    .period-lbl{color:#64748b;font-size:8pt;text-transform:uppercase;letter-spacing:1pt}
+    .period-val{color:#e2e8f0;font-size:13pt;font-weight:700}
+    .gen-lbl{color:#475569;font-size:8pt;margin-top:6px}
+    .kpi{width:100%;border-collapse:collapse;margin-bottom:2px}
+    .kpi td{padding:12px 18px;text-align:center;border-right:1px solid #334155;background:#1e293b}
+    .kpi-num{color:#f8fafc;font-size:15pt;font-weight:900;font-family:Arial Black,Arial,sans-serif}
+    .kpi-lbl{color:#94a3b8;font-size:7.5pt;text-transform:uppercase;letter-spacing:1pt;margin-top:3px}
+    .kpi-total{background:#0284c7 !important}
+    .kpi-total .kpi-num{color:#fff;font-size:19pt}
+    .kpi-total .kpi-lbl{color:#bae6fd}
+    .kpi-alerta .kpi-num{color:#fca5a5}
+    .kpi-alerta .kpi-lbl{color:#fca5a5}
+    .kpi-alerta{background:#7f1d1d !important}
+    .freq{width:100%;border-collapse:collapse;margin-bottom:10px}
+    .freq td{padding:10px 18px;text-align:center;border-right:1px solid #e2e8f0}
+    .freq-num{font-size:13pt;font-weight:700;font-family:Arial Black,Arial,sans-serif}
+    .freq-lbl{font-size:7.5pt;text-transform:uppercase;letter-spacing:1pt;margin-top:2px}
+    .freq-cnt{font-size:7.5pt;color:#94a3b8;margin-top:1px}
+    .nom{width:100%;border-collapse:collapse}
+    .nom thead th{padding:9px 10px;border:1px solid #1e40af;font-size:9pt;white-space:nowrap;text-align:center;vertical-align:middle;background:#1e3a8a;color:#fff}
+    .nom th.thl{text-align:left}
+    .nom td{padding:6px 10px;border:1px solid #e2e8f0;font-size:10pt;vertical-align:middle}
+    .ev td{background:#f8fafc}
+    .od td{background:#fff}
+    .fa td{background:#fff7ed}
+    .ce td{background:#fef2f2}
+    .r{text-align:right}.c{text-align:center}
+    .nm{font-weight:600;color:#0f172a}
+    .net{font-weight:700;color:#15803d;font-size:10.5pt}
+    .ded{color:#dc2626}
+    .flt{color:#dc2626;font-weight:700}
+    .sec td{padding:10px 14px;font-size:10.5pt;font-weight:800;color:#fff;border-bottom:2px solid rgba(255,255,255,0.2);letter-spacing:0.5pt}
+    .sub td{padding:8px 12px;font-weight:700;font-size:9.5pt}
+    .tot td{background:#0f172a;color:#f8fafc;font-weight:800;font-size:12pt;padding:12px 14px;border:none}
+    .foot{color:#94a3b8;font-size:8pt;margin-top:10px;border-top:1px solid #e2e8f0;padding-top:8px;line-height:1.7}
+  `;
+
+  let html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel'>
+<head><meta charset='UTF-8'><style>${css}</style></head><body>
+
+<table class="hdr"><tr>
+  <td width="55%">
+    <div class="brand">D&#8209;CLOCK</div>
+    <div class="brand-sub">Reporte de N&oacute;mina Empresarial</div>
+  </td>
+  <td width="45%" style="text-align:right;vertical-align:bottom">
+    <div class="period-lbl">Per&iacute;odo</div>
+    <div class="period-val">${from} &nbsp;&rarr;&nbsp; ${to}</div>
+    <div class="gen-lbl">Generado el ${_today} &nbsp;&middot;&nbsp; D99&#8209;TECH</div>
+  </td>
+</tr></table>
+
+<table class="kpi"><tr>
+  <td><div class="kpi-num">${totalEmpleados}</div><div class="kpi-lbl">Total Empleados</div></td>
+  <td><div class="kpi-num">${totalPagados} / ${totalEmpleados}</div><div class="kpi-lbl">Con Pago Registrado</div></td>
+  <td class="kpi-alerta"><div class="kpi-num">${totalFaltas}</div><div class="kpi-lbl">Faltas en Per&iacute;odo</div></td>
+  <td class="kpi-total" colspan="2"><div class="kpi-num">${fmtMXN(grandTotal)}</div><div class="kpi-lbl">Total Neto a Pagar</div></td>
+</tr></table>`;
+
+  // Barra de frecuencias
+  const vf = ['weekly','biweekly','monthly'].filter(k=>grp[k].length>0);
+  const fbg = {weekly:'#eff6ff',biweekly:'#ecfeff',monthly:'#f0fdf4'};
+  const ffg = {weekly:'#1e40af',biweekly:'#0369a1',monthly:'#15803d'};
+  if (vf.length > 1) {
+    html += `<table class="freq"><tr>`;
+    vf.forEach(k => {
+      html += `<td style="background:${fbg[k]}">
+        <div class="freq-num" style="color:${ffg[k]}">${fmtMXN(subTotals[k])}</div>
+        <div class="freq-lbl" style="color:${ffg[k]}">${FL[k]}</div>
+        <div class="freq-cnt">${grp[k].length} empleado${grp[k].length!==1?'s':''}</div>
+      </td>`;
+    });
+    html += `</tr></table>`;
+  } else { html += `<div style="height:10px"></div>`; }
+
+  html += `<table class="nom"><thead><tr>
+    <th style="width:28px">#</th>
+    <th class="thl">ID</th>
+    <th class="thl" style="min-width:160px">Nombre Completo</th>
+    <th class="thl">&#193;rea</th>
+    <th>Frec.</th>
+    <th>Sal. Mensual</th>
+    <th>&#36;/d&iacute;a</th>
+    <th>Trab.</th>
+    <th>Faltas</th>
+    <th>Desc.&#8595;</th>
+    <th>Sal. Per&iacute;odo</th>
+    <th>Deducciones</th>
+    <th style="font-size:11pt">NETO</th>
+    <th>Estado Pago</th>
+  </tr></thead><tbody>`;
+
+  let rowIdx = 0;
+  const writeRows = (rows, gKey) => {
+    const gc = grpColor[gKey]||'#1e40af';
+    const gl = grpLight[gKey]||'#dbeafe';
     let sub = 0;
-    rows.forEach((r, i) => {
+    rows.forEach(r => {
       const net = r.net_salary||0;
-      sub += net; grandTotal += net;
-      const status = getCycleStatus(r);
-      const stClass = status==='Pagado'?'paid': status==='Pendiente'?'pending':'partial';
-      const rowClass = r.absences>0 ? 'faltas' : (rowIdx%2===0?'even':'');
+      sub += net;
+      const badge = getCycleBadge(r);
       rowIdx++;
-      html += `<tr class="${rowClass}">
-        <td class="center">${rowIdx}</td>
-        <td>${r.employee_number||'—'}</td>
-        <td><strong>${r.name} ${r.last_name||''}</strong></td>
-        <td>${r.department_name||'—'}</td>
-        <td class="center">${FL[r.payment_freq]||r.payment_freq}</td>
-        <td class="right">${fmtMXN(r.monthly_salary)}</td>
-        <td class="right">${fmtMXN((r.monthly_salary||0)*12/365.25)}</td>
-        <td class="center">${r.worked_days||0}</td>
-        <td class="center ${r.absences>0?'red':''}">${r.absences||0}</td>
-        <td class="center">${r.leave_days||0}</td>
-        <td class="right">${fmtMXN(r.period_salary)}</td>
-        <td class="right ${r.deductions>0?'red':''}">${r.deductions>0?'-'+fmtMXN(r.deductions):'—'}</td>
-        <td class="right green">${fmtMXN(net)}</td>
-        <td class="center ${stClass}">${status}</td>
+      const rc = net===0?'ce': r.absences>0?'fa': rowIdx%2===0?'ev':'od';
+      html += `<tr class="${rc}">
+        <td class="c" style="color:#94a3b8;font-size:9pt">${rowIdx}</td>
+        <td style="color:#64748b;font-size:9pt">${r.employee_number||'&mdash;'}</td>
+        <td class="nm">${r.name||''} ${r.last_name||''}</td>
+        <td style="color:#475569">${r.department_name||'&mdash;'}</td>
+        <td class="c" style="font-size:9pt;color:${gc};font-weight:700;background:${gl}">${FL[r.payment_freq]||r.payment_freq}</td>
+        <td class="r">${fmtMXN(r.monthly_salary)}</td>
+        <td class="r" style="color:#64748b;font-size:9pt">${fmtMXN((r.monthly_salary||0)*12/365.25)}</td>
+        <td class="c" style="color:#15803d;font-weight:700">${r.worked_days||0}</td>
+        <td class="c ${r.absences>0?'flt':''}">${r.absences||0}${r.absences>0?' &#9888;':''}</td>
+        <td class="c" style="color:${r.leave_days>0?'#0369a1':'#94a3b8'}">${r.leave_days||0}</td>
+        <td class="r" style="color:#475569">${fmtMXN(r.period_salary)}</td>
+        <td class="r ded">${r.deductions>0?'&ndash;'+fmtMXN(r.deductions):'&mdash;'}</td>
+        <td class="r net" style="${net===0?'color:#dc2626':''}">${fmtMXN(net)}</td>
+        <td class="c" style="background:${badge.bg};color:${badge.fg};font-weight:700;font-size:8.5pt;white-space:nowrap;padding:5px 8px">${badge.label}</td>
       </tr>`;
     });
-    html += `<tr class="subtotal"><td colspan="${TCOLS-3}">Subtotal ${grpLabel[groupKey]||''} (${rows.length} empleados)</td><td colspan="3" class="right green">${fmtMXN(sub)}</td></tr>`;
+    html += `<tr class="sub" style="background:${gl};border-top:2px solid ${gc}">
+      <td colspan="${TCOLS-2}" style="text-align:right;color:${gc};padding-right:14px;font-size:9pt">
+        Subtotal ${grpLabel[gKey]||''} &nbsp;&middot;&nbsp; ${rows.length} empleado${rows.length!==1?'s':''}
+      </td>
+      <td colspan="2" style="text-align:right;color:${gc};font-size:12pt;font-weight:800">${fmtMXN(sub)}</td>
+    </tr>`;
   };
 
   if (_nomFreq) {
     writeRows(_nomRows, _nomFreq);
   } else {
-    const grp = {weekly:[],biweekly:[],monthly:[]};
-    _nomRows.forEach(r => (grp[r.payment_freq]||grp.monthly).push(r));
     ['weekly','biweekly','monthly'].forEach(k => {
       if (!grp[k].length) return;
-      html += `<tr class="sec"><td colspan="${TCOLS}">${grpLabel[k]} — ${grp[k].length} empleado${grp[k].length!==1?'s':''}</td></tr>`;
+      html += `<tr class="sec" style="background:${grpColor[k]}">
+        <td colspan="${TCOLS}" style="border-left:5px solid rgba(255,255,255,0.35)">
+          ${grpLabel[k]} &nbsp;&middot;&nbsp; ${grp[k].length} empleado${grp[k].length!==1?'s':''}
+        </td>
+      </tr>`;
       writeRows(grp[k], k);
     });
   }
 
-  html += `<tr class="total"><td colspan="${TCOLS-2}">TOTAL NETO PERÍODO</td><td colspan="2">${fmtMXN(grandTotal)}</td></tr>`;
-  html += `</table></body></html>`;
+  html += `</tbody><tfoot>
+  <tr class="tot">
+    <td colspan="${TCOLS-3}" style="text-align:right;color:#94a3b8;font-size:10pt;letter-spacing:1pt">
+      TOTAL NETO DEL PER&Iacute;ODO
+    </td>
+    <td colspan="3" style="text-align:right;color:#38bdf8;font-size:18pt;font-weight:900;font-family:Arial Black,Arial,sans-serif">
+      ${fmtMXN(grandTotal)}
+    </td>
+  </tr>
+  </tfoot></table>
+
+<div class="foot">
+  <b>Notas:</b> &nbsp;
+  Deducciones aplicadas conforme a LFT. &nbsp;&middot;&nbsp;
+  <b>Art. 69 LFT:</b> descanso se descuenta si hay falta el d&iacute;a anterior o posterior. &nbsp;&middot;&nbsp;
+  D&iacute;as sin horario asignado cuentan como falta. &nbsp;&middot;&nbsp;
+  &#36;/d&iacute;a = Sal. mensual &times; 12 / 365.25 &nbsp;&middot;&nbsp;
+  Generado con <b>D&#8209;CLOCK</b> &mdash; D99&#8209;TECH &nbsp;&middot;&nbsp; ${_today}
+</div>
+
+</body></html>`;
 
   const blob = new Blob(['﻿'+html], {type:"application/vnd.ms-excel;charset=utf-8"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `nomina-${from}-${to}.xls`;
+  a.download = `D-CLOCK_Nomina_${from}_${to}.xls`;
   a.click();
 }
 
