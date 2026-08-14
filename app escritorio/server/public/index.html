@@ -6443,12 +6443,12 @@ function _shiftDate(dateStr, days) {
   return d.toISOString().slice(0,10);
 }
 
-// Calcula neto de un slot: base = mensual/N, daily = mensual*12/365.25
-// Aplica Art.69 LFT: descanso se pierde si hay falta el día ANTES o el día DESPUÉS
+// Art.89 LFT: daily = mensual/30; base = daily × 7/15/30 según frecuencia
+// Art.69 LFT: descanso se pierde si hay falta el día ANTES o el día DESPUÉS
 function calcCycleNet(r, cycleFrom, cycleTo, today) {
-  const n = r.payment_freq === 'weekly' ? 4 : r.payment_freq === 'biweekly' ? 2 : 1;
-  const base = (r.monthly_salary||0) / n;
-  const dailyRate = (r.monthly_salary||0) * 12 / 365.25;
+  const dailyRate = (r.monthly_salary||0) / 30;
+  const periodDays = r.payment_freq === 'weekly' ? 7 : r.payment_freq === 'biweekly' ? 15 : 30;
+  const base = dailyRate * periodDays;
   const allDays = r.days||[];
   const faltaSet = new Set(
     allDays.filter(d => d.status==='falta'||d.status==='no_disponible').map(d => d.date)
@@ -6824,7 +6824,7 @@ async function exportNominaExcel() {
         <td class="nm">${r.name||''} ${r.last_name||''}</td>
         <td style="color:#475569">${r.department_name||'&mdash;'}</td>
         <td class="c" style="font-size:8.5pt;color:${gc};font-weight:700;background:${gl}">${FL[r.payment_freq]||r.payment_freq}</td>
-        <td class="r" style="color:#64748b;font-size:8.5pt">${fmtMXN((r.monthly_salary||0)*12/365.25)}</td>
+        <td class="r" style="color:#64748b;font-size:8.5pt">${fmtMXN((r.monthly_salary||0)/30)}</td>
         ${dayCells}
         <td class="c" style="color:#047857;font-weight:700">${r.worked_days||0}</td>
         <td class="c ${r.absences>0?'flt':''}">${r.absences||0}${r.absences>0?' &#9888;':''}</td>
@@ -6872,7 +6872,7 @@ async function exportNominaExcel() {
   <b>Notas:</b> &nbsp;
   Deducciones conforme a LFT. &nbsp;&middot;&nbsp;
   <b>Art. 69 LFT:</b> descanso se descuenta si hay falta el d&iacute;a anterior o posterior. &nbsp;&middot;&nbsp;
-  &#36;/d&iacute;a = Sal. mensual &times; 12 / 365.25 &nbsp;&middot;&nbsp;
+  &#36;/d&iacute;a = Sal. mensual / 30 (Art.89 LFT) &nbsp;&middot;&nbsp;
   Generado con <b>D&#8209;CLOCK</b> &mdash; D99&#8209;TECH &nbsp;&middot;&nbsp; ${_today}
 </div>
 
