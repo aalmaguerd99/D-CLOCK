@@ -6465,14 +6465,10 @@ function calcCycleNet(r, cycleFrom, cycleTo, today) {
   );
   const cycDays = allDays.filter(d => d.date>=cycleFrom && d.date<=cycleTo && d.date<=today);
   const faltas = cycDays.filter(d => faltaSet.has(d.date)).length;
-  // Art.69 LFT: descanso se pierde si hay falta el día antes o después
-  const descansosLost = cycDays.filter(d =>
-    d.status==='descanso' && (faltaSet.has(_shiftDate(d.date,-1)) || faltaSet.has(_shiftDate(d.date,1)))
-  ).length;
-  // Sin ningún día trabajado y con faltas reales → pago cero
+  // Por cada falta: descuenta día completo + 1/6 proporcional del descanso (7 días / 6 laborales)
   const worked = cycDays.filter(d => ['a_tiempo','retardo','vacaciones','desviacion'].includes(d.status)).length;
   if (worked === 0 && faltas >= 1) return 0;
-  return Math.max(0, parseFloat((base - dailyRate * (faltas + descansosLost)).toFixed(2)));
+  return Math.max(0, parseFloat((base - dailyRate * faltas * (7/6)).toFixed(2)));
 }
 
 function renderNominaReport(rows, dates, freq, paymentsMap, from, to) {
@@ -6911,7 +6907,7 @@ async function exportNominaExcel() {
 <div class="foot">
   <b>Notas:</b> &nbsp;
   Deducciones conforme a LFT. &nbsp;&middot;&nbsp;
-  <b>Art. 69 LFT:</b> descanso se descuenta si hay falta el d&iacute;a anterior o posterior. &nbsp;&middot;&nbsp;
+  Descuento por falta = d&iacute;a completo + 1/6 proporcional de descanso (6 laborales : 1 descanso). &nbsp;&middot;&nbsp;
   &#36;/d&iacute;a = Sal. mensual / 30 (Art.89 LFT) &nbsp;&middot;&nbsp;
   Generado con <b>D&#8209;CLOCK</b> &mdash; D99&#8209;TECH &nbsp;&middot;&nbsp; ${_today}
 </div>
