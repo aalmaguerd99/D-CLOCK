@@ -6088,7 +6088,15 @@ function hrDocSetFilter(f,el){
   renderHrdList();
 }
 
-function hrdOpenFile(id){window.open('/api/hr/documents/'+id+'/file','_blank');}
+async function hrdOpenFile(id){
+  try{
+    const r=await fetch('/api/hr/documents/'+id+'/file',{headers:{'x-auth-token':TOKEN}});
+    if(!r.ok){showToast('Error al abrir archivo','error');return;}
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    window.open(url,'_blank');
+  }catch(e){showToast(e.message,'error');}
+}
 
 async function deleteHrDoc(id){
   if(!confirm('¿Eliminar este documento? Se eliminará para todos los destinatarios.'))return;
