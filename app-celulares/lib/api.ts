@@ -287,3 +287,117 @@ export async function submitVacationRequest(
     notes: notes ?? null,
   });
 }
+
+// ── Team leader: absence notes ────────────────────────
+
+export interface AbsenceNote {
+  id: number;
+  employee_id: number;
+  emp_name: string;
+  emp_last: string | null;
+  date: string;
+  note: string;
+  added_by: number;
+  created_at: string;
+}
+
+export async function fetchAbsenceNotes(employee_id: number, date: string): Promise<AbsenceNote[]> {
+  return get<AbsenceNote[]>(`/api/mobile/absence-notes?employee_id=${employee_id}&date=${date}`);
+}
+
+export async function postAbsenceNote(
+  employee_id: number,
+  member_id: number,
+  date: string,
+  note: string
+): Promise<{ ok: boolean; id: number }> {
+  return post<{ ok: boolean; id: number }>("/api/mobile/absence-note", { employee_id, member_id, date, note });
+}
+
+// ── Team leader: transfers ────────────────────────────
+
+export interface TeamOption {
+  id: number;
+  name: string;
+}
+
+export interface TransferRequest {
+  id: number;
+  employee_id: number;
+  emp_name: string;
+  emp_last: string | null;
+  from_team_name: string | null;
+  to_team_name: string;
+  status: "pending" | "confirmed" | "rejected" | "forced";
+  notes: string | null;
+  requested_at: string;
+  resolved_at: string | null;
+}
+
+export async function fetchTeams(): Promise<TeamOption[]> {
+  return get<TeamOption[]>("/api/mobile/teams");
+}
+
+export async function fetchTransfers(employee_id: number): Promise<TransferRequest[]> {
+  return get<TransferRequest[]>(`/api/mobile/transfers?employee_id=${employee_id}`);
+}
+
+export async function submitTransferRequest(
+  employee_id: number,
+  member_id: number,
+  to_team_id: number,
+  notes?: string
+): Promise<{ ok: boolean; id: number }> {
+  return post<{ ok: boolean; id: number }>("/api/mobile/transfer-request", {
+    employee_id, member_id, to_team_id, notes: notes ?? null,
+  });
+}
+
+export async function confirmTransfer(
+  employee_id: number,
+  transfer_id: number
+): Promise<{ ok: boolean }> {
+  return post<{ ok: boolean }>(`/api/mobile/transfers/${transfer_id}/confirm`, { employee_id });
+}
+
+// ── HR Documents ─────────────────────────────────────────────────────────────
+
+export interface HrDocument {
+  id: number;
+  title: string;
+  description: string | null;
+  file_name: string | null;
+  file_type: string | null;
+  expires_at: string | null;
+  created_at: string;
+  sent_at: string;
+  viewed_at: string | null;
+  signed_at: string | null;
+}
+
+export interface HrSignResult {
+  ok: boolean;
+  already?: boolean;
+  signature_hash?: string;
+  signed_at?: string;
+}
+
+export async function fetchHrDocuments(employee_id: number): Promise<HrDocument[]> {
+  return get<HrDocument[]>(`/api/mobile/hr/documents?employee_id=${employee_id}`);
+}
+
+export async function getHrDocumentFileUrl(
+  serverUrl: string,
+  docId: number,
+  employee_id: number
+): Promise<string> {
+  return `${serverUrl}/api/mobile/hr/documents/${docId}/file?employee_id=${employee_id}`;
+}
+
+export async function signHrDocument(
+  docId: number,
+  employee_id: number,
+  device_info: Record<string, string>
+): Promise<HrSignResult> {
+  return post<HrSignResult>(`/api/mobile/hr/documents/${docId}/sign`, { employee_id, device_info });
+}

@@ -204,6 +204,25 @@ function init(dataDir) {
     "CREATE TABLE IF NOT EXISTS vacation_requests (id INTEGER PRIMARY KEY AUTOINCREMENT, employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE, start_date TEXT NOT NULL, end_date TEXT NOT NULL, days_count INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'pending', notes TEXT, requested_at TEXT DEFAULT (datetime('now','localtime')), reviewed_at TEXT, review_notes TEXT)",
     "CREATE TABLE IF NOT EXISTS push_tokens (id INTEGER PRIMARY KEY AUTOINCREMENT, employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE, token TEXT NOT NULL, platform TEXT, updated_at TEXT DEFAULT (datetime('now','localtime')), UNIQUE(employee_id))",
     "CREATE TABLE IF NOT EXISTS notifications (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, body TEXT NOT NULL, employee_ids TEXT, sent_count INTEGER DEFAULT 0, sent_at TEXT DEFAULT (datetime('now','localtime')))",
+    "ALTER TABLE employees ADD COLUMN daily_salary REAL DEFAULT NULL",
+    // v1.4 tables
+    "CREATE TABLE IF NOT EXISTS payroll_config (id INTEGER PRIMARY KEY AUTOINCREMENT, employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE, monthly_salary REAL NOT NULL DEFAULT 0, payment_freq TEXT NOT NULL DEFAULT 'monthly', updated_at TEXT DEFAULT (datetime('now','localtime')), UNIQUE(employee_id))",
+    "CREATE TABLE IF NOT EXISTS area_transfers (id INTEGER PRIMARY KEY AUTOINCREMENT, employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE, from_area_id INTEGER REFERENCES areas(id) ON DELETE SET NULL, to_area_id INTEGER NOT NULL REFERENCES areas(id) ON DELETE CASCADE, requested_by INTEGER REFERENCES employees(id) ON DELETE SET NULL, confirmed_by INTEGER REFERENCES employees(id) ON DELETE SET NULL, status TEXT NOT NULL DEFAULT 'pending', notes TEXT, requested_at TEXT DEFAULT (datetime('now','localtime')), resolved_at TEXT)",
+    "CREATE TABLE IF NOT EXISTS absence_notes (id INTEGER PRIMARY KEY AUTOINCREMENT, employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE, date TEXT NOT NULL, note TEXT NOT NULL, added_by INTEGER REFERENCES employees(id) ON DELETE SET NULL, created_at TEXT DEFAULT (datetime('now','localtime')))",
+    "ALTER TABLE employees ADD COLUMN is_team_leader INTEGER DEFAULT 0",
+    // v1.4.3 — tipo de ausencia pagada en vacation_requests
+    "ALTER TABLE vacation_requests ADD COLUMN type TEXT DEFAULT 'vacation'",
+    // v1.5.1 — transferencias por equipo (reemplaza área destino)
+    "CREATE TABLE IF NOT EXISTS team_transfers (id INTEGER PRIMARY KEY AUTOINCREMENT, employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE, from_team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL, to_team_id INTEGER NOT NULL REFERENCES teams(id) ON DELETE CASCADE, requested_by INTEGER REFERENCES employees(id) ON DELETE SET NULL, confirmed_by INTEGER REFERENCES employees(id) ON DELETE SET NULL, status TEXT NOT NULL DEFAULT 'pending', notes TEXT, requested_at TEXT DEFAULT (datetime('now','localtime')), resolved_at TEXT)",
+    // v1.5.5 — estado de revisión en notas de ausencia
+    "ALTER TABLE absence_notes ADD COLUMN status TEXT DEFAULT 'pending'",
+    // v1.5.68 — registro de pagos de nómina
+    "CREATE TABLE IF NOT EXISTS payroll_payments (id INTEGER PRIMARY KEY AUTOINCREMENT, employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE, period_from TEXT NOT NULL, period_to TEXT NOT NULL, payment_date TEXT NOT NULL, amount REAL NOT NULL DEFAULT 0, payment_freq TEXT, notes TEXT, created_at TEXT DEFAULT (datetime('now','localtime')))",
+    // v1.5.73 — disponibilidad (standby) sin checada
+    "CREATE TABLE IF NOT EXISTS standby_records (id INTEGER PRIMARY KEY AUTOINCREMENT, employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE, date TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'no_disponible', notes TEXT, created_at TEXT DEFAULT (datetime('now','localtime')), UNIQUE(employee_id, date))",
+    // v1.5.91 — documentos RH con firma electrónica simple
+    "CREATE TABLE IF NOT EXISTS hr_documents (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, description TEXT, file_name TEXT, file_type TEXT, file_data TEXT, created_by TEXT, created_at TEXT DEFAULT (datetime('now','localtime')), expires_at TEXT)",
+    "CREATE TABLE IF NOT EXISTS hr_document_recipients (id INTEGER PRIMARY KEY AUTOINCREMENT, document_id INTEGER NOT NULL REFERENCES hr_documents(id) ON DELETE CASCADE, employee_id INTEGER NOT NULL REFERENCES employees(id), sent_at TEXT DEFAULT (datetime('now','localtime')), viewed_at TEXT, signed_at TEXT, signature_hash TEXT, device_info TEXT, UNIQUE(document_id, employee_id))",
   ];
   for (const sql of migrations) {
     try { db.exec(sql); } catch {}
@@ -230,7 +249,16 @@ function init(dataDir) {
     db.prepare("INSERT OR REPLACE INTO config VALUES ('admin_password',?)").run(plain);
   }
 
-  return { db, adminPassword: plain, isFirstRun };
+  // Nomina password (separate from admin)
+  let nominaPlain = db.prepare("SELECT value FROM config WHERE key='nomina_password'").get()?.value;
+  if (!nominaPlain) {
+    nominaPlain = rndPassword();
+    const nominaHash = bcrypt.hashSync(nominaPlain, 10);
+    db.prepare("INSERT OR REPLACE INTO config VALUES ('nomina_password_hash',?)").run(nominaHash);
+    db.prepare("INSERT OR REPLACE INTO config VALUES ('nomina_password',?)").run(nominaPlain);
+  }
+
+  return { db, adminPassword: plain, isFirstRun, nominaPassword: nominaPlain };
 }
 
 function getDb()  { return db; }
@@ -251,4 +279,13 @@ function deleteSession(token) {
   db.prepare("DELETE FROM sessions WHERE token=?").run(token);
 }
 
-module.exports = { init, getDb, createSession, validateSession, deleteSession };
+function getNominaPassword() { return db.prepare("SELECT value FROM config WHERE key='nomina_password'").get()?.value; }
+function resetNominaPassword() {
+  const plain = rndPassword();
+  const hash = bcrypt.hashSync(plain, 10);
+  db.prepare("INSERT OR REPLACE INTO config VALUES ('nomina_password_hash',?)").run(hash);
+  db.prepare("INSERT OR REPLACE INTO config VALUES ('nomina_password',?)").run(plain);
+  return plain;
+}
+
+module.exports = { init, getDb, createSession, validateSession, deleteSession, getNominaPassword, resetNominaPassword };

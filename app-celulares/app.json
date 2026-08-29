@@ -19,6 +19,7 @@
         "NSLocationWhenInUseUsageDescription": "D-CLOCK necesita tu ubicación para validar que estás en la zona de trabajo al registrar tu asistencia.",
         "NSLocationAlwaysUsageDescription": "D-CLOCK necesita tu ubicación para validar que estás en la zona de trabajo.",
         "NSCameraUsageDescription": "D-CLOCK toma una foto para verificar tu identidad al registrar la asistencia.",
+        "NSFaceIDUsageDescription": "D-CLOCK usa Face ID para que puedas firmar documentos de RH.",
         "ITSAppUsesNonExemptEncryption": false,
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
@@ -38,7 +39,9 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",
-        "android.permission.POST_NOTIFICATIONS"
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
       ]
     },
     "web": {
@@ -62,6 +65,7 @@
         }
       ],
       "expo-secure-store",
+      "expo-local-authentication",
       "expo-font",
       [
         "expo-notifications",

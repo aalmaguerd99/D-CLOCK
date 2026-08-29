@@ -2367,6 +2367,123 @@ app.get('/ext/v1/attendance', extAuth, (req, res) => {
   res.json({ from, to, total: records.length, records });
 });
 
+// ── HR DOCUMENTS ─────────────────────────────────────────────────────────────
+
+app.post("/api/hr/documents", auth, (req, res) => {
+  const { title, description, file_name, file_type, file_data, expires_at, employee_ids } = req.body;
+  if (!title || !file_data || !employee_ids?.length) return res.status(400).json({ error: "Faltan datos" });
+  const db = DB.getDb();
+  const doc = db.prepare(
+    "INSERT INTO hr_documents (title, description, file_name, file_type, file_data, created_by, expires_at) VALUES (?,?,?,?,?,?,?)"
+  ).run(title, description||null, file_name||null, file_type||"application/pdf", file_data, "admin", expires_at||null);
+  const ins = db.prepare("INSERT OR IGNORE INTO hr_document_recipients (document_id, employee_id) VALUES (?,?)");
+  db.transaction((ids) => { for (const eid of ids) ins.run(doc.lastInsertRowid, eid); })(employee_ids);
+  res.json({ ok: true, id: doc.lastInsertRowid });
+});
+
+app.get("/api/hr/documents", auth, (req, res) => {
+  const docs = DB.getDb().prepare(`
+    SELECT d.id, d.title, d.description, d.file_name, d.file_type, d.created_at, d.expires_at,
+      COUNT(r.id) AS total_recipients,
+      SUM(CASE WHEN r.signed_at IS NOT NULL THEN 1 ELSE 0 END) AS signed_count,
+      SUM(CASE WHEN r.viewed_at IS NOT NULL AND r.signed_at IS NULL THEN 1 ELSE 0 END) AS viewed_count
+    FROM hr_documents d LEFT JOIN hr_document_recipients r ON r.document_id=d.id
+    GROUP BY d.id ORDER BY d.created_at DESC
+  `).all();
+  res.json(docs);
+});
+
+app.get("/api/hr/documents/:id", auth, (req, res) => {
+  const db = DB.getDb();
+  const doc = db.prepare("SELECT id,title,description,file_name,file_type,created_at,expires_at FROM hr_documents WHERE id=?").get(req.params.id);
+  if (!doc) return res.status(404).json({ error: "No encontrado" });
+  const recipients = db.prepare(`
+    SELECT r.id,r.employee_id,r.sent_at,r.viewed_at,r.signed_at,r.signature_hash,r.device_info,
+      e.name,e.last_name,e.employee_number
+    FROM hr_document_recipients r JOIN employees e ON e.id=r.employee_id
+    WHERE r.document_id=? ORDER BY e.name
+  `).all(req.params.id);
+  res.json({ ...doc, recipients });
+});
+
+app.get("/api/hr/documents/:id/file", auth, (req, res) => {
+  const row = DB.getDb().prepare("SELECT file_name,file_type,file_data FROM hr_documents WHERE id=?").get(req.params.id);
+  if (!row?.file_data) return res.status(404).end();
+  const m = row.file_data.match(/^data:[^;]+;base64,(.+)$/);
+  const buf = m ? Buffer.from(m[1],"base64") : Buffer.from(row.file_data,"base64");
+  res.setHeader("Content-Type", row.file_type||"application/pdf");
+  res.setHeader("Content-Disposition", `inline; filename="${row.file_name||"documento.pdf"}"`);
+  res.send(buf);
+});
+
+app.delete("/api/hr/documents/:id", auth, (req, res) => {
+  DB.getDb().prepare("DELETE FROM hr_documents WHERE id=?").run(req.params.id);
+  res.json({ ok: true });
+});
+
+app.get("/api/hr/documents/:id/certificate/:empId", auth, (req, res) => {
+  const r = DB.getDb().prepare(`
+    SELECT r.*,e.name,e.last_name,e.employee_number,d.title
+    FROM hr_document_recipients r
+    JOIN employees e ON e.id=r.employee_id
+    JOIN hr_documents d ON d.id=r.document_id
+    WHERE r.document_id=? AND r.employee_id=?
+  `).get(req.params.id, req.params.empId);
+  if (!r?.signed_at) return res.status(404).json({ error: "No firmado" });
+  res.json({
+    document_title: r.title,
+    employee_name: `${r.name} ${r.last_name||""}`.trim(),
+    employee_number: r.employee_number,
+    signed_at: r.signed_at,
+    signature_hash: r.signature_hash,
+    device_info: r.device_info ? JSON.parse(r.device_info) : null,
+  });
+});
+
+app.get("/api/mobile/hr/documents", (req, res) => {
+  const eid = parseInt(req.query.employee_id);
+  if (!eid) return res.status(400).json({ error: "employee_id requerido" });
+  const now = new Date().toISOString().slice(0,10);
+  const docs = DB.getDb().prepare(`
+    SELECT d.id,d.title,d.description,d.file_name,d.file_type,d.expires_at,d.created_at,
+      r.sent_at,r.viewed_at,r.signed_at
+    FROM hr_document_recipients r JOIN hr_documents d ON d.id=r.document_id
+    WHERE r.employee_id=? AND (d.expires_at IS NULL OR d.expires_at>=?)
+    ORDER BY r.sent_at DESC
+  `).all(eid, now);
+  res.json(docs);
+});
+
+app.get("/api/mobile/hr/documents/:id/file", (req, res) => {
+  const eid = parseInt(req.query.employee_id);
+  if (!eid) return res.status(400).json({ error: "employee_id requerido" });
+  const db = DB.getDb();
+  const recip = db.prepare("SELECT id FROM hr_document_recipients WHERE document_id=? AND employee_id=?").get(req.params.id, eid);
+  if (!recip) return res.status(403).end();
+  db.prepare("UPDATE hr_document_recipients SET viewed_at=COALESCE(viewed_at,datetime('now','localtime')) WHERE document_id=? AND employee_id=?").run(req.params.id, eid);
+  const row = db.prepare("SELECT file_name,file_type,file_data FROM hr_documents WHERE id=?").get(req.params.id);
+  if (!row?.file_data) return res.status(404).end();
+  const m = row.file_data.match(/^data:[^;]+;base64,(.+)$/);
+  const buf = m ? Buffer.from(m[1],"base64") : Buffer.from(row.file_data,"base64");
+  res.setHeader("Content-Type", row.file_type||"application/pdf");
+  res.setHeader("Content-Disposition", `inline; filename="${row.file_name||"documento.pdf"}"`);
+  res.send(buf);
+});
+
+app.post("/api/mobile/hr/documents/:id/sign", (req, res) => {
+  const { employee_id, device_info } = req.body;
+  if (!employee_id) return res.status(400).json({ error: "employee_id requerido" });
+  const db = DB.getDb();
+  const recip = db.prepare("SELECT id,signed_at FROM hr_document_recipients WHERE document_id=? AND employee_id=?").get(req.params.id, employee_id);
+  if (!recip) return res.status(403).json({ error: "No autorizado" });
+  if (recip.signed_at) return res.json({ ok: true, already: true });
+  const signed_at = new Date().toISOString();
+  const sig = crypto.createHash("sha256").update(`${req.params.id}:${employee_id}:${signed_at}`).digest("hex");
+  db.prepare("UPDATE hr_document_recipients SET signed_at=?,signature_hash=?,device_info=?,viewed_at=COALESCE(viewed_at,?) WHERE document_id=? AND employee_id=?")
+    .run(signed_at, sig, device_info ? JSON.stringify(device_info) : null, signed_at, req.params.id, employee_id);
+  res.json({ ok: true, signature_hash: sig, signed_at });
+});
+
 function getPort()          { return LOCAL_PORT; }
 function getAdminPassword()  { return DB.getDb()?.prepare("SELECT value FROM config WHERE key='admin_password'").get()?.value; }
 function getNominaPassword() { return DB.getNominaPassword(); }
