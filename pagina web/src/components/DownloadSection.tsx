@@ -4,70 +4,64 @@ import Image from "next/image";
 
 const VERSIONS = [
   {
-    v: "1.3.6",
-    label: "v1.3.6 — Vacaciones",
-    date: "Julio 2026",
+    v: "1.5.93",
+    label: "v1.5.93 — Fix entrada/salida",
+    date: "Sep 2026",
     latest: true,
     size: "~95 MB",
     changes: [
-      "Modulo de vacaciones (solicitudes, saldos, calculo LFT)",
-      "Mejoras en horarios: asignar semana completa, multi-seleccion, copiar semana",
-      "App movil: pantalla de vacaciones con solicitud de fechas",
-      "Fecha de ingreso por empleado para calculo automatico",
+      "Correccion: entrada/salida se registraba al reves en ciertos casos",
+      "Boton de registro espera a cargar historial del dia antes de habilitarse",
+      "Error visible con reintento si el servidor no responde al abrir la app",
+      "Fix de consultas SQL con doble conversion de zona horaria",
     ],
-    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.6/D-CLOCK.Setup.1.3.6.exe",
-    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.6/D-CLOCK.1.3.6.exe",
-    apk: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.6/D-CLOCK-1.3.6.apk",
+    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.5.93/D-CLOCK-Setup-1.5.93.exe",
+    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.5.93/D-CLOCK-Portable-1.5.93.exe",
   },
   {
-    v: "1.3.5",
-    label: "Última versión",
-    date: "Jun 2026",
+    v: "1.5.91",
+    label: "v1.5.91 — Documentos RH",
+    date: "Sep 2026",
     latest: false,
     size: "~95 MB",
     changes: [
-      "Reporte de asistencia inteligente — detección automática de horario por hora de entrada",
-      "Semáforo a tiempo / retardo / falta / desviación de turno por empleado y día",
-      "Alerta cuando un empleado entra en un turno diferente a su horario asignado",
-      "Campo de minutos de falta configurable por horario",
-      "Mapa en vivo en dashboard con marcadores de check-ins GPS del día",
-      "Múltiples correcciones y mejoras de rendimiento",
+      "Modulo de Documentos RH: envia contratos, avisos y comunicados a empleados",
+      "Firma electronica simple con huella dactilar o Face ID desde la app movil",
+      "Panel de seguimiento: estado Pendiente / Visto / Firmado por destinatario",
+      "Certificado SHA-256 por firma para trazabilidad",
     ],
-    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.5/D-CLOCK.Setup.1.3.5.exe",
-    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.5/D-CLOCK.1.3.5.exe",
+    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.5.91/D-CLOCK-Setup-1.5.91.exe",
+    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.5.91/D-CLOCK-Portable-1.5.91.exe",
   },
   {
-    v: "1.3.4",
-    label: "Versión anterior",
-    date: "Jun 2026",
+    v: "1.5.90",
+    label: "v1.5.90 — Nomina",
+    date: "Sep 2026",
     latest: false,
     size: "~95 MB",
     changes: [
-      "Dashboard v2 — mapa de México interactivo con Leaflet y GPS real",
-      "Top geocercas por número de registros",
-      "Feed en vivo de check-ins actualizado por SSE",
-      "Gráfica de entradas por hora del día",
-      "Corrección de errores de carga del dashboard con Promise.allSettled",
+      "Descuento proporcional 1/6 por falta en dias de descanso",
+      "Correccion en calculo de percepciones y deducciones nominales",
+      "Mejoras de rendimiento en generacion de recibos",
+      "Correcciones menores de interfaz",
     ],
-    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.4/D-CLOCK.Setup.1.3.4.exe",
-    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.4/D-CLOCK.1.3.4.exe",
+    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.5.90/D-CLOCK-Setup-1.5.90.exe",
+    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.5.90/D-CLOCK-Portable-1.5.90.exe",
   },
   {
-    v: "1.3.3",
-    label: "Versión anterior",
-    date: "Jun 2026",
+    v: "1.5.89",
+    label: "v1.5.89 — Excel",
+    date: "Sep 2026",
     latest: false,
     size: "~95 MB",
     changes: [
-      "Módulo de Equipos — admin visualiza asistencia de su equipo en la app móvil",
-      "Descarga directa de APK Android desde el servidor",
-      "Diseñador de credencial Apple Wallet con fondos, colores y campos personalizados",
-      "Reconocimiento facial al registrar asistencia",
-      "Genera pases .pkpass para iPhone (Apple Wallet)",
-      "Múltiples correcciones y mejoras de rendimiento",
+      "Logos embebidos en Excel via MHTML con CID para mejor compatibilidad",
+      "Mejoras visuales en reportes exportados",
+      "Correcciones de formato en columnas de horas",
+      "Correcciones menores de estabilidad",
     ],
-    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.3/D-CLOCK.Setup.1.3.3.exe",
-    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.3/D-CLOCK.1.3.3.exe",
+    installer: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.5.89/D-CLOCK-Setup-1.5.89.exe",
+    portable: "https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.5.89/D-CLOCK-Portable-1.5.89.exe",
   },
 ];
 
@@ -257,12 +251,14 @@ export default function DownloadSection() {
             <p className="text-[10.5px] font-bold text-[#AEAEA4] uppercase tracking-wider mb-4">App móvil D-CLOCK</p>
             <div className="flex flex-wrap gap-3">
               <a
-                href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.6/D-CLOCK-1.3.6.apk"
+                href="https://play.google.com/store/apps/details?id=com.d99tech.dclock"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-[10px] bg-[#1a1a1a] text-white text-[13px] font-bold hover:opacity-85 transition-opacity"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.523 15.341c-.462 0-.836-.374-.836-.836s.374-.836.836-.836.836.374.836.836-.374.836-.836.836m-11.046 0c-.462 0-.836-.374-.836-.836s.374-.836.836-.836.836.374.836.836-.374.836-.836.836m11.405-6.268l1.67-2.893a.347.347 0 0 0-.127-.474.347.347 0 0 0-.474.127l-1.692 2.929A10.29 10.29 0 0 0 12 8.16c-1.52 0-2.96.33-4.259.902L6.049 6.133a.347.347 0 0 0-.474-.127.347.347 0 0 0-.127.474l1.67 2.893C4.562 10.812 3 13.218 3 16h18c0-2.782-1.562-5.188-4.118-6.927"/></svg>
-                Descargar APK Android
-                <span className="text-white/50 text-[11px]">.apk · v1.3.6</span>
+                Google Play (Android)
+                <span className="text-white/50 text-[11px]">v1.5.8</span>
               </a>
               <a
                 href="https://apps.apple.com/app/d-clock/id6769932290"
@@ -272,10 +268,11 @@ export default function DownloadSection() {
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
                 App Store (iPhone)
+                <span className="text-[#AEAEA4] text-[11px]">v1.5.8</span>
               </a>
             </div>
             <p className="text-[11.5px] text-[#AEAEA4] mt-3">
-              El APK de Android se instala directamente. En iPhone descarga desde la App Store oficial.
+              Disponible en Google Play para Android y en la App Store oficial para iPhone.
             </p>
           </div>
 

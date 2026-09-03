@@ -94,7 +94,7 @@ export default function Home() {
 
           <div style={{display:'inline-flex',alignItems:'center',gap:'8px',fontSize:'12px',fontWeight:700,color:'#15803d',background:'#dcfce7',border:'1px solid #bbf7d0',padding:'7px 14px',borderRadius:'99px',marginBottom:'24px'}}>
             <span className="pdot" style={{width:'7px',height:'7px',borderRadius:'50%',background:'#16a34a',display:'inline-block'}}/>
-            Disponible ahora · v1.3.6 · Julio 2026
+            Disponible ahora · v1.5.93 · Septiembre 2026
           </div>
 
           <h1 style={{fontSize:'clamp(2.5rem,6vw,4.3rem)',fontWeight:900,letterSpacing:'-.04em',lineHeight:1.02,margin:'0 0 20px',textWrap:'balance' as never}}>
@@ -123,11 +123,11 @@ export default function Home() {
                 <span style={{fontSize:'11px',fontWeight:600,color:'#374151',background:'#F3F4F6',padding:'4px 9px',borderRadius:'99px'}}>64-bit</span>
                 <span style={{fontSize:'11px',fontWeight:600,color:'#374151',background:'#F3F4F6',padding:'4px 9px',borderRadius:'99px'}}>~95 MB</span>
               </div>
-              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.6/D-CLOCK.Setup.1.3.6.exe" download className="dcl-dl-btn" style={{marginTop:'auto',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'8px',background:'#1a1a1a',color:'#fff',fontWeight:700,fontSize:'14.5px',padding:'13px',borderRadius:'13px',transition:'transform .15s,box-shadow .18s'}}>
+              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.5.93/D-CLOCK-Setup-1.5.93.exe" download className="dcl-dl-btn" style={{marginTop:'auto',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'8px',background:'#1a1a1a',color:'#fff',fontWeight:700,fontSize:'14.5px',padding:'13px',borderRadius:'13px',transition:'transform .15s,box-shadow .18s'}}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Descargar .exe
               </a>
-              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.6/D-CLOCK.1.3.6.exe" download className="dcl-sec-win" style={{textAlign:'center',fontSize:'12px',fontWeight:600,color:'#6a6a6a',marginTop:'11px',transition:'color .15s'}}>Descargar versión portable →</a>
+              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.5.93/D-CLOCK-Portable-1.5.93.exe" download className="dcl-sec-win" style={{textAlign:'center',fontSize:'12px',fontWeight:600,color:'#6a6a6a',marginTop:'11px',transition:'color .15s'}}>Descargar versión portable →</a>
             </div>
 
             {/* ANDROID */}
@@ -137,18 +137,18 @@ export default function Home() {
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="#16a34a"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85a.637.637 0 0 0-.83.22l-1.88 3.24a11.463 11.463 0 0 0-8.94 0L5.65 5.67a.643.643 0 0 0-.87-.2c-.28.18-.37.54-.22.83L6.4 9.48A10.78 10.78 0 0 0 1 18h22a10.78 10.78 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
               </div>
               <p style={{fontSize:'11px',fontWeight:800,color:'#15803d',letterSpacing:'.7px',textTransform:'uppercase',margin:'0 0 5px'}}>Móvil · Android</p>
-              <h3 style={{fontSize:'19px',fontWeight:800,letterSpacing:'-.3px',margin:'0 0 7px'}}>App Android (APK)</h3>
+              <h3 style={{fontSize:'19px',fontWeight:800,letterSpacing:'-.3px',margin:'0 0 7px'}}>App Android</h3>
               <p style={{fontSize:'13px',color:'#6a6a6a',lineHeight:1.5,margin:'0 0 16px'}}>Para que tus empleados fichen con selfie y GPS desde su celular.</p>
               <div style={{display:'flex',flexWrap:'wrap',gap:'6px',marginBottom:'20px'}}>
                 <span style={{fontSize:'11px',fontWeight:600,color:'#374151',background:'#F3F4F6',padding:'4px 9px',borderRadius:'99px'}}>Android 8+</span>
-                <span style={{fontSize:'11px',fontWeight:600,color:'#374151',background:'#F3F4F6',padding:'4px 9px',borderRadius:'99px'}}>v1.3.2</span>
-                <span style={{fontSize:'11px',fontWeight:600,color:'#374151',background:'#F3F4F6',padding:'4px 9px',borderRadius:'99px'}}>~95 MB</span>
+                <span style={{fontSize:'11px',fontWeight:600,color:'#374151',background:'#F3F4F6',padding:'4px 9px',borderRadius:'99px'}}>v1.5.8</span>
+                <span style={{fontSize:'11px',fontWeight:600,color:'#374151',background:'#F3F4F6',padding:'4px 9px',borderRadius:'99px'}}>Google Play</span>
               </div>
-              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.2/D-CLOCK-1.3.2.apk" download className="dcl-dl-btn" style={{marginTop:'auto',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'8px',background:'#1a1a1a',color:'#fff',fontWeight:700,fontSize:'14.5px',padding:'13px',borderRadius:'13px',transition:'transform .15s,box-shadow .18s'}}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Descargar APK
+              <a href="https://play.google.com/store/apps/details?id=com.d99tech.dclock" target="_blank" rel="noopener noreferrer" className="dcl-dl-btn" style={{marginTop:'auto',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'8px',background:'#1a1a1a',color:'#fff',fontWeight:700,fontSize:'14.5px',padding:'13px',borderRadius:'13px',transition:'transform .15s,box-shadow .18s'}}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85a.637.637 0 0 0-.83.22l-1.88 3.24a11.463 11.463 0 0 0-8.94 0L5.65 5.67a.643.643 0 0 0-.87-.2c-.28.18-.37.54-.22.83L6.4 9.48A10.78 10.78 0 0 0 1 18h22a10.78 10.78 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
+                Google Play
               </a>
-              <a href="#instalar" className="dcl-sec-android" style={{textAlign:'center',fontSize:'12px',fontWeight:600,color:'#6a6a6a',marginTop:'11px',transition:'color .15s'}}>¿Cómo se instala el APK? →</a>
+              <a href="https://apps.apple.com/app/d-clock/id6769932290" target="_blank" rel="noopener noreferrer" className="dcl-sec-android" style={{textAlign:'center',fontSize:'12px',fontWeight:600,color:'#6a6a6a',marginTop:'11px',transition:'color .15s'}}>Tambien disponible en App Store →</a>
             </div>
 
             {/* APPLE */}
@@ -402,15 +402,15 @@ export default function Home() {
               <div style={{display:'flex',gap:'13px',alignItems:'flex-start'}}><div style={{width:'34px',height:'34px',borderRadius:'10px',background:'#EFF6FF',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><circle cx="8" cy="12" r="2.5"/><path d="M13 10h5M13 14h3"/></svg></div><div><p style={{fontSize:'14px',fontWeight:800,margin:'0 0 2px'}}>Credencial Apple Wallet</p><p style={{fontSize:'12.5px',color:'#6a6a6a',lineHeight:1.5,margin:0}}>Genera pases .pkpass personalizados para iPhone.</p></div></div>
             </div>
             <div style={{display:'flex',flexWrap:'wrap',gap:'10px'}}>
-              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.2/D-CLOCK-1.3.2.apk" download className="dcl-mob-android" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'rgba(255,255,255,.75)',border:'1px solid rgba(0,0,0,.1)',borderRadius:'12px',padding:'10px 15px',fontSize:'13px',fontWeight:700,transition:'all .18s'}}>
+              <a href="https://play.google.com/store/apps/details?id=com.d99tech.dclock" target="_blank" rel="noopener noreferrer" className="dcl-mob-android" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'rgba(255,255,255,.75)',border:'1px solid rgba(0,0,0,.1)',borderRadius:'12px',padding:'10px 15px',fontSize:'13px',fontWeight:700,transition:'all .18s'}}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="#16a34a"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85a.637.637 0 0 0-.83.22l-1.88 3.24a11.463 11.463 0 0 0-8.94 0L5.65 5.67a.643.643 0 0 0-.87-.2c-.28.18-.37.54-.22.83L6.4 9.48A10.78 10.78 0 0 0 1 18h22a10.78 10.78 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
-                APK Android
+                Google Play
               </a>
               <a href="https://apps.apple.com/app/d-clock/id6769932290" target="_blank" rel="noopener noreferrer" className="dcl-mob-apple" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'rgba(255,255,255,.75)',border:'1px solid rgba(0,0,0,.1)',borderRadius:'12px',padding:'10px 15px',fontSize:'13px',fontWeight:700,transition:'all .18s'}}>
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="#1a1a1a"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
                 App Store
               </a>
-              <span style={{display:'inline-flex',alignItems:'center',gap:'7px',fontSize:'11.5px',fontWeight:600,color:'#15803d',background:'#dcfce7',border:'1px solid #bbf7d0',padding:'9px 13px',borderRadius:'99px'}}><span style={{width:'6px',height:'6px',borderRadius:'50%',background:'#15803d',display:'inline-block'}}/>v1.3.2 disponible</span>
+              <span style={{display:'inline-flex',alignItems:'center',gap:'7px',fontSize:'11.5px',fontWeight:600,color:'#15803d',background:'#dcfce7',border:'1px solid #bbf7d0',padding:'9px 13px',borderRadius:'99px'}}><span style={{width:'6px',height:'6px',borderRadius:'50%',background:'#15803d',display:'inline-block'}}/>v1.5.8 disponible</span>
             </div>
           </div>
 
@@ -584,13 +584,13 @@ export default function Home() {
             <h2 style={{fontSize:'clamp(1.8rem,3.6vw,2.5rem)',fontWeight:900,letterSpacing:'-.03em',color:'#fff',margin:'0 0 14px',lineHeight:1.1}}>Empieza a checar hoy mismo.</h2>
             <p style={{fontSize:'15px',color:'rgba(255,255,255,.7)',margin:'0 auto 28px',maxWidth:'480px',lineHeight:1.6}}>Descarga D-CLOCK para tu plataforma. Instalación en menos de 5 minutos.</p>
             <div style={{display:'flex',flexWrap:'wrap',gap:'12px',justifyContent:'center'}}>
-              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.6/D-CLOCK.Setup.1.3.6.exe" download className="dcl-cta-btn" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'#fff',color:'#1a1a1a',fontWeight:700,fontSize:'14px',padding:'13px 22px',borderRadius:'13px',transition:'transform .15s'}}>
+              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.5.93/D-CLOCK-Setup-1.5.93.exe" download className="dcl-cta-btn" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'#fff',color:'#1a1a1a',fontWeight:700,fontSize:'14px',padding:'13px 22px',borderRadius:'13px',transition:'transform .15s'}}>
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="#2563EB"><path d="M3 5.1 10.3 4v7.3H3V5.1zm0 13.8 7.3 1v-7.2H3v6.2zM11.2 3.85 21 2.5v8.8h-9.8V3.85zm0 16.3L21 21.5v-8.7h-9.8v7.35z"/></svg>
                 Windows
               </a>
-              <a href="https://github.com/aalmaguerd99/D-CLOCK/releases/download/v1.3.2/D-CLOCK-1.3.2.apk" download className="dcl-cta-btn" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'rgba(255,255,255,.12)',color:'#fff',border:'1px solid rgba(255,255,255,.2)',fontWeight:700,fontSize:'14px',padding:'13px 22px',borderRadius:'13px',transition:'transform .15s'}}>
+              <a href="https://play.google.com/store/apps/details?id=com.d99tech.dclock" target="_blank" rel="noopener noreferrer" className="dcl-cta-btn" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'rgba(255,255,255,.12)',color:'#fff',border:'1px solid rgba(255,255,255,.2)',fontWeight:700,fontSize:'14px',padding:'13px 22px',borderRadius:'13px',transition:'transform .15s'}}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="#3DDC84"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85a.637.637 0 0 0-.83.22l-1.88 3.24a11.463 11.463 0 0 0-8.94 0L5.65 5.67a.643.643 0 0 0-.87-.2c-.28.18-.37.54-.22.83L6.4 9.48A10.78 10.78 0 0 0 1 18h22a10.78 10.78 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
-                Android APK
+                Google Play
               </a>
               <a href="https://apps.apple.com/app/d-clock/id6769932290" target="_blank" rel="noopener noreferrer" className="dcl-cta-btn" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'rgba(255,255,255,.12)',color:'#fff',border:'1px solid rgba(255,255,255,.2)',fontWeight:700,fontSize:'14px',padding:'13px 22px',borderRadius:'13px',transition:'transform .15s'}}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>

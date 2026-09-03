@@ -2,7 +2,7 @@
   "expo": {
     "name": "D-CLOCK",
     "slug": "dclock-mobile",
-    "version": "1.5.3",
+    "version": "1.5.8",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "dclock",
