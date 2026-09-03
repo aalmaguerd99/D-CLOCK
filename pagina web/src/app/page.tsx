@@ -134,11 +134,11 @@ export default function Home() {
             <div className="dcl-card dcl-card-android" style={{position:'relative',background:'rgba(255,255,255,.78)',backdropFilter:'blur(28px) saturate(160%)',WebkitBackdropFilter:'blur(28px) saturate(160%)',border:'1px solid rgba(0,0,0,.07)',borderRadius:'22px',padding:'26px 22px 24px',boxShadow:'0 1px 0 rgba(255,255,255,.9) inset,0 10px 44px rgba(0,0,0,.06)',display:'flex',flexDirection:'column'}}>
               {recAndroid && <span style={{position:'absolute',top:'14px',right:'14px',fontSize:'9.5px',fontWeight:800,color:'#15803d',background:'#dcfce7',padding:'4px 9px',borderRadius:'99px',letterSpacing:'.3px'}}>★ PARA TI</span>}
               <div style={{width:'54px',height:'54px',borderRadius:'15px',background:'#dcfce7',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:'16px'}}>
-                <svg width="28" height="28" viewBox="0 0 24 24">
-                  <polygon points="5,3 5,9.3 20,12" fill="#00C3FF"/>
-                  <polygon points="5,9.3 5,12 20,12" fill="#FFCE00"/>
-                  <polygon points="5,12 5,13.98 20,12" fill="#FF3A44"/>
-                  <polygon points="5,13.98 5,21 20,12" fill="#00D678"/>
+                <svg width="28" height="28" viewBox="0 0 28.99 31.99">
+                  <path d="M13.54 15.28.12 29.34a3.66 3.66 0 0 0 5.33 2.16l15.1-8.6Z" fill="#ea4335"/>
+                  <path d="m27.11 12.89-6.53-3.74-7.35 6.45 7.38 7.28 6.48-3.7a3.54 3.54 0 0 0 1.5-4.79 3.62 3.62 0 0 0-1.5-1.5z" fill="#fbbc04"/>
+                  <path d="M.12 2.66a3.57 3.57 0 0 0-.12.92v24.84a3.57 3.57 0 0 0 .12.92L14 15.64Z" fill="#4285f4"/>
+                  <path d="m13.64 16 6.94-6.85L5.5.51A3.73 3.73 0 0 0 3.63 0 3.64 3.64 0 0 0 .12 2.65Z" fill="#34a853"/>
                 </svg>
               </div>
               <p style={{fontSize:'11px',fontWeight:800,color:'#15803d',letterSpacing:'.7px',textTransform:'uppercase',margin:'0 0 5px'}}>Móvil · Android</p>
@@ -150,11 +150,11 @@ export default function Home() {
                 <span style={{fontSize:'11px',fontWeight:600,color:'#374151',background:'#F3F4F6',padding:'4px 9px',borderRadius:'99px'}}>Google Play</span>
               </div>
               <a href="https://play.google.com/store/apps/details?id=com.d99tech.dclock" target="_blank" rel="noopener noreferrer" className="dcl-dl-btn" style={{marginTop:'auto',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'8px',background:'#1a1a1a',color:'#fff',fontWeight:700,fontSize:'14.5px',padding:'13px',borderRadius:'13px',transition:'transform .15s,box-shadow .18s'}}>
-                <svg width="16" height="16" viewBox="0 0 24 24">
-                  <polygon points="5,3 5,9.3 20,12" fill="#00C3FF"/>
-                  <polygon points="5,9.3 5,12 20,12" fill="#FFCE00"/>
-                  <polygon points="5,12 5,13.98 20,12" fill="#FF3A44"/>
-                  <polygon points="5,13.98 5,21 20,12" fill="#00D678"/>
+                <svg width="16" height="16" viewBox="0 0 28.99 31.99">
+                  <path d="M13.54 15.28.12 29.34a3.66 3.66 0 0 0 5.33 2.16l15.1-8.6Z" fill="#ea4335"/>
+                  <path d="m27.11 12.89-6.53-3.74-7.35 6.45 7.38 7.28 6.48-3.7a3.54 3.54 0 0 0 1.5-4.79 3.62 3.62 0 0 0-1.5-1.5z" fill="#fbbc04"/>
+                  <path d="M.12 2.66a3.57 3.57 0 0 0-.12.92v24.84a3.57 3.57 0 0 0 .12.92L14 15.64Z" fill="#4285f4"/>
+                  <path d="m13.64 16 6.94-6.85L5.5.51A3.73 3.73 0 0 0 3.63 0 3.64 3.64 0 0 0 .12 2.65Z" fill="#34a853"/>
                 </svg>
                 Google Play
               </a>
@@ -413,11 +413,11 @@ export default function Home() {
             </div>
             <div style={{display:'flex',flexWrap:'wrap',gap:'10px'}}>
               <a href="https://play.google.com/store/apps/details?id=com.d99tech.dclock" target="_blank" rel="noopener noreferrer" className="dcl-mob-android" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'rgba(255,255,255,.75)',border:'1px solid rgba(0,0,0,.1)',borderRadius:'12px',padding:'10px 15px',fontSize:'13px',fontWeight:700,transition:'all .18s'}}>
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                  <polygon points="5,3 5,9.3 20,12" fill="#00C3FF"/>
-                  <polygon points="5,9.3 5,12 20,12" fill="#FFCE00"/>
-                  <polygon points="5,12 5,13.98 20,12" fill="#FF3A44"/>
-                  <polygon points="5,13.98 5,21 20,12" fill="#00D678"/>
+                <svg width="18" height="18" viewBox="0 0 28.99 31.99">
+                  <path d="M13.54 15.28.12 29.34a3.66 3.66 0 0 0 5.33 2.16l15.1-8.6Z" fill="#ea4335"/>
+                  <path d="m27.11 12.89-6.53-3.74-7.35 6.45 7.38 7.28 6.48-3.7a3.54 3.54 0 0 0 1.5-4.79 3.62 3.62 0 0 0-1.5-1.5z" fill="#fbbc04"/>
+                  <path d="M.12 2.66a3.57 3.57 0 0 0-.12.92v24.84a3.57 3.57 0 0 0 .12.92L14 15.64Z" fill="#4285f4"/>
+                  <path d="m13.64 16 6.94-6.85L5.5.51A3.73 3.73 0 0 0 3.63 0 3.64 3.64 0 0 0 .12 2.65Z" fill="#34a853"/>
                 </svg>
                 Google Play
               </a>
@@ -604,11 +604,11 @@ export default function Home() {
                 Windows
               </a>
               <a href="https://play.google.com/store/apps/details?id=com.d99tech.dclock" target="_blank" rel="noopener noreferrer" className="dcl-cta-btn" style={{display:'inline-flex',alignItems:'center',gap:'9px',background:'rgba(255,255,255,.12)',color:'#fff',border:'1px solid rgba(255,255,255,.2)',fontWeight:700,fontSize:'14px',padding:'13px 22px',borderRadius:'13px',transition:'transform .15s'}}>
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                  <polygon points="5,3 5,9.3 20,12" fill="#00C3FF"/>
-                  <polygon points="5,9.3 5,12 20,12" fill="#FFCE00"/>
-                  <polygon points="5,12 5,13.98 20,12" fill="#FF3A44"/>
-                  <polygon points="5,13.98 5,21 20,12" fill="#00D678"/>
+                <svg width="18" height="18" viewBox="0 0 28.99 31.99">
+                  <path d="M13.54 15.28.12 29.34a3.66 3.66 0 0 0 5.33 2.16l15.1-8.6Z" fill="#ea4335"/>
+                  <path d="m27.11 12.89-6.53-3.74-7.35 6.45 7.38 7.28 6.48-3.7a3.54 3.54 0 0 0 1.5-4.79 3.62 3.62 0 0 0-1.5-1.5z" fill="#fbbc04"/>
+                  <path d="M.12 2.66a3.57 3.57 0 0 0-.12.92v24.84a3.57 3.57 0 0 0 .12.92L14 15.64Z" fill="#4285f4"/>
+                  <path d="m13.64 16 6.94-6.85L5.5.51A3.73 3.73 0 0 0 3.63 0 3.64 3.64 0 0 0 .12 2.65Z" fill="#34a853"/>
                 </svg>
                 Google Play
               </a>
