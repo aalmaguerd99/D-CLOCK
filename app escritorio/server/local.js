@@ -416,7 +416,7 @@ app.post("/api/mobile/auth", (req, res) => {
   if (!emp) return res.status(401).json({ error: "Número de empleado o PIN incorrecto" });
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
   const last  = DB.getDb().prepare(
-    "SELECT type, timestamp FROM check_ins WHERE employee_id=? AND date(timestamp,'localtime')=? ORDER BY timestamp DESC LIMIT 1"
+    "SELECT type, timestamp FROM check_ins WHERE employee_id=? AND date(timestamp)=? ORDER BY timestamp DESC LIMIT 1"
   ).get(emp.id, today);
   const isTeamAdmin = !!(DB.getDb().prepare("SELECT 1 FROM teams WHERE admin_id=?").get(emp.id));
   const { face_descriptor, ...empData } = emp;
@@ -433,7 +433,7 @@ app.get("/api/mobile/checkins/today", (req, res) => {
            g.name AS geofence_name
     FROM check_ins ci
     LEFT JOIN geofences g ON g.id = ci.geofence_id
-    WHERE ci.employee_id = ? AND date(ci.timestamp,'localtime') = ?
+    WHERE ci.employee_id = ? AND date(ci.timestamp) = ?
     ORDER BY ci.timestamp ASC
   `).all(employee_id, targetDate);
   res.json(rows.map(r => ({ ...r, type: r.type === "entrada" ? "in" : "out" })));
@@ -583,7 +583,7 @@ app.get("/api/mobile/admin/checkins", (req, res) => {
     LEFT JOIN departments d ON e.department_id = d.id
     LEFT JOIN job_titles  j ON e.job_title_id  = j.id
     LEFT JOIN geofences   g ON ci.geofence_id  = g.id
-    WHERE date(ci.timestamp, 'localtime') = ?
+    WHERE date(ci.timestamp) = ?
     ORDER BY ci.timestamp DESC
   `).all(day);
   res.json(rows.map(r => ({ ...r, type: r.type === "entrada" ? "in" : "out" })));
@@ -1989,10 +1989,10 @@ function teamTodayStats(db2, teamId) {
       SELECT ci.employee_id, ci.type
       FROM check_ins ci
       JOIN team_members tm ON tm.employee_id = ci.employee_id
-      WHERE tm.team_id = ? AND date(ci.timestamp,'localtime') = ?
+      WHERE tm.team_id = ? AND date(ci.timestamp) = ?
       GROUP BY ci.employee_id
       HAVING ci.type = (SELECT type FROM check_ins WHERE employee_id = ci.employee_id
-                        AND date(timestamp,'localtime') = ? ORDER BY timestamp DESC LIMIT 1)
+                        AND date(timestamp) = ? ORDER BY timestamp DESC LIMIT 1)
       AND ci.type = 'entrada'
     )
   `).get(teamId, today, today);
@@ -2040,10 +2040,10 @@ app.get("/api/teams/:id", auth, (req, res) => {
     SELECT e.id, e.employee_number, e.name, e.last_name, e.photo,
            d.name AS department, a.name AS area, j.name AS job_title,
            (SELECT type FROM check_ins
-            WHERE employee_id = e.id AND date(timestamp,'localtime') = ?
+            WHERE employee_id = e.id AND date(timestamp) = ?
             ORDER BY timestamp DESC LIMIT 1) AS last_type,
            (SELECT timestamp FROM check_ins
-            WHERE employee_id = e.id AND date(timestamp,'localtime') = ?
+            WHERE employee_id = e.id AND date(timestamp) = ?
             ORDER BY timestamp DESC LIMIT 1) AS last_time
     FROM team_members tm
     JOIN employees e ON e.id = tm.employee_id
@@ -2107,10 +2107,10 @@ app.get("/api/mobile/my-team", (req, res) => {
     SELECT e.id, e.employee_number, e.name, e.last_name, e.photo,
            j.name AS job_title,
            (SELECT type FROM check_ins
-            WHERE employee_id = e.id AND date(timestamp,'localtime') = ?
+            WHERE employee_id = e.id AND date(timestamp) = ?
             ORDER BY timestamp DESC LIMIT 1) AS last_type,
            (SELECT timestamp FROM check_ins
-            WHERE employee_id = e.id AND date(timestamp,'localtime') = ?
+            WHERE employee_id = e.id AND date(timestamp) = ?
             ORDER BY timestamp DESC LIMIT 1) AS last_time
     FROM team_members tm
     JOIN employees e ON e.id = tm.employee_id
@@ -2139,10 +2139,10 @@ app.get("/api/mobile/my-team/history", (req, res) => {
     SELECT e.id, e.employee_number, e.name, e.last_name, e.photo,
            j.name AS job_title,
            (SELECT type FROM check_ins
-            WHERE employee_id = e.id AND date(timestamp,'localtime') = ?
+            WHERE employee_id = e.id AND date(timestamp) = ?
             ORDER BY timestamp DESC LIMIT 1) AS last_type,
            (SELECT timestamp FROM check_ins
-            WHERE employee_id = e.id AND date(timestamp,'localtime') = ?
+            WHERE employee_id = e.id AND date(timestamp) = ?
             ORDER BY timestamp DESC LIMIT 1) AS last_time
     FROM team_members tm
     JOIN employees e ON e.id = tm.employee_id
@@ -2339,14 +2339,14 @@ app.get('/ext/v1/attendance', extAuth, (req, res) => {
   const db = DB.getDb();
   const checkins = db.prepare(`
     SELECT ci.employee_id, ci.type, ci.timestamp, ci.latitude, ci.longitude,
-           date(ci.timestamp,'localtime') AS date,
+           date(ci.timestamp) AS date,
            e.employee_number, e.name, e.last_name,
            d.name AS department, j.name AS job_title
     FROM check_ins ci
     JOIN employees e ON ci.employee_id = e.id
     LEFT JOIN departments d ON e.department_id = d.id
     LEFT JOIN job_titles  j ON e.job_title_id  = j.id
-    WHERE date(ci.timestamp,'localtime') BETWEEN ? AND ?
+    WHERE date(ci.timestamp) BETWEEN ? AND ?
     ORDER BY ci.timestamp
   `).all(from, to);
 

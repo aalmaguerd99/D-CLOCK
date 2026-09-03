@@ -14,6 +14,7 @@ export default function CheckinScreen() {
   const [checkins, setCheckins] = useState<Checkin[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [now, setNow] = useState(new Date());
   const [companyName, setCompanyName] = useState("D-CLOCK");
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
@@ -28,12 +29,12 @@ export default function CheckinScreen() {
 
   async function loadData() {
     setRefreshing(true);
+    setFetchError(false);
     try {
       const [s, cached] = await Promise.all([getSession(), getCompanyInfo()]);
       setSession(s);
       setCompanyName(cached.company_name);
       setCompanyLogo(cached.logo);
-      // Refresh company info from server in background
       fetchInfo().then(fresh => {
         setCompanyName(fresh.company_name);
         setCompanyLogo(fresh.logo);
@@ -43,7 +44,9 @@ export default function CheckinScreen() {
         const rows = await fetchTodayCheckins(s.id);
         setCheckins(rows);
       }
-    } catch {}
+    } catch {
+      setFetchError(true);
+    }
     finally { setRefreshing(false); }
   }
 
@@ -183,21 +186,28 @@ export default function CheckinScreen() {
       </View>
 
       {/* Action button */}
-      <TouchableOpacity
-        style={[styles.actionBtn, loading && styles.actionBtnDisabled]}
-        onPress={handleCheckin}
-        activeOpacity={0.88}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#fff" size="large" />
-        ) : (
-          <>
-            <Text style={styles.actionLabel}>{isIn ? "REGISTRAR ENTRADA" : "REGISTRAR SALIDA"}</Text>
-            <Text style={styles.actionSub}>Toca para tomar foto y fichar</Text>
-          </>
-        )}
-      </TouchableOpacity>
+      {fetchError ? (
+        <TouchableOpacity style={[styles.actionBtn, styles.actionBtnDisabled]} onPress={loadData} activeOpacity={0.88}>
+          <Text style={styles.actionLabel}>Sin conexion al servidor</Text>
+          <Text style={styles.actionSub}>Toca para reintentar</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={[styles.actionBtn, (loading || refreshing) && styles.actionBtnDisabled]}
+          onPress={handleCheckin}
+          activeOpacity={0.88}
+          disabled={loading || refreshing}
+        >
+          {loading || refreshing ? (
+            <ActivityIndicator color="#fff" size="large" />
+          ) : (
+            <>
+              <Text style={styles.actionLabel}>{isIn ? "REGISTRAR ENTRADA" : "REGISTRAR SALIDA"}</Text>
+              <Text style={styles.actionSub}>Toca para tomar foto y fichar</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      )}
 
       {/* Today's log */}
       <View style={styles.logSection}>
