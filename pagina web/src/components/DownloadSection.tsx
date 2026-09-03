@@ -256,7 +256,12 @@ export default function DownloadSection() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-[10px] bg-[#1a1a1a] text-white text-[13px] font-bold hover:opacity-85 transition-opacity"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.523 15.341c-.462 0-.836-.374-.836-.836s.374-.836.836-.836.836.374.836.836-.374.836-.836.836m-11.046 0c-.462 0-.836-.374-.836-.836s.374-.836.836-.836.836.374.836.836-.374.836-.836.836m11.405-6.268l1.67-2.893a.347.347 0 0 0-.127-.474.347.347 0 0 0-.474.127l-1.692 2.929A10.29 10.29 0 0 0 12 8.16c-1.52 0-2.96.33-4.259.902L6.049 6.133a.347.347 0 0 0-.474-.127.347.347 0 0 0-.127.474l1.67 2.893C4.562 10.812 3 13.218 3 16h18c0-2.782-1.562-5.188-4.118-6.927"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24">
+                  <polygon points="5,3 5,9.3 20,12" fill="#00C3FF"/>
+                  <polygon points="5,9.3 5,12 20,12" fill="#FFCE00"/>
+                  <polygon points="5,12 5,13.98 20,12" fill="#FF3A44"/>
+                  <polygon points="5,13.98 5,21 20,12" fill="#00D678"/>
+                </svg>
                 Google Play (Android)
                 <span className="text-white/50 text-[11px]">v1.5.8</span>
               </a>
